@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "target": "es2021",
+    "module": "esnext",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "bundler",
+    "strict": true,
+    "strictNullChecks": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@app/*": ["./src/*"]
+    }
+  },
+  "include": ["./src"]
+}
