@@ -10,7 +10,8 @@
     "strictNullChecks": true,
     "skipLibCheck": true,
     "paths": {
-      "@app/*": ["./src/*"]
+      "@app/*": ["./src/*"],
+      "@generated/*": ["./generated/ibcrc/v1/*"]
     }
   },
   "include": ["./src"]
