@@ -4,6 +4,7 @@ import { logger } from 'hono/logger';
 import { prettyJSON } from 'hono/pretty-json';
 
 import { SOCKET_PATH } from '@app/constants';
+import { router } from '@app/router';
 
 // we need to make sure that the socket doesn't
 // already exist, otherwise we run into issues
@@ -24,7 +25,7 @@ middleware.use(prettyJSON());
 middleware.use(logger());
 
 app.route('/', middleware);
-app.get('/health', (c) => c.json({ message: 'OK', ok: true }, 200));
+app.route('/', router);
 
 const server = {
   fetch: app.fetch,
