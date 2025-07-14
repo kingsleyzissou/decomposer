@@ -10,6 +10,6 @@ export type AppContext = {
   Variables: {
     store: string;
     logger: typeof logger;
-    queue: Queue<string>;
+    queue: Queue<ComposeRequest>;
   };
 };

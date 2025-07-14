@@ -476,14 +476,6 @@
       "AWSUploadRequestOptions": {
         "type": "object",
         "properties": {
-          "share_with_accounts": {
-            "type": "array",
-            "example": ["123456789012"],
-            "items": {
-              "type": "string"
-            },
-            "uniqueItems": true
-          },
           "region": {
             "type": "string",
             "default": "us-east-1"
