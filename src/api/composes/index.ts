@@ -1,9 +1,13 @@
 import { Hono } from 'hono';
 
+import { onError } from '@app/errors';
+
 import { ComposeService } from './service';
-import { ComposeContext, ComposesResponse } from './types';
+import { ComposeContext, ComposeResponse, ComposesResponse } from './types';
+import * as validators from './validators';
 
 export const composes = new Hono<ComposeContext>()
+  .onError(onError)
 
   // Rather than initialising the service inside each
   // handler, we can just inject it through middleware.
@@ -11,8 +15,9 @@ export const composes = new Hono<ComposeContext>()
   // This does mean that we are instantiating the service on each
   // request, but the constructor is small
   .use(async (ctx, next) => {
+    const queue = ctx.get('queue');
     const store = ctx.get('store');
-    ctx.set('service', new ComposeService(store));
+    ctx.set('service', new ComposeService(queue, store));
     await next();
   })
 
@@ -31,4 +36,10 @@ export const composes = new Hono<ComposeContext>()
       },
       data: composes,
     });
+  })
+
+  .post('/compose', validators.createCompose, async (ctx) => {
+    const service = ctx.get('service');
+    const { id } = await service.add(ctx.req.valid('json'));
+    return ctx.json<ComposeResponse>({ id });
   });
