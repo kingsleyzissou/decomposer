@@ -78,11 +78,7 @@ export const UploadTypes = z.enum([
 ]);
 
 export const AWSUploadRequestOptions = z
-  .object({
-    share_with_accounts: z.array(z.string()),
-    region: z.string().default('us-east-1'),
-    bucket: z.string(),
-  })
+  .object({ region: z.string().default('us-east-1'), bucket: z.string() })
   .partial()
   .passthrough();
 
