@@ -1,10 +1,12 @@
 export class WorkerQueue<T> {
   current?: T | undefined;
   public queue: T[];
+  public store: string;
   public worker: Worker;
 
-  constructor(worker: Worker) {
+  constructor(worker: Worker, store: string) {
     this.queue = [];
+    this.store = store;
     this.worker = worker;
     this.worker.onmessage = (event) => {
       if (event.data && event.data.type === 'ready') {
@@ -36,6 +38,7 @@ export class WorkerQueue<T> {
     const request = this.dequeue();
     this.worker.postMessage({
       type: 'process',
+      store: this.store,
       request,
     });
   }

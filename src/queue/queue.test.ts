@@ -13,7 +13,7 @@ describe('Test the worker queue', () => {
     // tricky and not worth the hassle. The added benefit of this
     // is that it simulates the real usecase a lot better
     worker = new Worker(path.join(__dirname, '..', '__mocks__', 'worker.ts'));
-    queue = new Queue<string>(worker);
+    queue = new Queue<string>(worker, '');
     queueProcessorSpy = spyOn(queue, 'process');
   });
 

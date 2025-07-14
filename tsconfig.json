@@ -11,7 +11,8 @@
     "skipLibCheck": true,
     "paths": {
       "@app/*": ["./src/*"],
-      "@generated/*": ["./generated/ibcrc/v1/*"]
+      "@generated/*": ["./generated/ibcrc/v1/*"],
+      "@fixtures": ["./src/__fixtures__"]
     }
   },
   "include": ["./src"]
