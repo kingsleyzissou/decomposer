@@ -8,7 +8,9 @@ import { cliArgs } from '@app/cli';
 import { API_ENDPOINT, SOCKET_PATH } from '@app/constants';
 import { notFound, onError } from '@app/errors';
 import { logger } from '@app/logger';
-import { AppContext } from '@app/types';
+import { JobQueue } from '@app/queue';
+import { buildImage } from '@app/queue';
+import { AppContext, ComposeRequest } from '@app/types';
 import { prettyPrint, removeSocket } from '@app/utilities';
 
 // we need to make sure that the socket doesn't
@@ -20,11 +22,14 @@ const app = new Hono();
 app.notFound(notFound);
 app.onError(onError);
 
+const queue = new JobQueue<ComposeRequest>(buildImage(cliArgs.store));
+
 export const middleware = new Hono<AppContext>();
 middleware.use(prettyJSON());
 middleware.use(pinoLogger({ pino: logger }));
 middleware.use(async (ctx, next) => {
   ctx.set('store', cliArgs.store);
+  ctx.set('queue', queue);
   await next();
 });
 app.route('*', middleware);

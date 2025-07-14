@@ -47,6 +47,11 @@ const applyOverlay = async (document: OpenAPIV3.Document) => {
         },
         {
           // prettier-ignore
+          target: '$.components.schemas.AWSUploadRequestOptions.properties.share_with_accounts',
+          remove: true,
+        },
+        {
+          // prettier-ignore
           target: '$.components.schemas.AWSUploadRequestOptions.properties.share_with_sources',
           remove: true,
         },
