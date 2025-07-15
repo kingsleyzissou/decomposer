@@ -1,11 +1,10 @@
 import chalk from 'chalk';
 import { Hono } from 'hono';
-import { logger } from 'hono/logger';
-import { prettyJSON } from 'hono/pretty-json';
 
 import * as api from '@app/api';
 import { API_ENDPOINT, SOCKET_PATH } from '@app/constants';
-import { notFound } from '@app/middleware';
+import { notFound } from '@app/errors';
+import { middleware } from '@app/middleware';
 
 // we need to make sure that the socket doesn't
 // already exist, otherwise we run into issues
@@ -16,14 +15,6 @@ if (await Bun.file(SOCKET_PATH).exists()) {
 
 const app = new Hono();
 app.notFound(notFound);
-
-// these middlewares need to be registered
-// on the app-level (or main router), since
-// we need them to be available to the entire
-// application
-const middleware = new Hono();
-middleware.use(prettyJSON());
-middleware.use(logger());
 
 app.route(API_ENDPOINT, middleware);
 app.route(API_ENDPOINT, api.meta);

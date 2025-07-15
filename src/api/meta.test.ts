@@ -1,13 +1,19 @@
 import { describe, expect, it } from 'bun:test';
+import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
 import { StatusCodes } from 'http-status-codes';
 
 import { SCHEMA_PATH } from '@app/constants';
+import { openapiSchema } from '@app/middleware';
 
 import { meta } from './meta';
 
+const setup = () => {
+  return testClient(new Hono().use(openapiSchema).route('/', meta));
+};
+
 describe('Meta handler tests', () => {
-  const client = testClient(meta);
+  const client = setup();
   it('/ready should return 200 Response', async () => {
     const res = await client.ready.$get();
     expect(res.status).toBe(StatusCodes.OK);
