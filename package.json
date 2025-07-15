@@ -21,6 +21,7 @@
   "dependencies": {
     "chalk": "5.4.1",
     "hono": "4.8.4",
+    "http-status-codes": "2.3.0",
     "zod": "4.0.2"
   },
   "devDependencies": {
