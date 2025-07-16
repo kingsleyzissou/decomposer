@@ -8,17 +8,25 @@ import { notFound, onError } from '@app/errors';
 import { logger } from '@app/logger';
 import type { AppContext } from '@app/types';
 
-const middleware = new Hono<AppContext>();
-middleware.use(prettyJSON());
-middleware.use(pinoLogger({ pino: logger }));
-middleware.use(async (ctx, next) => {
-  ctx.set('logger', logger);
-  await next();
-});
+export const createApp = (socket: string) => {
+  const middleware = new Hono<AppContext>();
+  middleware.use(prettyJSON());
+  middleware.use(pinoLogger({ pino: logger }));
+  middleware.use(async (ctx, next) => {
+    ctx.set('logger', logger);
+    await next();
+  });
 
-// chaining the functions helps preserve RPC type inference
-export const app = new Hono<AppContext>()
-  .notFound(notFound)
-  .onError(onError)
-  .route('*', middleware)
-  .route(API_ENDPOINT, api.meta);
+  // chaining the functions helps preserve RPC type inference
+  const app = new Hono<AppContext>()
+    .notFound(notFound)
+    .onError(onError)
+    .route('*', middleware)
+    .route(API_ENDPOINT, api.meta);
+
+  return {
+    app,
+    fetch: app.fetch,
+    unix: socket,
+  };
+};
