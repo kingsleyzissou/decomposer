@@ -8,7 +8,7 @@ import { meta } from './meta';
 
 describe('Meta handler tests', () => {
   const client = testClient(meta);
-  it('/ready should return 200 Response', async () => {
+  it('GET /ready should return 200 Response', async () => {
     const res = await client.ready.$get();
     expect(res.status).toBe(StatusCodes.OK);
     expect(await res.json()).toEqual({
@@ -16,7 +16,7 @@ describe('Meta handler tests', () => {
     });
   });
 
-  it('/openapi.json should return 200 Response', async () => {
+  it('GET /openapi.json should return 200 Response', async () => {
     const schema = await Bun.file(SCHEMA_PATH).json();
     const res = await client['openapi.json'].$get();
     expect(res.status).toBe(StatusCodes.OK);
