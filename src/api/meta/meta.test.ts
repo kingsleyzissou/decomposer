@@ -1,12 +1,13 @@
 import { $ } from 'bun';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
+import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
 import { StatusCodes } from 'http-status-codes';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'path';
 
-import { app } from '@app/app';
+import { API_ENDPOINT } from '@app/constants';
 import { schema } from '@gen/decomposer';
 
 import { meta } from '.';
@@ -17,6 +18,7 @@ const HTTP_DIR = path.join('generated', 'examples', 'http', 'meta');
 describe('Meta handler tests', async () => {
   const tmp = await mkdtemp(path.join(tmpdir(), 'decomposer-test'));
   const client = testClient(meta);
+  const app = new Hono().route(API_ENDPOINT, meta);
   const socket = path.join(tmp, 'test.sock');
 
   beforeAll(() => {
