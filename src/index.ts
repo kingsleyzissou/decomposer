@@ -1,6 +1,6 @@
 import { chmod } from 'node:fs/promises';
 
-import { app } from '@app/app';
+import { createApp } from '@app/app';
 import { args } from '@app/args';
 import { API_ENDPOINT } from '@app/constants';
 import { logger } from '@app/logger';
@@ -11,12 +11,8 @@ import { prettyPrint, removeSocket } from '@app/utilities';
 // where the server can't run
 await removeSocket(args.socket);
 
-const server = {
-  fetch: app.fetch,
-  unix: args.socket,
-};
-
-Bun.serve(server);
+const app = createApp(args);
+Bun.serve(app);
 
 // we need to change this so that we can
 // ping the socket as a non-privileged user
