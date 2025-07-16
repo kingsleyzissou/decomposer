@@ -55,10 +55,138 @@
           }
         }
       }
+    },
+    "/composes": {
+      "get": {
+        "summary": "get a collection of previous compose requests for the logged in user",
+        "operationId": "getComposes",
+        "tags": ["compose"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "minimum": 1,
+              "maximum": 100
+            },
+            "description": "max amount of composes, default 100"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            },
+            "description": "composes page offset, default 0"
+          },
+          {
+            "in": "query",
+            "name": "ignoreImageTypes",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ImageTypes",
+                "example": ["rhel-edge-installer", "rhel-edge-commit", "..."]
+              }
+            },
+            "description": "Filter the composes on image type. The filter is optional and can be specified multiple times.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "a list of composes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComposesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/compose": {
+      "post": {
+        "summary": "compose image",
+        "description": "compose image",
+        "operationId": "composeImage",
+        "tags": ["compose"],
+        "requestBody": {
+          "required": true,
+          "description": "details of image to be composed",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ComposeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "compose has started",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComposeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "the compose request is malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorList"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "user is not allowed to build this distribution",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorList"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "HTTPError": {
+        "required": ["title", "detail"],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      },
+      "HTTPErrorList": {
+        "required": ["errors"],
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HTTPError"
+            }
+          }
+        }
+      },
       "Readiness": {
         "type": "object",
         "required": ["readiness"],
@@ -67,6 +195,1313 @@
             "type": "string"
           }
         }
+      },
+      "ListResponseMeta": {
+        "type": "object",
+        "required": ["count"],
+        "properties": {
+          "count": {
+            "type": "integer"
+          }
+        }
+      },
+      "ListResponseLinks": {
+        "type": "object",
+        "required": ["first", "last"],
+        "properties": {
+          "first": {
+            "type": "string"
+          },
+          "last": {
+            "type": "string"
+          }
+        }
+      },
+      "ComposeRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["distribution", "image_requests"],
+        "properties": {
+          "distribution": {
+            "$ref": "#/components/schemas/Distributions"
+          },
+          "image_name": {
+            "type": "string",
+            "example": "MyImageName",
+            "maxLength": 100
+          },
+          "image_description": {
+            "type": "string",
+            "example": "MyImageDescription",
+            "maxLength": 250
+          },
+          "client_id": {
+            "$ref": "#/components/schemas/ClientId"
+          },
+          "image_requests": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/ImageRequest"
+            },
+            "uniqueItems": true,
+            "description": "Array of exactly one image request. Having more image requests in one compose is currently not supported.\n"
+          },
+          "customizations": {
+            "$ref": "#/components/schemas/Customizations"
+          }
+        }
+      },
+      "Distributions": {
+        "type": "string",
+        "description": "List of all distributions that image builder supports. A user might not have access to\nrestricted distributions.\n\nRestricted distributions include the RHEL nightlies and the Fedora distributions.\n",
+        "enum": [
+          "rhel-8",
+          "rhel-8-nightly",
+          "rhel-84",
+          "rhel-85",
+          "rhel-86",
+          "rhel-87",
+          "rhel-88",
+          "rhel-89",
+          "rhel-8.10",
+          "rhel-9",
+          "rhel-9-nightly",
+          "rhel-9.6-nightly",
+          "rhel-9.7-nightly",
+          "rhel-9-beta",
+          "rhel-90",
+          "rhel-91",
+          "rhel-92",
+          "rhel-93",
+          "rhel-94",
+          "rhel-95",
+          "rhel-9.6",
+          "rhel-10",
+          "rhel-10-nightly",
+          "rhel-10.0-nightly",
+          "rhel-10.1-nightly",
+          "rhel-10-beta",
+          "rhel-10.0",
+          "centos-9",
+          "centos-10",
+          "fedora-37",
+          "fedora-38",
+          "fedora-39",
+          "fedora-40",
+          "fedora-41",
+          "fedora-42"
+        ]
+      },
+      "ImageRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["architecture", "image_type", "upload_request"],
+        "properties": {
+          "architecture": {
+            "type": "string",
+            "enum": ["x86_64", "aarch64"],
+            "description": "CPU architecture of the image, x86_64 and aarch64 are currently supported.\n"
+          },
+          "image_type": {
+            "$ref": "#/components/schemas/ImageTypes"
+          },
+          "upload_request": {
+            "$ref": "#/components/schemas/UploadRequest"
+          },
+          "ostree": {
+            "$ref": "#/components/schemas/OSTree"
+          },
+          "size": {
+            "x-go-type": "uint64",
+            "example": 4294967296,
+            "description": "Size of image, in bytes. When set to 0 the image size is a minimum\ndefined by the image type.\n"
+          },
+          "snapshot_date": {
+            "type": "string",
+            "description": "Snapshotted content will be used instead of the official repositories of the\ndistribution. The snapshot that was made closest to, but before the specified date will\nbe used. If no snapshots made before the specified date can be found, the snapshot\nclosest to, but after the specified date will be used. If no snapshots can be found at\nall, the request will fail. The format must be YYYY-MM-DD (ISO 8601 extended).\n"
+          },
+          "content_template": {
+            "type": "string",
+            "description": "ID of the content template. A content template and snapshot date cannot both be specified.\nIf a content template is specified, the snapshot date used will be the one from the content template.\n"
+          },
+          "content_template_name": {
+            "type": "string",
+            "description": "Name of the content template. Used when registering the system to Insights.\n"
+          },
+          "aap_registration": {
+            "$ref": "#/components/schemas/AAPRegistration"
+          }
+        }
+      },
+      "ImageTypes": {
+        "type": "string",
+        "enum": [
+          "aws",
+          "azure",
+          "edge-commit",
+          "edge-installer",
+          "gcp",
+          "guest-image",
+          "image-installer",
+          "oci",
+          "vsphere",
+          "vsphere-ova",
+          "wsl",
+          "ami",
+          "rhel-edge-commit",
+          "rhel-edge-installer",
+          "vhd"
+        ]
+      },
+      "ComposesResponse": {
+        "required": ["meta", "links", "data"],
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ListResponseMeta"
+          },
+          "links": {
+            "$ref": "#/components/schemas/ListResponseLinks"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ComposesResponseItem"
+            }
+          }
+        }
+      },
+      "ComposesResponseItem": {
+        "required": ["id", "request", "created_at"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "request": {
+            "$ref": "#/components/schemas/ComposeRequest"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "image_name": {
+            "type": "string"
+          },
+          "client_id": {
+            "$ref": "#/components/schemas/ClientId"
+          },
+          "blueprint_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "blueprint_version": {
+            "type": "integer",
+            "nullable": true
+          }
+        }
+      },
+      "ClientId": {
+        "type": "string",
+        "enum": ["api", "ui", "mcp"],
+        "default": "api"
+      },
+      "ComposeResponse": {
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "UploadRequest": {
+        "type": "object",
+        "required": ["type", "options"],
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/UploadTypes"
+          },
+          "options": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AWSUploadRequestOptions"
+              },
+              {
+                "$ref": "#/components/schemas/AWSS3UploadRequestOptions"
+              },
+              {
+                "$ref": "#/components/schemas/GCPUploadRequestOptions"
+              },
+              {
+                "$ref": "#/components/schemas/AzureUploadRequestOptions"
+              },
+              {
+                "$ref": "#/components/schemas/OCIUploadRequestOptions"
+              }
+            ]
+          }
+        }
+      },
+      "UploadTypes": {
+        "type": "string",
+        "enum": ["aws", "gcp", "azure", "aws.s3", "oci.objectstorage", "local"]
+      },
+      "AWSUploadRequestOptions": {
+        "type": "object",
+        "properties": {
+          "share_with_accounts": {
+            "type": "array",
+            "example": ["123456789012"],
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "region": {
+            "type": "string",
+            "default": "us-east-1"
+          },
+          "bucket": {
+            "type": "string"
+          }
+        }
+      },
+      "AWSS3UploadRequestOptions": {
+        "type": "object"
+      },
+      "GCPUploadRequestOptions": {
+        "type": "object",
+        "properties": {
+          "share_with_accounts": {
+            "type": "array",
+            "example": [
+              "user:alice@example.com",
+              "serviceAccount:my-other-app@appspot.gserviceaccount.com",
+              "group:admins@example.com",
+              "domain:example.com"
+            ],
+            "description": "List of valid Google accounts to share the imported Compute Node image with.\nEach string must contain a specifier of the account type. Valid formats are:\n  - 'user:{emailid}': An email address that represents a specific\n    Google account. For example, 'alice@example.com'.\n  - 'serviceAccount:{emailid}': An email address that represents a\n    service account. For example, 'my-other-app@appspot.gserviceaccount.com'.\n  - 'group:{emailid}': An email address that represents a Google group.\n    For example, 'admins@example.com'.\n  - 'domain:{domain}': The G Suite domain (primary) that represents all\n    the users of that domain. For example, 'google.com' or 'example.com'.\n    If not specified, the imported Compute Node image is not shared with any\n    account.\n",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          }
+        }
+      },
+      "AzureUploadRequestOptions": {
+        "type": "object",
+        "required": ["resource_group"],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "example": "12345",
+            "description": "ID of the source that will be used to resolve the tenant and subscription IDs.\nDo not provide a tenant_id or subscription_id when providing a source_id.\n"
+          },
+          "tenant_id": {
+            "type": "string",
+            "example": "5c7ef5b6-1c3f-4da0-a622-0b060239d7d7",
+            "description": "ID of the tenant where the image should be uploaded. This link explains how\nto find it in the Azure Portal:\nhttps://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-how-to-find-tenant\nWhen providing a tenant_id, also be sure to provide a subscription_id and do not include a source_id.\n"
+          },
+          "subscription_id": {
+            "type": "string",
+            "example": "4e5d8b2c-ab24-4413-90c5-612306e809e2",
+            "description": "ID of subscription where the image should be uploaded.\nWhen providing a subscription_id, also be sure to provide a tenant_id and do not include a source_id.\n"
+          },
+          "resource_group": {
+            "type": "string",
+            "example": "ToucanResourceGroup",
+            "description": "Name of the resource group where the image should be uploaded.\n"
+          },
+          "image_name": {
+            "type": "string",
+            "example": "LinuxImage",
+            "pattern": "(^[a-zA-Z0-9]$)|(^[a-zA-Z0-9][a-zA-Z0-9_\\.-]*[a-zA-Z0-9_]$)",
+            "minLength": 1,
+            "maxLength": 60,
+            "description": "Name of the created image.\nMust begin with a letter or number, end with a letter, number or underscore, and may contain only letters, numbers, underscores, periods, or hyphens.\nThe total length is limited to 60 characters.\n"
+          },
+          "hyper_v_generation": {
+            "type": "string",
+            "enum": ["V1", "V2"],
+            "default": "V1",
+            "description": "Choose the VM Image HyperV generation, different features on Azure are available\ndepending on the HyperV generation.\n"
+          }
+        }
+      },
+      "OCIUploadRequestOptions": {
+        "type": "object"
+      },
+      "OSTree": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "contenturl": {
+            "type": "string",
+            "description": "A URL which, if set, is used for fetching content. Implies that `url` is set as well,\nwhich will be used for metadata only.\n"
+          },
+          "ref": {
+            "type": "string",
+            "example": "rhel/8/x86_64/edge"
+          },
+          "parent": {
+            "type": "string",
+            "description": "Can be either a commit (example: 02604b2da6e954bd34b8b82a835e5a77d2b60ffa), or a branch-like reference (example: rhel/8/x86_64/edge)\n",
+            "example": "rhel/8/x86_64/edge"
+          },
+          "rhsm": {
+            "type": "boolean",
+            "description": "Determines whether a valid subscription manager (candlepin) identity is required to\naccess this repository. Consumer certificates will be used as client certificates when\n fetching metadata and content.\n"
+          }
+        }
+      },
+      "AAPRegistration": {
+        "type": "object",
+        "x-go-name": "AAPRegistration",
+        "additionalProperties": false,
+        "required": ["ansible_callback_url", "host_config_key"],
+        "properties": {
+          "ansible_callback_url": {
+            "type": "string",
+            "example": "https://aap-gw.example.com/api/controller/v2/job_templates/9/callback/"
+          },
+          "host_config_key": {
+            "type": "string",
+            "example": "44d7507f2ead49af5fca80aa18fd24bc"
+          },
+          "tls_certificate_authority": {
+            "type": "string",
+            "x-go-type-skip-optional-pointer": true
+          },
+          "skip_tls_verification": {
+            "type": "boolean",
+            "description": "When true, indicates the user has confirmed that HTTPS callback URL does not require a CA certificate for verification"
+          }
+        }
+      },
+      "Customizations": {
+        "type": "object",
+        "properties": {
+          "containers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Container",
+              "description": "Container images to embed into the final artfact"
+            }
+          },
+          "directories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Directory",
+              "description": "Directories to create in the final artifact"
+            }
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/File",
+              "description": "Files to create in the final artifact"
+            }
+          },
+          "subscription": {
+            "$ref": "#/components/schemas/Subscription"
+          },
+          "packages": {
+            "type": "array",
+            "maxItems": 10000,
+            "example": ["postgresql"],
+            "items": {
+              "type": "string"
+            }
+          },
+          "enabled_modules": {
+            "type": "array",
+            "description": "List of dnf modules to enable, so that packages can be installed from them.\n",
+            "items": {
+              "$ref": "#/components/schemas/Module"
+            }
+          },
+          "payload_repositories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Repository"
+            }
+          },
+          "custom_repositories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomRepository"
+            },
+            "description": "List of custom repositories."
+          },
+          "openscap": {
+            "$ref": "#/components/schemas/OpenSCAP"
+          },
+          "filesystem": {
+            "type": "array",
+            "maxItems": 128,
+            "items": {
+              "$ref": "#/components/schemas/Filesystem"
+            }
+          },
+          "disk": {
+            "$ref": "#/components/schemas/Disk"
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            },
+            "description": "List of users that a customer can add,\nalso specifying their respective groups and SSH keys and/or password\n"
+          },
+          "services": {
+            "$ref": "#/components/schemas/Services"
+          },
+          "hostname": {
+            "type": "string",
+            "description": "Configures the hostname",
+            "example": "myhostname"
+          },
+          "kernel": {
+            "$ref": "#/components/schemas/Kernel"
+          },
+          "groups": {
+            "type": "array",
+            "description": "List of groups to create",
+            "items": {
+              "$ref": "#/components/schemas/Group"
+            }
+          },
+          "timezone": {
+            "$ref": "#/components/schemas/Timezone"
+          },
+          "locale": {
+            "$ref": "#/components/schemas/Locale"
+          },
+          "firewall": {
+            "$ref": "#/components/schemas/FirewallCustomization"
+          },
+          "installation_device": {
+            "type": "string",
+            "description": "Name of the installation device, currently only useful for the edge-simplified-installer type\n",
+            "example": "/dev/sda"
+          },
+          "fdo": {
+            "$ref": "#/components/schemas/FDO"
+          },
+          "ignition": {
+            "$ref": "#/components/schemas/Ignition"
+          },
+          "partitioning_mode": {
+            "type": "string",
+            "enum": ["raw", "lvm", "auto-lvm"],
+            "description": "Select how the disk image will be partitioned. 'auto-lvm' will use raw unless\nthere are one or more mountpoints in which case it will use LVM. 'lvm' always\nuses LVM, even when there are no extra mountpoints. 'raw' uses raw partitions\neven when there are one or more mountpoints.\n"
+          },
+          "fips": {
+            "$ref": "#/components/schemas/FIPS"
+          },
+          "installer": {
+            "$ref": "#/components/schemas/Installer"
+          },
+          "cacerts": {
+            "$ref": "#/components/schemas/CACertsCustomization"
+          }
+        }
+      },
+      "Container": {
+        "type": "object",
+        "required": ["source"],
+        "properties": {
+          "source": {
+            "type": "string",
+            "description": "Reference to the container to embed",
+            "example": "registry.example.com/image:tag"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name to use for the container from the image"
+          },
+          "tls_verify": {
+            "type": "boolean",
+            "description": "Control TLS verifification",
+            "example": true
+          }
+        }
+      },
+      "FirewallCustomization": {
+        "type": "object",
+        "description": "Firewalld configuration",
+        "additionalProperties": false,
+        "properties": {
+          "ports": {
+            "type": "array",
+            "description": "List of ports (or port ranges) and protocols to open",
+            "example": ["22:tcp", "80:tcp", "imap:tcp"],
+            "items": {
+              "type": "string"
+            }
+          },
+          "services": {
+            "type": "object",
+            "description": "Firewalld services to enable or disable",
+            "additionalProperties": false,
+            "properties": {
+              "enabled": {
+                "type": "array",
+                "description": "List of services to enable",
+                "example": ["ftp", "ntp"],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "disabled": {
+                "type": "array",
+                "description": "List of services to disable",
+                "example": ["telnet"],
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "Directory": {
+        "type": "object",
+        "description": "A custom directory to create in the final artifact.\n",
+        "required": ["path"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Path to the directory",
+            "example": "/etc/mydir"
+          },
+          "mode": {
+            "type": "string",
+            "description": "Permissions string for the directory in octal format",
+            "example": "0755"
+          },
+          "user": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer",
+                "x-go-type": "int64"
+              }
+            ],
+            "description": "Owner of the directory as a user name or a uid",
+            "example": "root"
+          },
+          "group": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer",
+                "x-go-type": "int64"
+              }
+            ],
+            "description": "Group of the directory as a group name or a gid",
+            "example": "root"
+          },
+          "ensure_parents": {
+            "type": "boolean",
+            "description": "Ensure that the parent directories exist",
+            "default": false
+          }
+        }
+      },
+      "File": {
+        "type": "object",
+        "description": "A custom file to create in the final artifact.\n",
+        "required": ["path"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "Path to the file",
+            "example": "/etc/myfile"
+          },
+          "mode": {
+            "type": "string",
+            "description": "Permissions string for the file in octal format",
+            "example": "0644"
+          },
+          "user": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer",
+                "x-go-type": "int64"
+              }
+            ],
+            "description": "Owner of the file as a uid or a user name",
+            "example": "root"
+          },
+          "group": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer",
+                "x-go-type": "int64"
+              }
+            ],
+            "description": "Group of the file as a gid or a group name",
+            "example": "root"
+          },
+          "data": {
+            "type": "string",
+            "description": "Contents of the file as plain text"
+          },
+          "data_encoding": {
+            "type": "string",
+            "enum": ["plain", "base64"],
+            "description": "When data is base64-encoded to prevent Akamai content filter false positives",
+            "default": "plain"
+          },
+          "ensure_parents": {
+            "type": "boolean",
+            "description": "Ensure that the parent directories exist",
+            "example": true,
+            "default": false
+          }
+        }
+      },
+      "Kernel": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the kernel to use",
+            "example": "kernel-debug"
+          },
+          "append": {
+            "type": "string",
+            "description": "Appends arguments to the bootloader kernel command line",
+            "example": "nosmt=force"
+          }
+        }
+      },
+      "Services": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "enabled": {
+            "description": "List of services to enable by default",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "example": "nftables"
+            }
+          },
+          "disabled": {
+            "description": "List of services to disable by default",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "example": "firewalld"
+            }
+          },
+          "masked": {
+            "description": "List of services to mask by default",
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "example": "telnet"
+            }
+          }
+        }
+      },
+      "Timezone": {
+        "type": "object",
+        "description": "Timezone configuration",
+        "additionalProperties": false,
+        "properties": {
+          "timezone": {
+            "type": "string",
+            "description": "Name of the timezone, defaults to UTC",
+            "example": "US/Eastern"
+          },
+          "ntpservers": {
+            "type": "array",
+            "description": "List of ntp servers",
+            "example": [
+              "0.north-america.pool.ntp.org",
+              "1.north-america.pool.ntp.org"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Locale": {
+        "type": "object",
+        "description": "Locale configuration",
+        "additionalProperties": false,
+        "properties": {
+          "languages": {
+            "type": "array",
+            "description": "List of locales to be installed, the first one becomes primary, subsequent ones are secondary\n",
+            "example": ["en_US.UTF-8"],
+            "items": {
+              "type": "string"
+            }
+          },
+          "keyboard": {
+            "type": "string",
+            "description": "Sets the keyboard layout",
+            "example": "us"
+          }
+        }
+      },
+      "FDO": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "FIDO device onboard configuration",
+        "properties": {
+          "manufacturing_server_url": {
+            "type": "string"
+          },
+          "diun_pub_key_insecure": {
+            "type": "string"
+          },
+          "diun_pub_key_hash": {
+            "type": "string"
+          },
+          "diun_pub_key_root_certs": {
+            "type": "string"
+          }
+        }
+      },
+      "FIPS": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "System FIPS mode setup",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": "Enables the system FIPS mode",
+            "default": false
+          }
+        }
+      },
+      "Installer": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Anaconda installer configuration",
+        "properties": {
+          "unattended": {
+            "type": "boolean",
+            "description": "Create a kickstart file for a fully automated installation\n"
+          },
+          "sudo_nopasswd": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "Enable passwordless sudo for users or groups (groups must be prefixed by %)\n"
+            }
+          }
+        }
+      },
+      "CACertsCustomization": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["pem_certs"],
+        "properties": {
+          "pem_certs": {
+            "type": "array",
+            "example": [
+              "---BEGIN CERTIFICATE---\\nMIIC0DCCAbigAwIBAgIUI...\\n---END CERTIFICATE---"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "Ignition": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Ignition configuration",
+        "properties": {
+          "embedded": {
+            "$ref": "#/components/schemas/IgnitionEmbedded"
+          },
+          "firstboot": {
+            "$ref": "#/components/schemas/IgnitionFirstboot"
+          }
+        }
+      },
+      "IgnitionEmbedded": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["config"],
+        "properties": {
+          "config": {
+            "type": "string"
+          }
+        }
+      },
+      "IgnitionFirstboot": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["url"],
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Provisioning URL"
+          }
+        }
+      },
+      "Group": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the group to create"
+          },
+          "gid": {
+            "type": "integer",
+            "description": "Group id of the group to create (optional)"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "required": ["name"],
+        "description": "At least one of password, ssh_key must be set, validator takes care of it.\nOn update empty string can be used to remove password or ssh_key,\nbut at least one of them still must be present.\n",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "user1"
+          },
+          "groups": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of groups to add the user to. The 'wheel' group should be added explicitly, as the\ndefault value is empty.\n",
+            "example": ["wheel"]
+          },
+          "ssh_key": {
+            "type": "string",
+            "example": "ssh-rsa AAAAB3NzaC1"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "example": "$6$G91SvTj7uVp3xhqj$zVa8nqnJTlewniDII5dmvsBJnj3kloL3CXWdPDu9.e677VoRQd5zB6GKwkDvfGLoRR7NTl5nXLnJywk6IPIvS.",
+            "description": "Plaintext passwords are also supported, they will be hashed and stored using the SHA-512 algorithm.\nThe password is never returned in the response.\nEmpty string can be used to remove the password during update but only with ssh_key set.\n"
+          },
+          "has_password": {
+            "type": "boolean",
+            "description": "Indicates whether the user has a password set. This flag is read-only.\n"
+          }
+        }
+      },
+      "Filesystem": {
+        "type": "object",
+        "required": ["mountpoint", "min_size"],
+        "properties": {
+          "mountpoint": {
+            "type": "string",
+            "example": "/var"
+          },
+          "min_size": {
+            "x-go-type": "uint64",
+            "example": 2147483648,
+            "description": "size of the filesystem in bytes"
+          }
+        }
+      },
+      "Subscription": {
+        "type": "object",
+        "required": [
+          "organization",
+          "activation_key",
+          "server_url",
+          "base_url",
+          "insights"
+        ],
+        "properties": {
+          "organization": {
+            "type": "integer",
+            "example": 2040324
+          },
+          "activation_key": {
+            "type": "string",
+            "format": "password",
+            "example": "my-secret-key"
+          },
+          "server_url": {
+            "type": "string",
+            "example": "subscription.rhsm.redhat.com"
+          },
+          "base_url": {
+            "type": "string",
+            "example": "http://cdn.redhat.com/"
+          },
+          "insights": {
+            "type": "boolean",
+            "example": true
+          },
+          "rhc": {
+            "type": "boolean",
+            "default": false,
+            "example": true,
+            "description": "Optional flag to use rhc to register the system, which also always enables Insights.\n"
+          },
+          "insights_client_proxy": {
+            "type": "string",
+            "format": "uri",
+            "description": "Optional value to set proxy option when registering the system to Insights.\n"
+          }
+        }
+      },
+      "OpenSCAP": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/OpenSCAPProfile"
+          },
+          {
+            "$ref": "#/components/schemas/OpenSCAPCompliance"
+          }
+        ]
+      },
+      "OpenSCAPCompliance": {
+        "type": "object",
+        "required": ["policy_id"],
+        "properties": {
+          "policy_id": {
+            "type": "string",
+            "format": "uuid",
+            "example": "fef25b3c-b970-46da-a4e1-cc4d855b98dc",
+            "description": "Apply a compliance policy which is defined in the Red Hat Insights Compliance\nservice. This policy can include tailorings. This only works for RHEL images, and the\npolicy needs to be available for the specific RHEL version.\n"
+          }
+        }
+      },
+      "OpenSCAPProfile": {
+        "type": "object",
+        "required": ["profile_id"],
+        "properties": {
+          "profile_id": {
+            "type": "string",
+            "example": "xccdf_org.ssgproject.content_profile_cis",
+            "description": "Uses the OpenSCAP tooling directly to apply a pre-defined profile without tailorings.\n"
+          },
+          "profile_name": {
+            "type": "string",
+            "description": "The profile type"
+          },
+          "profile_description": {
+            "type": "string",
+            "description": "The longform profile description"
+          }
+        }
+      },
+      "CustomRepository": {
+        "type": "object",
+        "required": ["id"],
+        "description": "Repository configuration for custom repositories.\nAt least one of the 'baseurl', 'mirrorlist', 'metalink' properties must\nbe specified. If more of them are specified, the order of precedence is\nthe same as listed above. Id is required.\n",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "filename": {
+            "type": "string"
+          },
+          "baseurl": {
+            "type": "array",
+            "example": [
+              "https://cdn.redhat.com/content/dist/rhel8/8/x86_64/baseos/os/"
+            ],
+            "items": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "mirrorlist": {
+            "type": "string",
+            "format": "uri",
+            "example": "http://mirrorlist.centos.org/?release=9-stream&arch=aarch64&repo=BaseOS"
+          },
+          "metalink": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://mirrors.fedoraproject.org/metalink?repo=fedora-32&arch=x86_64"
+          },
+          "gpgkey": {
+            "type": "array",
+            "example": [
+              "-----BEGIN PGP PUBLIC KEY BLOCK-----\n\nmQINBGAcScoBEADLf8YHkezJ6adlMYw7aGGIlJalt8Jj2x/B2K+hIfIuxGtpVj7e\nLRgDU76jaT5pVD5mFMJ3pkeneR/cTmqqQkNyQshX2oQXwEzUSb1CNMCfCGgkX8Q2\nzZkrIcCrF0Q2wrKblaudhU+iVanADsm18YEqsb5AU37dtUrM3QYdWg9R+XiPfV8R\nKBjT03vVBOdMSsY39LaCn6Ip1Ovp8IEo/IeEVY1qmCOPAaK0bJH3ufg4Cueks+TS\nwQWTeCLxuZL6OMXoOPKwvMQfxbg1XD8vuZ0Ktj/cNH2xau0xmsAu9HJpekvOPRxl\nyqtjyZfroVieFypwZgvQwtnnM8/gSEu/JVTrY052mEUT7Ccb74kcHFTFfMklnkG/\n0fU4ARa504H3xj0ktbe3vKcPXoPOuKBVsHSv00UGYAyPeuy+87cU/YEhM7k3SVKj\n6eIZgyiMO0wl1YGDRKculwks9A+ulkg1oTb4s3zmZvP07GoTxW42jaK5WS+NhZee\n860XoVhbc1KpS+jfZojsrEtZ8PbUZ+YvF8RprdWArjHbJk2JpRKAxThxsQAsBhG1\n0Lux2WaMB0g2I5PcMdJ/cqjo08ccrjBXuixWri5iu9MXp8qT/fSzNmsdIgn8/qZK\ni8Qulfu77uqhW/wt2btnitgRsqjhxMujYU4Zb4hktF8hKU/XX742qhL5KwARAQAB\ntDFGZWRvcmEgKDM1KSA8ZmVkb3JhLTM1LXByaW1hcnlAZmVkb3JhcHJvamVjdC5v\ncmc+iQJOBBMBCAA4FiEEeH6mrhFH7uVsQLMM20Y5cZhnxY8FAmAcScoCGw8FCwkI\nBwIGFQoJCAsCBBYCAwECHgECF4AACgkQ20Y5cZhnxY+NYA/7BYpglySAZYHhjyKh\n/+f6zPfVvbH20Eq3kI7OFBN0nLX+BU1muvS+qTuS3WLrB3m3GultpKREJKLtm5ED\n1rGzXAoT1yp9YI8LADdMCCOyjAjsoWU87YUuC+/bnjrTeR2LROCfyPC76W985iOV\nm5S+bsQDw7C2LrldAM4MDuoyZ1SitGaZ4KQLVt+TEa14isYSGCjzo7PY8V3JOk50\ngqWg82N/bm2EzS7T83WEDb1lvj4IlvxgIqKeg11zXYxmrYSZJJCfvzf+lNS6uxgH\njx/J0ylZ2LibGr6GAAyO9UWrAZSwSM0EcjT8wECnxkSDuyqmWwVvNBXuEIV8Oe3Y\nMiU1fJN8sd7DpsFx5M+XdnMnQS+HrjTPKD3mWrlAdnEThdYV8jZkpWhDys3/99eO\nhk0rLny0jNwkauf/iU8Oc6XvMkjLRMJg5U9VKyJuWWtzwXnjMN5WRFBqK4sZomMM\nftbTH1+5ybRW/A3vBbaxRW2t7UzNjczekSZEiaLN9L/HcJCIR1QF8682DdAlEF9d\nk2gQiYSQAaaJ0JJAzHvRkRJLLgK2YQYiHNVy2t3JyFfsram5wSCWOfhPeIyLBTZJ\nvrpNlPbefsT957Tf2BNIugzZrC5VxDSKkZgRh1VGvSIQnCyzkQy6EU2qPpiW59G/\nhPIXZrKocK3KLS9/izJQTRltjMA=\n=PfT7\n-----END PGP PUBLIC KEY BLOCK-----\n"
+            ],
+            "description": "GPG key used to sign packages in this repository. Can be a gpg key or a URL",
+            "items": {
+              "type": "string"
+            }
+          },
+          "check_gpg": {
+            "type": "boolean"
+          },
+          "check_repo_gpg": {
+            "type": "boolean"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "priority": {
+            "type": "integer"
+          },
+          "ssl_verify": {
+            "type": "boolean"
+          },
+          "module_hotfixes": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Repository": {
+        "type": "object",
+        "required": ["rhsm"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "An ID referring to a repository defined in content sources can be used instead of\n'baseurl', 'mirrorlist' or 'metalink'.\n"
+          },
+          "rhsm": {
+            "type": "boolean"
+          },
+          "baseurl": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://cdn.redhat.com/content/dist/rhel8/8/x86_64/baseos/os/"
+          },
+          "mirrorlist": {
+            "type": "string",
+            "format": "uri",
+            "example": "http://mirrorlist.centos.org/?release=9-stream&arch=aarch64&repo=BaseOS"
+          },
+          "metalink": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://mirrors.fedoraproject.org/metalink?repo=fedora-32&arch=x86_64"
+          },
+          "gpgkey": {
+            "type": "string"
+          },
+          "check_gpg": {
+            "type": "boolean"
+          },
+          "check_repo_gpg": {
+            "type": "boolean",
+            "default": false,
+            "description": "Enables gpg verification of the repository metadata\n"
+          },
+          "ignore_ssl": {
+            "type": "boolean"
+          },
+          "module_hotfixes": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Module": {
+        "type": "object",
+        "required": ["name", "stream"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "nodejs",
+            "description": "Name of the module to enable.\n"
+          },
+          "stream": {
+            "type": "string",
+            "example": "22",
+            "description": "Stream to enable.\n"
+          }
+        }
+      },
+      "Disk": {
+        "x-go-type": "composer.Disk",
+        "type": "object",
+        "required": ["partitions"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["gpt", "dos"],
+            "description": "Type of the partition table\n"
+          },
+          "minsize": {
+            "$ref": "#/components/schemas/minsize"
+          },
+          "partitions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Partition"
+            }
+          }
+        }
+      },
+      "Partition": {
+        "x-go-type": "composer.Partition",
+        "type": "object",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/FilesystemTyped"
+          },
+          {
+            "$ref": "#/components/schemas/BtrfsVolume"
+          },
+          {
+            "$ref": "#/components/schemas/VolumeGroup"
+          }
+        ]
+      },
+      "FilesystemTyped": {
+        "x-go-type": "composer.FilesystemTyped",
+        "type": "object",
+        "required": ["fs_type"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["plain"]
+          },
+          "part_type": {
+            "type": "string",
+            "description": "The partition type GUID for GPT partitions. For DOS partitions, this field can be used to set the (2 hex digit) partition type. If not set, the type will be automatically set based on the mountpoint or the payload type.\n"
+          },
+          "minsize": {
+            "$ref": "#/components/schemas/minsize"
+          },
+          "mountpoint": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "fs_type": {
+            "type": "string",
+            "enum": ["ext4", "xfs", "vfat", "swap"],
+            "description": "The filesystem type. Swap partitions must have an empty mountpoint.\n"
+          }
+        }
+      },
+      "BtrfsVolume": {
+        "x-go-type": "composer.BtrfsVolume",
+        "type": "object",
+        "required": ["type", "subvolumes"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["btrfs"]
+          },
+          "part_type": {
+            "type": "string",
+            "description": "The partition type GUID for GPT partitions. For DOS partitions, this field can be used to set the (2 hex digit) partition type. If not set, the type will be automatically set based on the mountpoint or the payload type.\n"
+          },
+          "minsize": {
+            "$ref": "#/components/schemas/minsize"
+          },
+          "subvolumes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BtrfsSubvolume"
+            }
+          }
+        }
+      },
+      "BtrfsSubvolume": {
+        "x-go-type": "composer.BtrfsSubvolume",
+        "type": "object",
+        "required": ["name", "mountpoint"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the subvolume, which defines the location (path) on the root volume\n"
+          },
+          "mountpoint": {
+            "type": "string",
+            "description": "Mountpoint for the subvolume\n"
+          }
+        }
+      },
+      "VolumeGroup": {
+        "x-go-type": "composer.VolumeGroup",
+        "type": "object",
+        "required": ["type", "logical_volumes"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["lvm"]
+          },
+          "part_type": {
+            "type": "string",
+            "description": "The partition type GUID for GPT partitions. For DOS partitions, this field can be used to set the (2 hex digit) partition type. If not set, the type will be automatically set based on the mountpoint or the payload type.\n"
+          },
+          "name": {
+            "type": "string",
+            "description": "Volume group name (will be automatically generated if omitted)\n"
+          },
+          "minsize": {
+            "$ref": "#/components/schemas/minsize"
+          },
+          "logical_volumes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LogicalVolume"
+            }
+          }
+        }
+      },
+      "LogicalVolume": {
+        "x-go-type": "composer.LogicalVolume",
+        "type": "object",
+        "required": ["fs_type"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "minsize": {
+            "$ref": "#/components/schemas/minsize"
+          },
+          "mountpoint": {
+            "type": "string",
+            "description": "Mountpoint for the logical volume\n"
+          },
+          "label": {
+            "type": "string"
+          },
+          "fs_type": {
+            "type": "string",
+            "enum": ["ext4", "xfs", "vfat", "swap"],
+            "description": "The filesystem type for the logical volume. Swap LVs must have an empty mountpoint.\n"
+          }
+        }
+      },
+      "minsize": {
+        "type": "string",
+        "example": "2 GiB",
+        "description": "size with data units"
       }
     }
   }

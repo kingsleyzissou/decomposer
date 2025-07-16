@@ -14,7 +14,12 @@ const filterSpec = async (document: OpenAPIV3.Document) => {
   const { data } = await openapi.openapiFilter(document, {
     filterSet: {
       operationIds: ['getVersion'],
-      inverseOperationIds: ['getReadiness', 'getOpenapiJson'],
+      inverseOperationIds: [
+        'getReadiness',
+        'getOpenapiJson',
+        'composeImage',
+        'getComposes',
+      ],
       unusedComponents: [
         'schemas',
         'parameters',
@@ -22,6 +27,40 @@ const filterSpec = async (document: OpenAPIV3.Document) => {
         'headers',
         'requestBodies',
         'responses',
+      ],
+    },
+  });
+
+  return data as OpenAPIV3.Document;
+};
+
+const applyOverlay = async (document: OpenAPIV3.Document) => {
+  const { data } = await openapi.openapiOverlay(document, {
+    overlaySet: {
+      actions: [
+        {
+          target: '$.components.schemas.UploadTypes',
+          update: {
+            enum: ['local'],
+          },
+        },
+        {
+          // prettier-ignore
+          target: '$.components.schemas.AWSUploadRequestOptions.properties.share_with_sources',
+          remove: true,
+        },
+        {
+          target: '$.components.schemas.AWSUploadRequestOptions.properties',
+          update: {
+            region: {
+              type: 'string',
+              default: 'us-east-1',
+            },
+            bucket: {
+              type: 'string',
+            },
+          },
+        },
       ],
     },
   });
@@ -49,7 +88,8 @@ const generateDoc = async (document: OpenAPIV3.Document) => {
 const generateFilteredSpec = async (input: string) => {
   const spec = await parse(input);
   const filtered = await filterSpec(spec);
-  const cased = await changeCase(filtered);
+  const overlayed = await applyOverlay(filtered);
+  const cased = await changeCase(overlayed);
   return generateDoc(cased);
 };
 
