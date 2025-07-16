@@ -14,7 +14,12 @@ const filterSpec = async (document: OpenAPIV3.Document) => {
   const { data } = await openapi.openapiFilter(document, {
     filterSet: {
       operationIds: ['getVersion'],
-      inverseOperationIds: ['getReadiness', 'getOpenapiJson'],
+      inverseOperationIds: [
+        'getReadiness',
+        'getOpenapiJson',
+        'composeImage',
+        'getComposes',
+      ],
       unusedComponents: [
         'schemas',
         'parameters',
