@@ -8,6 +8,7 @@ import { cliArgs } from '@app/cli';
 import { API_ENDPOINT, SOCKET_PATH } from '@app/constants';
 import { notFound, onError } from '@app/errors';
 import { logger } from '@app/logger';
+import { AppContext } from '@app/types';
 import { prettyPrint, removeSocket } from '@app/utilities';
 
 // we need to make sure that the socket doesn't
@@ -19,12 +20,17 @@ const app = new Hono();
 app.notFound(notFound);
 app.onError(onError);
 
-export const middleware = new Hono();
+export const middleware = new Hono<AppContext>();
 middleware.use(prettyJSON());
 middleware.use(pinoLogger({ pino: logger }));
+middleware.use(async (ctx, next) => {
+  ctx.set('store', cliArgs.store);
+  await next();
+});
 app.route('*', middleware);
 
 app.route(API_ENDPOINT, api.meta);
+app.route(API_ENDPOINT, api.composes);
 
 const server = {
   fetch: app.fetch,
