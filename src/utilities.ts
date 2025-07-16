@@ -13,3 +13,7 @@ export const prettyPrint = (o: object) => {
     })
     .join('');
 };
+
+export const jsonFormat = (o: object) => {
+  return JSON.stringify(o, null, 2);
+};
