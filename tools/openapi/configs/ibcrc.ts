@@ -68,12 +68,6 @@ const overlayOptions = {
       },
       {
         // prettier-ignore
-        target: '$.components.schemas.Directory.properties.ensure_parents.default',
-        // The default value breaks the optionality of this option, so just leave
-        remove: true,
-      },
-      {
-        // prettier-ignore
         target: '$.components.schemas.File.properties.ensure_parents.default',
         // The default value breaks the optionality of this option, so just leave
         remove: true,

@@ -158,7 +158,7 @@ export const Directory = z
     mode: z.string().optional(),
     user: z.union([z.string(), z.number()]).optional(),
     group: z.union([z.string(), z.number()]).optional(),
-    ensure_parents: z.boolean().optional(),
+    ensure_parents: z.boolean().optional().default(false),
   })
   .passthrough();
 
