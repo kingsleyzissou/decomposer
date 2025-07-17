@@ -3,11 +3,7 @@ export default {
   tabWidth: 2,
   semi: true,
   singleQuote: true,
-  importOrder: [
-    '^@app/(.*)$|^@generated$|^@generated/(.*)$',
-    '^@fixtures$|^@mocks$',
-    '^[./]',
-  ],
+  importOrder: ['^@app/(.*)$|^@gen/(.*)$', '^@fixtures$|^@mocks$', '^[./]'],
   importOrderSeparation: true,
   importOrderSortSpecifiers: true,
   // this sorts the import statements for us, so we

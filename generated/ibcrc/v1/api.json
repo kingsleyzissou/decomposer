@@ -56,6 +56,57 @@
         }
       }
     },
+    "/blueprints": {
+      "post": {
+        "summary": "create blueprint",
+        "description": "create blueprint",
+        "operationId": "createBlueprint",
+        "tags": ["blueprint"],
+        "requestBody": {
+          "required": true,
+          "description": "details of blueprint",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBlueprintRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "blueprint was saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBlueprintResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "user is not allowed to create blueprints",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorList"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "blueprint is malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/composes": {
       "get": {
         "summary": "get a collection of previous compose requests for the logged in user",
@@ -275,6 +326,72 @@
           },
           "customizations": {
             "$ref": "#/components/schemas/Customizations"
+          }
+        }
+      },
+      "CreateBlueprintRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "distribution",
+          "image_requests",
+          "customizations"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "My Blueprint",
+            "maxLength": 100
+          },
+          "description": {
+            "type": "string",
+            "example": "My blueprint description",
+            "maxLength": 250
+          },
+          "distribution": {
+            "$ref": "#/components/schemas/Distributions"
+          },
+          "image_requests": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/ImageRequest"
+            },
+            "uniqueItems": true,
+            "description": "Array of image requests. Having more image requests in a single blueprint is currently not supported.\n"
+          },
+          "customizations": {
+            "$ref": "#/components/schemas/Customizations"
+          },
+          "metadata": {
+            "$ref": "#/components/schemas/BlueprintMetadata"
+          }
+        }
+      },
+      "CreateBlueprintResponse": {
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "BlueprintMetadata": {
+        "required": ["parent_id", "exported_at", "is_on_prem"],
+        "properties": {
+          "parent_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "exported_at": {
+            "type": "string"
+          },
+          "is_on_prem": {
+            "type": "boolean",
+            "default": false
           }
         }
       },
@@ -829,8 +946,7 @@
           },
           "ensure_parents": {
             "type": "boolean",
-            "description": "Ensure that the parent directories exist",
-            "default": false
+            "description": "Ensure that the parent directories exist"
           }
         }
       },
@@ -882,14 +998,12 @@
           "data_encoding": {
             "type": "string",
             "enum": ["plain", "base64"],
-            "description": "When data is base64-encoded to prevent Akamai content filter false positives",
-            "default": "plain"
+            "description": "When data is base64-encoded to prevent Akamai content filter false positives"
           },
           "ensure_parents": {
             "type": "boolean",
             "description": "Ensure that the parent directories exist",
-            "example": true,
-            "default": false
+            "example": true
           }
         }
       },
@@ -1143,7 +1257,8 @@
           "min_size": {
             "x-go-type": "uint64",
             "example": 2147483648,
-            "description": "size of the filesystem in bytes"
+            "description": "size of the filesystem in bytes",
+            "type": "integer"
           }
         }
       },
