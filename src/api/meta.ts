@@ -4,7 +4,7 @@ import { Hono } from 'hono';
 // load the openapi spec on app startup
 // rather than inside the middleware function,
 // otherwise the file is loaded on every request.
-import { schema } from '@generated';
+import { schema } from '@gen/ibcrc';
 
 type RouteContext = {
   Variables: {

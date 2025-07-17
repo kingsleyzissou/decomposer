@@ -1,7 +1,7 @@
 import { zValidator } from '@hono/zod-validator';
 
 import { ValidationError } from '@app/errors';
-import { ComposeRequest } from '@generated/zod';
+import { ComposeRequest } from '@gen/ibcrc/zod';
 
 export const createCompose = zValidator('json', ComposeRequest, (result) => {
   if (!result.success) {

@@ -2,7 +2,7 @@ import z from 'zod';
 
 import { logger } from '@app/logger';
 import { WorkerQueue } from '@app/queue';
-import { ComposeRequest } from '@generated/zod';
+import { ComposeRequest } from '@gen/ibcrc/zod';
 
 export type ComposeJob = {
   id: string;
