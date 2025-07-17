@@ -41,6 +41,8 @@ export const composes = new Hono<ComposeContext>()
   // -H "Content-Type: application/json" \
   // -d @src/__mocks__/compose.json \
   // -X POST 'http://localhost/api/image-builder-composer/v2/compose'
+  // TODO: add some additional validators to check other options
+  // e.g. check there is only one image_request in the image_request array
   .post('/compose', validators.createCompose, async (ctx) => {
     const service = ctx.get('service');
     const { id } = await service.add(ctx.req.valid('json'));
