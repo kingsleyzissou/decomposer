@@ -1,7 +1,7 @@
 import { zValidator } from '@hono/zod-validator';
 
 import { ValidationError } from '@app/errors';
-import { ComposeRequest } from '@generated/zod';
+import { ComposeRequest } from '@gen/ibcrc/zod';
 
 // The zod schema ensures that there is only one single
 // image request in the image requests array, so there

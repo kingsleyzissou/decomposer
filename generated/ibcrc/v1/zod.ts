@@ -2,32 +2,6 @@ import { z } from 'zod';
 
 export const Readiness = z.object({ readiness: z.string() }).passthrough();
 
-export const ImageTypes = z.enum([
-  'aws',
-  'azure',
-  'edge-commit',
-  'edge-installer',
-  'gcp',
-  'guest-image',
-  'image-installer',
-  'oci',
-  'vsphere',
-  'vsphere-ova',
-  'wsl',
-  'ami',
-  'rhel-edge-commit',
-  'rhel-edge-installer',
-  'vhd',
-]);
-
-export const ListResponseMeta = z
-  .object({ count: z.number().int() })
-  .passthrough();
-
-export const ListResponseLinks = z
-  .object({ first: z.string(), last: z.string() })
-  .passthrough();
-
 export const Distributions = z.enum([
   'rhel-8',
   'rhel-8-nightly',
@@ -66,7 +40,23 @@ export const Distributions = z.enum([
   'fedora-42',
 ]);
 
-export const ClientId = z.enum(['api', 'ui', 'mcp']);
+export const ImageTypes = z.enum([
+  'aws',
+  'azure',
+  'edge-commit',
+  'edge-installer',
+  'gcp',
+  'guest-image',
+  'image-installer',
+  'oci',
+  'vsphere',
+  'vsphere-ova',
+  'wsl',
+  'ami',
+  'rhel-edge-commit',
+  'rhel-edge-installer',
+  'vhd',
+]);
 
 export const UploadTypes = z.enum([
   'aws',
@@ -175,8 +165,8 @@ export const File = z
     user: z.union([z.string(), z.number()]).optional(),
     group: z.union([z.string(), z.number()]).optional(),
     data: z.string().optional(),
-    data_encoding: z.enum(['plain', 'base64']).optional().default('plain'),
-    ensure_parents: z.boolean().optional().default(false),
+    data_encoding: z.enum(['plain', 'base64']).optional(),
+    ensure_parents: z.boolean().optional(),
   })
   .passthrough();
 
@@ -242,7 +232,7 @@ export const OpenSCAPCompliance = z
 export const OpenSCAP = z.union([OpenSCAPProfile, OpenSCAPCompliance]);
 
 export const Filesystem = z
-  .object({ mountpoint: z.string(), min_size: z.unknown() })
+  .object({ mountpoint: z.string(), min_size: z.number().int() })
   .passthrough();
 
 export const minsize = z.string();
@@ -404,6 +394,45 @@ export const Customizations = z
   .partial()
   .passthrough();
 
+export const BlueprintMetadata = z
+  .object({
+    parent_id: z.string().uuid().nullable(),
+    exported_at: z.string(),
+    is_on_prem: z.boolean().default(false),
+  })
+  .passthrough();
+
+export const CreateBlueprintRequest = z.object({
+  name: z.string().max(100),
+  description: z.string().max(250).optional(),
+  distribution: Distributions,
+  image_requests: z.array(ImageRequest).min(1),
+  customizations: Customizations,
+  metadata: BlueprintMetadata.optional(),
+});
+
+export const CreateBlueprintResponse = z
+  .object({ id: z.string().uuid() })
+  .passthrough();
+
+export const HTTPError = z
+  .object({ title: z.string(), detail: z.string() })
+  .passthrough();
+
+export const HTTPErrorList = z
+  .object({ errors: z.array(HTTPError) })
+  .passthrough();
+
+export const ListResponseMeta = z
+  .object({ count: z.number().int() })
+  .passthrough();
+
+export const ListResponseLinks = z
+  .object({ first: z.string(), last: z.string() })
+  .passthrough();
+
+export const ClientId = z.enum(['api', 'ui', 'mcp']);
+
 export const ComposeRequest = z.object({
   distribution: Distributions,
   image_name: z.string().max(100).optional(),
@@ -435,12 +464,4 @@ export const ComposesResponse = z
 
 export const ComposeResponse = z
   .object({ id: z.string().uuid() })
-  .passthrough();
-
-export const HTTPError = z
-  .object({ title: z.string(), detail: z.string() })
-  .passthrough();
-
-export const HTTPErrorList = z
-  .object({ errors: z.array(HTTPError) })
   .passthrough();
