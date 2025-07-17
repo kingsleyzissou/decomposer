@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test';
 import { testClient } from 'hono/testing';
 import { StatusCodes } from 'http-status-codes';
 
-import { schema } from '@generated';
+import { schema } from '@gen/ibcrc';
 
 import { meta } from './meta';
 
