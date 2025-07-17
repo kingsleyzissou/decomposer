@@ -4,7 +4,7 @@ export default {
   semi: true,
   singleQuote: true,
   importOrder: [
-    '^@app/(.*)$|^@generated/(.*)$',
+    '^@app/(.*)$|^@generated$|^@generated/(.*)$',
     '^@fixtures$|^@mocks$',
     '^[./]',
   ],
