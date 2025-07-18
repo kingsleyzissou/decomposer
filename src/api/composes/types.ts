@@ -16,4 +16,5 @@ export type ComposeContext = AppContext & {
 
 export type ComposeService = {
   composes: () => Promise<Compose[]>;
+  delete: (id: string) => Promise<void>;
 };

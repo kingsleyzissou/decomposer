@@ -1,6 +1,10 @@
-import { readdir } from 'node:fs/promises';
+import { StatusCodes } from 'http-status-codes';
+import { readdir, rmdir } from 'node:fs/promises';
 import path from 'node:path';
 import { validate as isValidUUID } from 'uuid';
+
+import { AppError } from '@app/errors';
+import { logger } from '@app/logger';
 
 import { Compose, ComposeService as Service } from './types';
 
@@ -35,5 +39,24 @@ export class ComposeService implements Service {
           } as Compose;
         }),
     );
+  }
+
+  private async exists(id: string) {
+    try {
+      const composePath = path.join(this.store, id);
+      await Bun.file(composePath).stat();
+    } catch {
+      const message = `No compose found for: ${id}`;
+      logger.debug(message);
+      throw new AppError({
+        message,
+        code: StatusCodes.NOT_FOUND,
+      });
+    }
+  }
+
+  public async delete(id: string) {
+    await this.exists(id);
+    await rmdir(path.join(this.store, id));
   }
 }
