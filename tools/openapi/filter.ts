@@ -19,6 +19,7 @@ const filterSpec = async (document: OpenAPIV3.Document) => {
         'getOpenapiJson',
         'composeImage',
         'getComposes',
+        'deleteCompose',
       ],
       unusedComponents: [
         'schemas',
