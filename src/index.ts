@@ -6,7 +6,7 @@ import { prettyJSON } from 'hono/pretty-json';
 import * as api from '@app/api';
 import { cliArgs } from '@app/cli';
 import { API_ENDPOINT, SOCKET_PATH } from '@app/constants';
-import { notFound } from '@app/errors';
+import { notFound, onError } from '@app/errors';
 import { logger } from '@app/logger';
 import { prettyPrint, removeSocket } from '@app/utilities';
 
@@ -17,6 +17,7 @@ await removeSocket();
 
 const app = new Hono();
 app.notFound(notFound);
+app.onError(onError);
 
 export const middleware = new Hono();
 middleware.use('*', prettyJSON());
