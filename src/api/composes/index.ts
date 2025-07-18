@@ -16,6 +16,8 @@ export const composes = new Hono<ComposeContext>()
     await next();
   })
 
+  // curl --unix-socket /run/decomposer-httpd.sock \
+  // -X GET 'http://localhost/api/image-builder-composer/v2/composes'
   .get('/composes', async (ctx) => {
     const service = ctx.get('service');
     const composes = await service.composes();
@@ -31,4 +33,13 @@ export const composes = new Hono<ComposeContext>()
       },
       data: composes,
     });
+  })
+
+  // curl --unix-socket /run/decomposer-httpd.sock \
+  // -X DELETE 'http://localhost/api/image-builder-composer/v2/compose/123e4567-e89b-12d3-a456-426655440000'
+  .delete('/compose/:id', async (ctx) => {
+    const id = ctx.req.param('id');
+    const service = ctx.get('service');
+    await service.delete(id);
+    ctx.json({ message: 'OK' });
   });
