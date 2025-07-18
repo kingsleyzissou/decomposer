@@ -23,10 +23,14 @@ const meta = new Hono<RouteContext>()
     await next();
   })
 
+  // curl --unix-socket /run/decomposer-httpd.sock \
+  // -X GET 'http://localhost/api/image-builder-composer/v2/ready'
   .get('/ready', (ctx: Context) => {
     return ctx.json({ readiness: 'ready' });
   })
 
+  // curl --unix-socket /run/decomposer-httpd.sock \
+  // -X GET 'http://localhost/api/image-builder-composer/v2/openapi.json'
   .get('/openapi.json', async (ctx: Context) => {
     return ctx.json(ctx.get('schema'));
   });
