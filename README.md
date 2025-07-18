@@ -74,11 +74,28 @@ The server exposes the following endpoints on `/api/image-builder-composer/v2`:
 - `GET /api/image-builder-composer/v2/ready` - Health check endpoint
 - `GET /api/image-builder-composer/v2/openapi.json` - OpenAPI specification
 
-Example curl request:
+#### Examples
 
 ```bash
 curl --unix-socket /run/decomposer-httpd.sock \
-  -X GET 'http://localhost/api/image-builder-composer/v2/ready?pretty'
+  -X GET 'http://localhost/api/image-builder-composer/v2/ready'
+```
+
+### Compose Endpoints
+
+- `GET /api/image-builder-composer/v2/composes` - Get collection of compose requests
+- `DELETE /api/image-builder-composer/v2/compose/:id` - Delete a specific compose
+
+#### Examples
+
+```bash
+curl --unix-socket /run/decomposer-httpd.sock \
+  -X GET 'http://localhost/api/image-builder-composer/v2/composes'
+```
+
+```bash
+curl --unix-socket /run/decomposer-httpd.sock \
+  -X DELETE 'http://localhost/api/image-builder-composer/v2/compose/YOUR-COMPOSE-ID'
 ```
 
 ### Socket Location
