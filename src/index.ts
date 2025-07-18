@@ -1,3 +1,4 @@
+import { chmod } from 'fs/promises';
 import { Hono } from 'hono';
 import { pinoLogger } from 'hono-pino';
 import { prettyJSON } from 'hono/pretty-json';
@@ -32,6 +33,13 @@ const server = {
 };
 
 Bun.serve(server);
+
+// we need to change this so that we can
+// ping the socket as a non-privileged user
+await chmod(SOCKET_PATH, 0o775);
+
+// TODO: listen for app shutdown and remove the socket
+
 logger.info(
   `🚀 Decomposer server started with configuration:\n${prettyPrint({
     socket: server.unix,
