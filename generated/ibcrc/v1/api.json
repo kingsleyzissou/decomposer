@@ -111,6 +111,31 @@
         }
       }
     },
+    "/composes/{composeId}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "composeId",
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "example": "123e4567-e89b-12d3-a456-426655440000"
+          },
+          "required": true,
+          "description": "Id of compose"
+        }
+      ],
+      "delete": {
+        "summary": "delete a compose",
+        "description": "Deletes a compose, the compose will still count towards quota.\n",
+        "operationId": "deleteCompose",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/compose": {
       "post": {
         "summary": "compose image",
