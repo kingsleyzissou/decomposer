@@ -84,6 +84,7 @@ curl --unix-socket /run/decomposer-httpd.sock \
 ### Compose Endpoints
 
 - `GET /api/image-builder-composer/v2/composes` - Get collection of compose requests
+- `POST /api/image-builder-composer/v2/compose` - Create a new compose request
 - `DELETE /api/image-builder-composer/v2/compose/:id` - Delete a specific compose
 
 #### Examples
@@ -92,6 +93,27 @@ curl --unix-socket /run/decomposer-httpd.sock \
 curl --unix-socket /run/decomposer-httpd.sock \
   -X GET 'http://localhost/api/image-builder-composer/v2/composes'
 ```
+
+```bash
+curl --unix-socket /run/decomposer-httpd.sock \
+  -H "Content-Type: application/json" \
+  -X POST 'http://localhost/api/image-builder-composer/v2/compose' \
+  -d '{
+    "distribution": "centos-9",
+    "client_id": "api",
+    "image_requests": [
+      {
+        "image_type": "guest-image",
+        "architecture": "x86_64",
+        "upload_request": {
+          "type": "aws.s3",
+          "options": {}
+        }
+      }
+    ]
+  }'
+```
+
 
 ```bash
 curl --unix-socket /run/decomposer-httpd.sock \
