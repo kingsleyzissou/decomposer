@@ -1,7 +1,12 @@
 import { Hono } from 'hono';
 
 import { ComposeService } from './service';
-import { ComposeContext, ComposeResponse, ComposesResponse } from './types';
+import {
+  ComposeContext,
+  ComposeResponse,
+  ComposeStatus,
+  ComposesResponse,
+} from './types';
 import * as validators from './validators';
 
 export const composes = new Hono<ComposeContext>()
@@ -16,6 +21,13 @@ export const composes = new Hono<ComposeContext>()
     const store = ctx.get('store');
     ctx.set('service', new ComposeService(queue, store));
     await next();
+  })
+
+  .get('/composes/:id', async (ctx) => {
+    const id = ctx.req.param('id');
+    const service = ctx.get('service');
+    const status = await service.get(id);
+    return ctx.json<ComposeStatus>(status);
   })
 
   // curl --unix-socket /run/decomposer-httpd.sock \

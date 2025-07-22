@@ -22,6 +22,14 @@ export class JobQueue<T> {
     return this.current;
   }
 
+  public processing() {
+    return !!this.current;
+  }
+
+  public contains(id: string) {
+    return this.queue.some((item) => item.id === id);
+  }
+
   public process() {
     if (this.queue.length === 0) {
       return;

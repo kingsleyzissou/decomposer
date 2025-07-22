@@ -5,16 +5,26 @@ import { validate as isValidUUID, v4 as uuid } from 'uuid';
 
 import { AppError } from '@app/errors';
 import { logger } from '@app/logger';
-import { WorkerQueue } from '@app/queue';
-import { ComposeJob } from '@app/types';
+import { JobQueue } from '@app/queue';
+import { ComposeRequest } from '@app/types';
 
-import { Compose, ComposeRequest, ComposeService as Service } from './types';
+import { Compose, ImageStatus, ComposeService as Service } from './types';
+
+const getComposeRequest = async (composeDir: string) => {
+  try {
+    return (await Bun.file(
+      path.join(composeDir, 'request.json'),
+    ).json()) as ComposeRequest;
+  } catch {
+    throw new AppError({ message: 'Error loading compose request' });
+  }
+};
 
 export class ComposeService implements Service {
   private store: string;
-  private queue: WorkerQueue<ComposeJob>;
+  private queue: JobQueue<ComposeRequest>;
 
-  constructor(queue: WorkerQueue<ComposeJob>, store: string) {
+  constructor(queue: JobQueue<ComposeRequest>, store: string) {
     this.queue = queue;
     this.store = store;
   }
@@ -69,6 +79,42 @@ export class ComposeService implements Service {
     const id = uuid();
     this.queue.enqueue({ id, request });
     return { id };
+  }
+
+  public async get(id: string) {
+    const composeDir = path.join(this.store, id);
+    const request = await getComposeRequest(composeDir);
+
+    let status = '';
+
+    if (this.queue?.current?.id === id) {
+      status = 'building';
+    }
+
+    if (this.queue.contains(id)) {
+      status = 'pending';
+    }
+
+    // prettier-ignore
+    const success = await Bun.file(path.join(composeDir, 'result.good')).exists()
+    const failed = await Bun.file(path.join(composeDir, 'result.bad')).exists();
+
+    if (success) {
+      status = 'success';
+    }
+
+    if (failed) {
+      status = 'failure';
+    }
+
+    // if (status === '') {
+    //   throw new AppError({
+    //     code: StatusCodes.NOT_FOUND,
+    //     message: 'Compose not found',
+    //   });
+    // }
+
+    return { request, image_status: { status } as ImageStatus };
   }
 
   public async delete(id: string) {
