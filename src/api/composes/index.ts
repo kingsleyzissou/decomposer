@@ -13,7 +13,7 @@ export const composes = new Hono<ComposeContext>()
   .use(async (ctx, next) => {
     const queue = ctx.get('queue');
     const store = ctx.get('store');
-    ctx.set('service', new ComposeService(queue, store.path));
+    ctx.set('service', new ComposeService(queue, store));
     await next();
   })
 
