@@ -48,6 +48,49 @@ export class ValidationError extends AppError {
   }
 }
 
+export const isPouchError = (err: unknown): err is PouchDB.Core.Error => {
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    err.constructor.name === 'PouchError'
+  );
+};
+
+export class DatabaseError extends AppError {
+  constructor(error: unknown) {
+    if (error instanceof Error && error.name === 'OpenError') {
+      super({ message: 'Unable to connect to the database' });
+      this.name = 'Database Connection Error';
+      return;
+    }
+
+    if (!isPouchError(error)) {
+      super({ message: 'Unknown error occured' });
+      console.log(error);
+      this.name = 'Database Error';
+      return;
+    }
+
+    const err = error as {
+      status: number;
+      name: string;
+      message: string;
+      reason?: string;
+    };
+
+    let message = err.message;
+    if (err.status === 404) {
+      message = 'Resource not found';
+    }
+    super({
+      message,
+      code: err.status as ContentfulStatusCode,
+      details: err.reason,
+    });
+    this.name = 'Database Error';
+  }
+}
+
 export const notFound: NotFoundHandler = (ctx) => {
   throw new AppError({
     code: StatusCodes.NOT_FOUND,
@@ -57,7 +100,11 @@ export const notFound: NotFoundHandler = (ctx) => {
 };
 
 export const onError: ErrorHandler = (error, ctx) => {
-  if (error instanceof ValidationError || error instanceof AppError) {
+  if (
+    error instanceof ValidationError ||
+    error instanceof AppError ||
+    error instanceof DatabaseError
+  ) {
     return error.handle(ctx);
   }
 
