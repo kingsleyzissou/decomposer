@@ -51,8 +51,9 @@ export class JobQueue<T> {
     }
 
     return this.run(job).catch((err) => {
-      // There was most likely an error saving the request or blueprint
-      // to the artifacts directory, we should just move on to the next job
+      // Just handle the error and return a failed result, there
+      // was some issue either saving the blueprint to the state
+      // directory or with the build itself
       logger.error('There was an error executing the job', err);
       return 'failure';
     });
