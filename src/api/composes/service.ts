@@ -1,78 +1,62 @@
-import { StatusCodes } from 'http-status-codes';
-import { readdir, rmdir } from 'node:fs/promises';
+import { rmdir } from 'node:fs/promises';
 import path from 'node:path';
-import { validate as isValidUUID, v4 as uuid } from 'uuid';
+import { v4 as uuid } from 'uuid';
+import z from 'zod';
 
-import { AppError } from '@app/errors';
-import { logger } from '@app/logger';
 import { JobQueue } from '@app/queue';
-import { ComposeRequest } from '@app/types';
+import { ComposeRequest, Store } from '@app/types';
+import { withTransaction } from '@app/utilities';
+import { ClientId } from '@gen/ibcrc/zod';
 
 import { Compose, ComposeService as Service } from './types';
 
 export class ComposeService implements Service {
-  private store: string;
+  private store: Store;
   private queue: JobQueue<ComposeRequest>;
 
-  constructor(queue: JobQueue<ComposeRequest>, store: string) {
+  constructor(queue: JobQueue<ComposeRequest>, store: Store) {
     this.queue = queue;
     this.store = store;
   }
 
-  // TODO: possibly look at using some kind of database,
-  // like sqlite or jsondb to handle composes
   public async composes(): Promise<Compose[]> {
-    const items = await readdir(this.store);
-    const composes: Compose[] = [];
+    const composes = await withTransaction(() =>
+      this.store.composes.allDocs({
+        include_docs: true,
+      }),
+    );
 
-    for (const item of items) {
-      if (!isValidUUID(item)) {
-        continue;
-      }
-
-      const filepath = path.join(this.store, item);
-      const stat = await Bun.file(filepath).stat();
-
-      if (stat.isFile()) {
-        continue;
-      }
-
-      // TODO: check for compose requests and make this
-      // more complete. For the time being we can just keep
-      // this simple for the POC
-      composes.push({
-        id: item,
-        client_id: 'ui', // hardcoded for cockpit
-        created_at: stat.mtime.toISOString(),
-        // we're missing the request, so we need to cast this
-      } as Compose);
-    }
-
-    return composes;
-  }
-
-  private async exists(id: string) {
-    try {
-      const composePath = path.join(this.store, id);
-      await Bun.file(composePath).stat();
-    } catch {
-      const message = `No compose found for: ${id}`;
-      logger.debug(message);
-      throw new AppError({
-        message,
-        code: StatusCodes.NOT_FOUND,
+    return composes.rows
+      .map((row) => row.doc!)
+      .map((compose) => {
+        return {
+          id: compose._id,
+          client_id: 'ui' as z.infer<typeof ClientId>, // hardcoded for cockpit
+          created_at: compose.created_at,
+          request: compose.request!,
+        };
       });
-    }
   }
 
   public async add(request: ComposeRequest) {
-    const id = uuid();
-    this.queue.enqueue({ id, request });
-    return { id };
+    const compose = await withTransaction(() =>
+      this.store.composes.put({
+        _id: uuid(),
+        created_at: new Date().toISOString(),
+        status: 'pending',
+        request,
+      }),
+    );
+
+    this.queue.enqueue({ id: compose.id, request });
+    return { id: compose.id };
   }
 
   public async delete(id: string) {
-    await this.exists(id);
-    await rmdir(path.join(this.store, id), { recursive: true });
+    await withTransaction(async () => {
+      const compose = await this.store.composes.get(id);
+      await this.store.composes.remove(compose);
+      await rmdir(path.join(this.store.path, id), { recursive: true });
+    });
   }
 }
