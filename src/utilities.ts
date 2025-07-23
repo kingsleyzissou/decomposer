@@ -17,3 +17,7 @@ export const prettyPrint = (o: object) => {
 export const jsonFormat = (o: object) => {
   return JSON.stringify(o, null, 2);
 };
+
+// this is a simple higher order function so that we can
+// execute a promise with `true-myth` tasks
+export const resolve = <T>(fn: () => Promise<T>): Promise<T> => fn();

@@ -12,12 +12,6 @@ import { Job } from './types';
 
 type Customizations = z.infer<typeof Customizations>;
 
-const saveRequest = async (outputDir: string, request: ComposeRequest) => {
-  await Bun.file(path.join(outputDir, 'request.json')).write(
-    jsonFormat(request),
-  );
-};
-
 const saveBlueprint = async (
   outputDir: string,
   id: string,
@@ -40,7 +34,6 @@ export const buildImage = (
   return async ({ request, id }: Job<ComposeRequest>) => {
     const outputDir = path.join(store, id);
     await mkdir(outputDir, { recursive: true });
-    await saveRequest(outputDir, request);
     const bpPath = await saveBlueprint(outputDir, id, request.customizations);
 
     // there should only be one item, we have already validated this
@@ -67,12 +60,10 @@ export const buildImage = (
     await proc.exited;
     if (proc.exitCode === 0) {
       logger.info(`✅ Image build successful: ${id}`);
-      await Bun.file(path.join(outputDir, 'result')).write('success');
       return 'success';
     }
 
     logger.info(`❌ Image build failed: ${id}`);
-    await Bun.file(path.join(outputDir, 'result')).write('failure');
     return 'failure';
   };
 };
