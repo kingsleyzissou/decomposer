@@ -15,7 +15,7 @@ const setup = () => {
     })
     .get('/app-error-with-code', () => {
       throw new AppError({
-        code: 401,
+        code: StatusCodes.UNAUTHORIZED,
         message: 'App error with status code',
         details: ['something unexpected happened'],
       });
@@ -42,6 +42,7 @@ describe('Test error handling', () => {
     const res = await router.request('/badroute');
     expect(res.status).toBe(StatusCodes.NOT_FOUND);
     expect(await res.json()).toEqual({
+      code: StatusCodes.NOT_FOUND,
       message: `Path not found!`,
       details: [`The path '/badroute' does not exist`],
     });
@@ -51,6 +52,7 @@ describe('Test error handling', () => {
     const res = await router.request('/app-error-no-code');
     expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
     expect(await res.json()).toEqual({
+      code: StatusCodes.INTERNAL_SERVER_ERROR,
       message: 'App error with no status code',
       details: ['something unexpected happened'],
     });
@@ -58,8 +60,9 @@ describe('Test error handling', () => {
 
   it('app error with code should use correct code', async () => {
     const res = await router.request('/app-error-with-code');
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(StatusCodes.UNAUTHORIZED);
     expect(await res.json()).toEqual({
+      code: StatusCodes.UNAUTHORIZED,
       message: 'App error with status code',
       details: ['something unexpected happened'],
     });
@@ -69,6 +72,7 @@ describe('Test error handling', () => {
     const res = await router.request('/unexpected-error');
     expect(res.status).toBe(StatusCodes.INTERNAL_SERVER_ERROR);
     expect(await res.json()).toEqual({
+      code: StatusCodes.INTERNAL_SERVER_ERROR,
       message: 'something very unexpected happened',
     });
   });
@@ -77,6 +81,7 @@ describe('Test error handling', () => {
     const res = await router.request('/validation-error');
     expect(res.status).toBe(StatusCodes.UNPROCESSABLE_ENTITY);
     expect(await res.json()).toEqual({
+      code: StatusCodes.UNPROCESSABLE_ENTITY,
       details: [
         {
           code: 'invalid_type',

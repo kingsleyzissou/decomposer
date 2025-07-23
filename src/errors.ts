@@ -1,16 +1,17 @@
+import { Context } from 'hono';
 import type { ErrorHandler, NotFoundHandler } from 'hono/types';
 import { ContentfulStatusCode } from 'hono/utils/http-status';
 import { StatusCodes } from 'http-status-codes';
-import { $ZodError, $ZodIssue } from 'zod/v4/core';
+import { $ZodError } from 'zod/v4/core';
 
 type AppErrorProps = {
-  code?: number;
+  code?: ContentfulStatusCode;
   message: string;
   details?: unknown;
 };
 
 export class AppError extends Error {
-  public code: number;
+  public code: ContentfulStatusCode;
   public details?: unknown;
 
   constructor({
@@ -23,15 +24,27 @@ export class AppError extends Error {
     this.code = code;
     this.details = details;
   }
+
+  public handle(ctx: Context) {
+    return ctx.json(
+      {
+        message: this.message,
+        details: this.details,
+        code: this.code,
+      },
+      this.code,
+    );
+  }
 }
 
-export class ValidationError extends Error {
-  public issues: $ZodIssue[];
-
+export class ValidationError extends AppError {
   constructor({ issues }: $ZodError) {
-    super('Validation failed');
+    super({
+      message: 'Validation failed',
+      details: issues,
+      code: StatusCodes.UNPROCESSABLE_ENTITY,
+    });
     this.name = 'ValidationError';
-    this.issues = issues;
   }
 }
 
@@ -44,28 +57,13 @@ export const notFound: NotFoundHandler = (ctx) => {
 };
 
 export const onError: ErrorHandler = (error, ctx) => {
-  if (error instanceof ValidationError) {
-    return ctx.json(
-      {
-        message: error.message,
-        details: error.issues,
-      },
-      StatusCodes.UNPROCESSABLE_ENTITY,
-    );
-  }
-
-  if (error instanceof AppError) {
-    return ctx.json(
-      {
-        message: error.message,
-        details: error.details,
-      },
-      error.code as ContentfulStatusCode,
-    );
+  if (error instanceof ValidationError || error instanceof AppError) {
+    return error.handle(ctx);
   }
 
   return ctx.json(
     {
+      code: StatusCodes.INTERNAL_SERVER_ERROR,
       message: error.message,
     },
     StatusCodes.INTERNAL_SERVER_ERROR,
