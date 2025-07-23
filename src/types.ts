@@ -6,9 +6,22 @@ import { ComposeRequest as CRCComposeRequest } from '@gen/ibcrc/zod';
 
 export type ComposeRequest = z.infer<typeof CRCComposeRequest>;
 
+export type ComposeDoc = {
+  _id: string;
+  _rev?: string;
+  created_at: string;
+  status: string;
+  request?: ComposeRequest;
+};
+
+export type Store = {
+  path: string;
+  composes: PouchDB.Database<ComposeDoc>;
+};
+
 export type AppContext = {
   Variables: {
-    store: string;
+    store: Store;
     logger: typeof logger;
     queue: Queue<ComposeRequest>;
   };

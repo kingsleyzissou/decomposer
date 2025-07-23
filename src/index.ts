@@ -10,6 +10,7 @@ import { notFound, onError } from '@app/errors';
 import { logger } from '@app/logger';
 import { JobQueue } from '@app/queue';
 import { buildImage } from '@app/queue';
+import { createStore } from '@app/store';
 import { AppContext, ComposeRequest } from '@app/types';
 import { prettyPrint, removeSocket } from '@app/utilities';
 
@@ -22,13 +23,17 @@ const app = new Hono();
 app.notFound(notFound);
 app.onError(onError);
 
+const { composes } = createStore(cliArgs.store);
 const queue = new JobQueue<ComposeRequest>(buildImage(cliArgs.store));
 
 export const middleware = new Hono<AppContext>();
 middleware.use(prettyJSON());
 middleware.use(pinoLogger({ pino: logger }));
 middleware.use(async (ctx, next) => {
-  ctx.set('store', cliArgs.store);
+  ctx.set('store', {
+    path: cliArgs.store,
+    composes,
+  });
   ctx.set('queue', queue);
   await next();
 });
