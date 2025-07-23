@@ -10,6 +10,7 @@
     "format": "prettier ./src --write",
     "format:check": "prettier ./src --check",
     "test": "bun test",
+    "check": "tsc --noEmit",
     "generate": "bun --silent api:filter && bun --silent api:generate",
     "api:filter": "bun --silent ./tools/openapi/filter.ts",
     "api:generate": "bun --silent ./tools/openapi/generate.ts"
