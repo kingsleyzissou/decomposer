@@ -73,6 +73,6 @@ export class ComposeService implements Service {
 
   public async delete(id: string) {
     await this.exists(id);
-    await rmdir(path.join(this.store, id));
+    await rmdir(path.join(this.store, id), { recursive: true });
   }
 }

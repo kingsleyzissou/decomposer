@@ -63,38 +63,30 @@ describe('Composes handler tests', async () => {
   it('GET /composes should have one compose now', async () => {
     // delay the request so we can finish simulating
     // the post request
-    setTimeout(async () => {
-      const res = await client.composes.$get();
-      expect(res.status).toBe(200);
-      const body = (await res.json()) as ComposesResponse;
-      expect(body).not.toBeUndefined();
-      expect(body.meta.count).toBe(1);
-      expect(body.data).not.toBeUndefined();
-      expect(body.data.length).toBe(1);
-    }, 200);
+    const res = await client.composes.$get();
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as ComposesResponse;
+    expect(body).not.toBeUndefined();
+    expect(body.meta.count).toBe(1);
+    expect(body.data).not.toBeUndefined();
+    expect(body.data.length).toBe(1);
   });
 
   it('DELETE /compose/:id should delete a compose', async () => {
-    // delay the request so we can finish simulating
-    // the post request
-    setTimeout(async () => {
-      const res = await client.compose[':id'].$delete({
-        param: { id: newCompose },
-      });
-      expect(res.status).toBe(200);
-    }, 200);
+    const res = await client.compose[':id'].$delete({
+      param: { id: newCompose },
+    });
+    expect(res.status).toBe(200);
   });
 
   it('GET /composes should empty again', async () => {
-    setTimeout(async () => {
-      const res = await client.composes.$get();
-      expect(res.status).toBe(StatusCodes.OK);
-      const body = (await res.json()) as ComposesResponse;
-      expect(body).not.toBeUndefined();
-      expect(body.meta.count).toBe(0);
-      expect(body.data).not.toBeUndefined();
-      expect(body.data.length).toBe(0);
-    }, 200);
+    const res = await client.composes.$get();
+    expect(res.status).toBe(StatusCodes.OK);
+    const body = (await res.json()) as ComposesResponse;
+    expect(body).not.toBeUndefined();
+    expect(body.meta.count).toBe(0);
+    expect(body.data).not.toBeUndefined();
+    expect(body.data.length).toBe(0);
   });
 
   it('DELETE /compose/:id for non-existing compose should return 404', async () => {
