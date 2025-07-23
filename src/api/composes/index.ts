@@ -5,7 +5,6 @@ import { ComposeContext, ComposeResponse, ComposesResponse } from './types';
 import * as validators from './validators';
 
 export const composes = new Hono<ComposeContext>()
-
   // Rather than initialising the service inside each
   // handler, we can just inject it through middleware.
   // Each handler will then have access to service via app context
@@ -14,7 +13,7 @@ export const composes = new Hono<ComposeContext>()
   .use(async (ctx, next) => {
     const queue = ctx.get('queue');
     const store = ctx.get('store');
-    ctx.set('service', new ComposeService(queue, store));
+    ctx.set('service', new ComposeService(queue, store.path));
     await next();
   })
 
