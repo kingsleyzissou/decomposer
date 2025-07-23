@@ -53,5 +53,5 @@ export const composes = new Hono<ComposeContext>()
     const id = ctx.req.param('id');
     const service = ctx.get('service');
     await service.delete(id);
-    ctx.json({ message: 'OK' });
+    return ctx.json({ message: 'OK' });
   });
