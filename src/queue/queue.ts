@@ -45,7 +45,7 @@ export class JobQueue<T> {
     this.events.emit('completed', result);
   }
 
-  public async execute(job: Job<T> | undefined) {
+  private async execute(job: Job<T> | undefined) {
     if (!job) {
       return;
     }
