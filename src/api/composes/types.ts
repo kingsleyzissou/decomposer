@@ -2,7 +2,7 @@ import { Result } from 'true-myth';
 import z from 'zod';
 
 import { DatabaseError } from '@app/errors';
-import { AppContext, ComposeRequest } from '@app/types';
+import { AppContext, ComposeDoc, ComposeRequest } from '@app/types';
 import * as schema from '@gen/ibcrc/zod';
 
 export type Compose = z.infer<typeof schema.ComposesResponseItem>;
@@ -21,5 +21,9 @@ export type ComposeService = {
   add: (
     request: ComposeRequest,
   ) => Promise<Result<{ id: string }, DatabaseError>>;
+  update: (
+    id: string,
+    changes: ComposeDoc,
+  ) => Promise<Result<void, DatabaseError>>;
   delete: (id: string) => Promise<Result<unknown, DatabaseError>>;
 };

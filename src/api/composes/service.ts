@@ -6,7 +6,7 @@ import z from 'zod';
 
 import { withDatabaseError } from '@app/errors';
 import { JobQueue } from '@app/queue';
-import { ComposeRequest, Store } from '@app/types';
+import { ComposeDoc, ComposeRequest, JobResult, Store } from '@app/types';
 import { resolve } from '@app/utilities';
 import { ClientId } from '@gen/ibcrc/zod';
 
@@ -19,6 +19,9 @@ export class ComposeService implements Service {
   constructor(queue: JobQueue<ComposeRequest>, store: Store) {
     this.queue = queue;
     this.store = store;
+    this.queue.events.on('update', async ({ id, result }: JobResult) => {
+      await this.update(id, { status: result } as ComposeDoc);
+    });
   }
 
   public async composes() {
@@ -58,6 +61,14 @@ export class ComposeService implements Service {
     });
   }
 
+  public async get(id: string) {
+    const task = Task.fromPromise(this.store.composes.get(id));
+
+    return await task.mapRejected(withDatabaseError).map((compose) => {
+      return compose;
+    });
+  }
+
   public async delete(id: string) {
     const task = Task.fromPromise(
       resolve(async () => {
@@ -68,5 +79,19 @@ export class ComposeService implements Service {
     );
 
     return await task.mapRejected(withDatabaseError);
+  }
+
+  public async update(id: string, changes: ComposeDoc) {
+    const task = Task.fromPromise(
+      resolve(async () => {
+        const compose = await this.store.composes.get(id);
+        await this.store.composes.put({
+          ...compose,
+          ...changes,
+        });
+      }),
+    );
+
+    return task.mapRejected(withDatabaseError);
   }
 }
