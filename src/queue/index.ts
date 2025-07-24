@@ -1,2 +1,2 @@
 export { JobQueue } from './queue';
-export { buildImage } from './processor';
+export { buildImage } from './worker';
