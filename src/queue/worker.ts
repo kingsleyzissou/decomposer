@@ -68,11 +68,11 @@ export const buildImage = (
     if (proc.exitCode === 0) {
       logger.info(`✅ Image build successful: ${id}`);
       await Bun.file(path.join(outputDir, 'result')).write('success');
-      return;
+      return 'success';
     }
 
     logger.info(`❌ Image build failed: ${id}`);
     await Bun.file(path.join(outputDir, 'result')).write('failure');
-    return;
+    return 'failure';
   };
 };
