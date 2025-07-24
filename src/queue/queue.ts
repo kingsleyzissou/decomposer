@@ -33,6 +33,22 @@ export class JobQueue<T> {
     return this.current;
   }
 
+  public remove(id: string) {
+    this.queue = this.queue.filter((job) => job.id === id);
+  }
+
+  public contains(id: string) {
+    return this.queue.some((job) => job.id === id);
+  }
+
+  public isCurrent(id: string) {
+    if (!this.current) {
+      return false;
+    }
+
+    return id === this.current.id;
+  }
+
   public async process() {
     if (this.queue.length === 0) {
       return;

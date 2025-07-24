@@ -1,10 +1,12 @@
+import { StatusCodes } from 'http-status-codes';
 import { rmdir } from 'node:fs/promises';
 import path from 'node:path';
+import { Result } from 'true-myth';
 import * as Task from 'true-myth/task';
 import { v4 as uuid } from 'uuid';
 import z from 'zod';
 
-import { withDatabaseError } from '@app/errors';
+import { AppError, withDatabaseError } from '@app/errors';
 import { JobQueue } from '@app/queue';
 import { ComposeDoc, ComposeRequest, JobResult, Store } from '@app/types';
 import { resolve } from '@app/utilities';
@@ -70,6 +72,15 @@ export class ComposeService implements Service {
   }
 
   public async delete(id: string) {
+    if (this.queue.isCurrent(id)) {
+      return Result.err(
+        new AppError({
+          code: StatusCodes.FORBIDDEN,
+          message: 'Job is in progress, it cannot be deleted.',
+        }),
+      );
+    }
+    this.queue.remove(id);
     const task = Task.fromPromise(
       resolve(async () => {
         const compose = await this.store.composes.get(id);
