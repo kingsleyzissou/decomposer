@@ -1,13 +1,13 @@
 import { logger } from '@app/logger';
 
-import { Job, processor } from './types';
+import { Job, Worker } from './types';
 
 export class JobQueue<T> {
   current?: Job<T> | undefined;
   public queue: Job<T>[];
-  public run: processor<T>;
+  public run: Worker<T>;
 
-  constructor(cmd: processor<T>) {
+  constructor(cmd: Worker<T>) {
     this.queue = [];
     this.run = cmd;
   }

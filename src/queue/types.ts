@@ -3,4 +3,4 @@ export type Job<T> = {
   request: T;
 };
 
-export type processor<T> = (request: Job<T>) => Promise<void>;
+export type Worker<T> = (request: Job<T>) => Promise<void>;

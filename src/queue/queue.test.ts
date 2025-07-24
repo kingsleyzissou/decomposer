@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, spyOn } from 'bun:test';
 
-import { runJob } from '@app/__mocks__/command';
+import { runJob } from '@app/__mocks__/worker';
 
 import { JobQueue as Queue } from './queue';
 
