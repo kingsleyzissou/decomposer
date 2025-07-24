@@ -14,6 +14,11 @@ export type ComposeDoc = {
   request?: ComposeRequest;
 };
 
+export type JobResult = {
+  id: string;
+  result: string;
+};
+
 export type Store = {
   path: string;
   composes: PouchDB.Database<ComposeDoc>;

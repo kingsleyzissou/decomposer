@@ -3,5 +3,5 @@ export const runJob = async (request: { id: string; request: string }) => {
     cmd: ['echo', request.request],
   });
   await proc.exited;
-  return 'success';
+  return { id: request.id, result: 'success' };
 };
