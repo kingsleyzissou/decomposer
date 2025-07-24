@@ -56,7 +56,7 @@ describe('Composes handler tests', async () => {
     const res = await client.compose.$post({
       json: composeRequest,
     });
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(StatusCodes.OK);
     const { id } = await res.json();
     newCompose = id;
     expect(validate(id)).toBeTrue();
@@ -66,7 +66,7 @@ describe('Composes handler tests', async () => {
     // delay the request so we can finish simulating
     // the post request
     const res = await client.composes.$get();
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(StatusCodes.OK);
     const body = (await res.json()) as ComposesResponse;
     expect(body).not.toBeUndefined();
     expect(body.meta.count).toBe(1);
@@ -75,10 +75,11 @@ describe('Composes handler tests', async () => {
   });
 
   it('DELETE /compose/:id should delete a compose', async () => {
+    await Bun.sleep(4);
     const res = await client.compose[':id'].$delete({
       param: { id: newCompose },
     });
-    expect(res.status).toBe(200);
+    expect(res.status).toBe(StatusCodes.OK);
   });
 
   it('GET /composes should empty again', async () => {
@@ -107,6 +108,9 @@ describe('Composes handler tests', async () => {
   });
 
   it('DELETE /compose/:id with corrupt directory should return 500', async () => {
+    // just wait for the scheduled job to run, otherwise this causes
+    // the tests to break
+    await Bun.sleep(1);
     await rmdir(path.join(tmp, newCompose), { recursive: true });
     Bun.sleep(2);
     const res = await client.compose[':id'].$delete({
