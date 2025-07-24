@@ -60,10 +60,10 @@ export const buildImage = (
     await proc.exited;
     if (proc.exitCode === 0) {
       logger.info(`✅ Image build successful: ${id}`);
-      return 'success';
+      return { id, result: 'success' };
     }
 
     logger.info(`❌ Image build failed: ${id}`);
-    return 'failure';
+    return { id, result: 'failure' };
   };
 };
