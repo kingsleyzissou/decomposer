@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 import z from 'zod';
 
 import { JobQueue } from '@app/queue';
-import { ComposeRequest, Store } from '@app/types';
+import { ComposeDoc, ComposeRequest, JobResult, Store } from '@app/types';
 import { withTransaction } from '@app/utilities';
 import { ClientId } from '@gen/ibcrc/zod';
 
@@ -17,6 +17,9 @@ export class ComposeService implements Service {
   constructor(queue: JobQueue<ComposeRequest>, store: Store) {
     this.queue = queue;
     this.store = store;
+    this.queue.events.on('update', async ({ id, result }: JobResult) => {
+      await this.update(id, { status: result } as ComposeDoc);
+    });
   }
 
   public async composes(): Promise<Compose[]> {
@@ -52,11 +55,27 @@ export class ComposeService implements Service {
     return { id: compose.id };
   }
 
+  public async get(id: string) {
+    return await withTransaction(async () => {
+      return await this.store.composes.get(id);
+    });
+  }
+
   public async delete(id: string) {
     await withTransaction(async () => {
       const compose = await this.store.composes.get(id);
       await this.store.composes.remove(compose);
       await rmdir(path.join(this.store.path, id), { recursive: true });
+    });
+  }
+
+  public async update(id: string, changes: ComposeDoc) {
+    await withTransaction(async () => {
+      const compose = await this.store.composes.get(id);
+      await this.store.composes.put({
+        ...compose,
+        ...changes,
+      });
     });
   }
 }
