@@ -1,8 +1,11 @@
+import { Result } from 'true-myth';
 import z from 'zod';
 
 import { logger } from '@app/logger';
-import { JobQueue as Queue } from '@app/queue';
 import { ComposeRequest as CRCComposeRequest } from '@gen/ibcrc/zod';
+import * as schema from '@gen/ibcrc/zod';
+
+import { DatabaseError } from './errors';
 
 export type ComposeRequest = z.infer<typeof CRCComposeRequest>;
 
@@ -36,10 +39,26 @@ export type Store = {
   composes: PouchDB.Database<ComposeDoc>;
 };
 
+export type Compose = z.infer<typeof schema.ComposesResponseItem>;
+
+export type ComposeService = {
+  composes: () => Promise<Result<Compose[], DatabaseError>>;
+  add: (
+    request: ComposeRequest,
+  ) => Promise<Result<{ id: string }, DatabaseError>>;
+  get: (id: string) => Promise<Result<ComposeDoc, DatabaseError>>;
+  update: (
+    id: string,
+    changes: ComposeDoc,
+  ) => Promise<Result<void, DatabaseError>>;
+  delete: (id: string) => Promise<Result<unknown, DatabaseError>>;
+};
+
 export type AppContext = {
   Variables: {
-    store: Store;
     logger: typeof logger;
-    queue: Queue<ComposeRequest>;
+    services: {
+      compose: ComposeService;
+    };
   };
 };

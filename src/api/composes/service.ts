@@ -16,10 +16,9 @@ import {
   Status,
   Store,
 } from '@app/types';
+import { ComposeService as Service } from '@app/types';
 import { resolve } from '@app/utilities';
 import { ClientId } from '@gen/ibcrc/zod';
-
-import { ComposeService as Service } from './types';
 
 export class ComposeService implements Service {
   private store: Store;

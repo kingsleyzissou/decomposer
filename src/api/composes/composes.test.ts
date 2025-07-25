@@ -1,5 +1,4 @@
 import { afterAll, describe, expect, it } from 'bun:test';
-import { Hono } from 'hono';
 import { testClient } from 'hono/testing';
 import { ContentfulStatusCode } from 'hono/utils/http-status';
 import { StatusCodes } from 'http-status-codes';
@@ -8,33 +7,28 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { validate } from 'uuid';
 
-import { onError } from '@app/errors';
+import { createApp } from '@app/app';
 import { JobQueue } from '@app/queue';
 import { buildImage } from '@app/queue';
 import { ComposeRequest } from '@app/types';
 
 import { composeRequest, createTestStore } from '@fixtures';
 
-import { composes } from '.';
-import { ComposeContext, ComposesResponse } from './types';
+import { ComposesResponse } from './types';
 
 const executable = path.join(__dirname, '..', '..', '__mocks__', 'ibcli');
 
+const createTestClient = (tmp: string) => {
+  const store = createTestStore(tmp);
+  const queue = new JobQueue<ComposeRequest>(buildImage(tmp, executable));
+  const { app } = createApp('', store, queue);
+  const client = testClient(app);
+  return client.api['image-builder-composer'].v2;
+};
+
 describe('Composes handler tests', async () => {
-  const store = createTestStore();
   const tmp = await mkdtemp(path.join(tmpdir(), 'decomposer-test'));
-  const client = testClient(
-    new Hono<ComposeContext>()
-      .onError(onError)
-      .use(async (ctx, next) => {
-        // inject a mock executable here so that we don't actually run ibcli
-        const queue = new JobQueue<ComposeRequest>(buildImage(tmp, executable));
-        ctx.set('queue', queue);
-        ctx.set('store', { path: tmp, composes: store.composes });
-        await next();
-      })
-      .route('/', composes),
-  );
+  const client = createTestClient(tmp);
 
   afterAll(async () => {
     await rmdir(tmp, { recursive: true });
@@ -104,7 +98,7 @@ describe('Composes handler tests', async () => {
     expect(res.status).toBe(StatusCodes.OK);
     const { id } = await res.json();
     newCompose = id;
-    Bun.sleep(2);
+    await Bun.sleep(2);
   });
 
   it('DELETE /compose/:id with corrupt directory should return 500', async () => {
@@ -112,7 +106,7 @@ describe('Composes handler tests', async () => {
     // the tests to break
     await Bun.sleep(1);
     await rmdir(path.join(tmp, newCompose), { recursive: true });
-    Bun.sleep(2);
+    await Bun.sleep(4);
     const res = await client.compose[':id'].$delete({
       param: { id: newCompose },
     });

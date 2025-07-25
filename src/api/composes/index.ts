@@ -1,31 +1,19 @@
 import { Hono } from 'hono';
 
-import { ComposeService } from './service';
+import { AppContext } from '@app/types';
+
 import {
-  ComposeContext,
   ComposeResponse,
   ComposeStatusResponse,
   ComposesResponse,
 } from './types';
 import * as validators from './validators';
 
-export const composes = new Hono<ComposeContext>()
-  // Rather than initialising the service inside each
-  // handler, we can just inject it through middleware.
-  // Each handler will then have access to service via app context
-  // This does mean that we are instantiating the service on each
-  // request, but the constructor is small
-  .use(async (ctx, next) => {
-    const queue = ctx.get('queue');
-    const store = ctx.get('store');
-    ctx.set('service', new ComposeService(queue, store));
-    await next();
-  })
-
+export const composes = new Hono<AppContext>()
   // curl --unix-socket /run/decomposer-httpd.sock \
   // -X GET 'http://localhost/api/image-builder-composer/v2/composes'
   .get('/composes', async (ctx) => {
-    const service = ctx.get('service');
+    const { compose: service } = ctx.get('services');
     const result = await service.composes();
 
     return result.match({
@@ -54,7 +42,7 @@ export const composes = new Hono<ComposeContext>()
   // -d @src/__mocks__/compose.json \
   // -X POST 'http://localhost/api/image-builder-composer/v2/compose'
   .post('/compose', validators.createCompose, async (ctx) => {
-    const service = ctx.get('service');
+    const { compose: service } = ctx.get('services');
     const result = await service.add(ctx.req.valid('json'));
 
     return result.match({
@@ -72,7 +60,7 @@ export const composes = new Hono<ComposeContext>()
   // -X GET 'http://localhost/api/image-builder-composer/v2/compose/123e4567-e89b-12d3-a456-426655440000'
   .get('/composes/:id', async (ctx) => {
     const id = ctx.req.param('id');
-    const service = ctx.get('service');
+    const { compose: service } = ctx.get('services');
     const result = await service.get(id);
 
     return result.match({
@@ -95,7 +83,7 @@ export const composes = new Hono<ComposeContext>()
   // -X DELETE 'http://localhost/api/image-builder-composer/v2/compose/123e4567-e89b-12d3-a456-426655440000'
   .delete('/compose/:id', async (ctx) => {
     const id = ctx.req.param('id');
-    const service = ctx.get('service');
+    const { compose: service } = ctx.get('services');
     const result = await service.delete(id);
 
     return result.match({
