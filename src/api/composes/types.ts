@@ -10,6 +10,8 @@ export type ComposesResponse = z.infer<typeof schema.ComposesResponse>;
 
 export type ComposeResponse = z.infer<typeof schema.ComposeResponse>;
 
+export type ComposeStatusResponse = z.infer<typeof schema.ComposeStatus>;
+
 export type ComposeContext = AppContext & {
   Variables: {
     service: ComposeService;
@@ -21,6 +23,7 @@ export type ComposeService = {
   add: (
     request: ComposeRequest,
   ) => Promise<Result<{ id: string }, DatabaseError>>;
+  get: (id: string) => Promise<Result<ComposeDoc, DatabaseError>>;
   update: (
     id: string,
     changes: ComposeDoc,
