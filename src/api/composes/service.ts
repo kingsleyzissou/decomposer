@@ -13,7 +13,7 @@ import {
   Status,
   Store,
 } from '@app/types';
-import { withTransaction } from '@app/utilities';
+import { withMutex, withTransaction } from '@app/utilities';
 import { ClientId } from '@gen/ibcrc/zod';
 
 import { Compose, ComposeService as Service } from './types';
@@ -77,20 +77,24 @@ export class ComposeService implements Service {
       });
     }
     this.queue.remove(id);
-    await withTransaction(async () => {
-      const compose = await this.store.composes.get(id);
-      await this.store.composes.remove(compose);
-      await rmdir(path.join(this.store.path, id), { recursive: true });
-    });
+    await withTransaction(() =>
+      withMutex(id, async () => {
+        const compose = await this.store.composes.get(id);
+        await this.store.composes.remove(compose);
+        await rmdir(path.join(this.store.path, id), { recursive: true });
+      }),
+    );
   }
 
   public async update(id: string, changes: ComposeDoc) {
-    await withTransaction(async () => {
-      const compose = await this.store.composes.get(id);
-      await this.store.composes.put({
-        ...compose,
-        ...changes,
-      });
-    });
+    await withTransaction(() =>
+      withMutex(id, async () => {
+        const compose = await this.store.composes.get(id);
+        await this.store.composes.put({
+          ...compose,
+          ...changes,
+        });
+      }),
+    );
   }
 }
