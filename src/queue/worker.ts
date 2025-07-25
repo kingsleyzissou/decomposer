@@ -4,7 +4,7 @@ import z from 'zod';
 
 import { mapHostedToOnPrem } from '@app/blueprint';
 import { logger } from '@app/logger';
-import { ComposeRequest } from '@app/types';
+import { ComposeRequest, JobResult, Status } from '@app/types';
 import { jsonFormat } from '@app/utilities';
 import { Customizations } from '@gen/ibcrc/zod';
 
@@ -31,7 +31,7 @@ export const buildImage = (
   store: string,
   executable: string = 'image-builder',
 ) => {
-  return async ({ request, id }: Job<ComposeRequest>) => {
+  return async ({ request, id }: Job<ComposeRequest>): Promise<JobResult> => {
     const outputDir = path.join(store, id);
     await mkdir(outputDir, { recursive: true });
     const bpPath = await saveBlueprint(outputDir, id, request.customizations);
@@ -61,11 +61,11 @@ export const buildImage = (
     if (proc.exitCode === 0) {
       logger.info(`✅ Image build successful: ${id}`);
       await Bun.file(path.join(outputDir, 'result')).write('success');
-      return { id, result: 'success' };
+      return { id, result: Status.SUCCESS };
     }
 
     logger.info(`❌ Image build failed: ${id}`);
     await Bun.file(path.join(outputDir, 'result')).write('failure');
-    return { id, result: 'failure' };
+    return { id, result: Status.FAILURE };
   };
 };

@@ -6,7 +6,13 @@ import z from 'zod';
 
 import { AppError } from '@app/errors';
 import { JobQueue } from '@app/queue';
-import { ComposeDoc, ComposeRequest, JobResult, Store } from '@app/types';
+import {
+  ComposeDoc,
+  ComposeRequest,
+  JobMessage,
+  Status,
+  Store,
+} from '@app/types';
 import { withTransaction } from '@app/utilities';
 import { ClientId } from '@gen/ibcrc/zod';
 
@@ -19,8 +25,8 @@ export class ComposeService implements Service {
   constructor(queue: JobQueue<ComposeRequest>, store: Store) {
     this.queue = queue;
     this.store = store;
-    this.queue.events.on('update', async ({ id, result }: JobResult) => {
-      await this.update(id, { status: result } as ComposeDoc);
+    this.queue.events.on('message', async ({ data }: JobMessage) => {
+      await this.update(data.id, { status: data.result } as ComposeDoc);
     });
   }
 
@@ -48,7 +54,7 @@ export class ComposeService implements Service {
       this.store.composes.put({
         _id: uuid(),
         created_at: new Date().toISOString(),
-        status: 'pending',
+        status: Status.PENDING,
         request,
       }),
     );

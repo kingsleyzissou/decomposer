@@ -1,7 +1,12 @@
 import { Hono } from 'hono';
 
 import { ComposeService } from './service';
-import { ComposeContext, ComposeResponse, ComposesResponse } from './types';
+import {
+  ComposeContext,
+  ComposeResponse,
+  ComposeStatusResponse,
+  ComposesResponse,
+} from './types';
 import * as validators from './validators';
 
 export const composes = new Hono<ComposeContext>()
@@ -44,6 +49,20 @@ export const composes = new Hono<ComposeContext>()
     const service = ctx.get('service');
     const { id } = await service.add(ctx.req.valid('json'));
     return ctx.json<ComposeResponse>({ id });
+  })
+
+  // curl --unix-socket /run/decomposer-httpd.sock \
+  // -X GET 'http://localhost/api/image-builder-composer/v2/compose/123e4567-e89b-12d3-a456-426655440000'
+  .get('/composes/:id', async (ctx) => {
+    const id = ctx.req.param('id');
+    const service = ctx.get('service');
+    const compose = await service.get(id);
+    return ctx.json<ComposeStatusResponse>({
+      request: compose.request!,
+      image_status: {
+        status: compose.status,
+      },
+    });
   })
 
   // curl --unix-socket /run/decomposer-httpd.sock \
