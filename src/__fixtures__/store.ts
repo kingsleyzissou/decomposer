@@ -5,11 +5,12 @@ import { ComposeDoc } from '@app/types';
 
 pouchdb.plugin(memoryAdapter);
 
-export const createTestStore = () => {
+export const createTestStore = (store: string) => {
   const composesStore: PouchDB.Database<ComposeDoc> = new pouchdb('composes', {
     adapter: 'memory',
   });
   return {
+    path: store,
     composes: composesStore,
   };
 };

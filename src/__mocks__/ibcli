@@ -1,7 +1,6 @@
 #!/bin/bash
 
 echo "Image build starting"
-sleep 2
 
 n=$(od -An -N1 -i /dev/urandom | awk '{print $1 % 10}' | head -n 1)
 
