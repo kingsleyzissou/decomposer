@@ -1,4 +1,5 @@
 export { prettyPrint, jsonFormat } from './formatting';
+export { imageTypeLookup } from './image-lookup';
 export { withMutex } from './mutex';
 export { withTransaction } from './transaction';
 
