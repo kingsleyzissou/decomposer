@@ -85,6 +85,7 @@ curl --unix-socket /run/decomposer-httpd.sock \
 
 - `GET /api/image-builder-composer/v2/composes` - Get collection of compose requests
 - `POST /api/image-builder-composer/v2/compose` - Create a new compose request
+- `GET /api/image-builder-composer/v2/composes/:id` - Get status of a specific compose request
 - `DELETE /api/image-builder-composer/v2/compose/:id` - Delete a specific compose
 
 #### Examples
@@ -114,6 +115,10 @@ curl --unix-socket /run/decomposer-httpd.sock \
   }'
 ```
 
+```bash
+curl --unix-socket /run/decomposer-httpd.sock \
+  -X GET 'http://localhost/api/image-builder-composer/v2/composes/YOUR-COMPOSE-ID'
+```
 
 ```bash
 curl --unix-socket /run/decomposer-httpd.sock \
