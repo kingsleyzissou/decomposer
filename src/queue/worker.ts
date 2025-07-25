@@ -5,7 +5,7 @@ import z from 'zod';
 import { mapHostedToOnPrem } from '@app/blueprint';
 import { logger } from '@app/logger';
 import { ComposeRequest, JobResult, Status } from '@app/types';
-import { jsonFormat } from '@app/utilities';
+import { imageTypeLookup, jsonFormat } from '@app/utilities';
 import { Customizations } from '@gen/ibcrc/zod';
 
 import { Job } from './types';
@@ -36,8 +36,11 @@ export const buildImage = (
     await mkdir(outputDir, { recursive: true });
     const bpPath = await saveBlueprint(outputDir, id, request.customizations);
 
-    // there should only be one item, we have already validated this
-    const imageType = request.image_requests[0].image_type;
+    const imageType = imageTypeLookup.hostedToOnPrem(
+      request.distribution,
+      // there should only be one item, we have already validated this
+      request.image_requests[0].image_type,
+    );
 
     const proc = Bun.spawn(
       [
