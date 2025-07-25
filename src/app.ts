@@ -16,7 +16,12 @@ export const createApp = (store: string, socket: string) => {
   app.onError(onError);
 
   const { composes } = createStore(store);
-  const queue = new JobQueue<ComposeRequest>(buildImage(store));
+  const queue = new JobQueue<ComposeRequest>(
+    buildImage({
+      store,
+      subcommand: process.env.NODE_ENV === 'test' ? 'manifest' : 'build',
+    }),
+  );
 
   const middleware = new Hono<AppContext>();
   middleware.use(prettyJSON());

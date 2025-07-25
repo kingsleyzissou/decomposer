@@ -28,7 +28,9 @@ describe('Composes handler tests', async () => {
       .onError(onError)
       .use(async (ctx, next) => {
         // inject a mock executable here so that we don't actually run ibcli
-        const queue = new JobQueue<ComposeRequest>(buildImage(tmp, executable));
+        const queue = new JobQueue<ComposeRequest>(
+          buildImage({ store: tmp, executable }),
+        );
         ctx.set('queue', queue);
         ctx.set('store', { path: tmp, composes: store.composes });
         await next();
