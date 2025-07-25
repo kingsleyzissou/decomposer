@@ -462,6 +462,59 @@ export const ComposesResponse = z
   })
   .passthrough();
 
+export const AWSUploadStatus = z
+  .object({ ami: z.string(), region: z.string() })
+  .passthrough();
+
+export const AWSS3UploadStatus = z.object({ url: z.string() }).passthrough();
+
+export const GCPUploadStatus = z
+  .object({ project_id: z.string(), image_name: z.string() })
+  .passthrough();
+
+export const AzureUploadStatus = z
+  .object({ image_name: z.string() })
+  .passthrough();
+
+export const OCIUploadStatus = z.object({ url: z.string() }).passthrough();
+
+export const UploadStatus = z
+  .object({
+    status: z.enum(['success', 'failure', 'pending', 'running']),
+    type: UploadTypes,
+    options: z.union([
+      AWSUploadStatus,
+      AWSS3UploadStatus,
+      GCPUploadStatus,
+      AzureUploadStatus,
+      OCIUploadStatus,
+    ]),
+  })
+  .passthrough();
+
+export const ComposeStatusError = z
+  .object({ id: z.number().int(), reason: z.string() })
+  .passthrough();
+
+export const ImageStatus = z
+  .object({
+    status: z.enum([
+      'success',
+      'failure',
+      'pending',
+      'building',
+      'uploading',
+      'registering',
+    ]),
+    upload_status: UploadStatus.optional(),
+    error: ComposeStatusError.optional(),
+  })
+  .passthrough();
+
+export const ComposeStatus = z
+  .object({ image_status: ImageStatus, request: ComposeRequest })
+  .passthrough();
+
 export const ComposeResponse = z
   .object({ id: z.string().uuid() })
   .passthrough();
