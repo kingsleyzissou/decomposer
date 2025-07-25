@@ -176,6 +176,24 @@
           "description": "Id of compose"
         }
       ],
+      "get": {
+        "summary": "get status of an image compose",
+        "description": "status of an image compose",
+        "operationId": "getComposeStatus",
+        "tags": ["compose"],
+        "responses": {
+          "200": {
+            "description": "compose status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComposeStatus"
+                }
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "summary": "delete a compose",
         "description": "Deletes a compose, the compose will still count towards quota.\n",
@@ -289,6 +307,138 @@
             "type": "string"
           },
           "last": {
+            "type": "string"
+          }
+        }
+      },
+      "ComposeStatus": {
+        "required": ["image_status", "request"],
+        "properties": {
+          "image_status": {
+            "$ref": "#/components/schemas/ImageStatus"
+          },
+          "request": {
+            "$ref": "#/components/schemas/ComposeRequest"
+          }
+        }
+      },
+      "ImageStatus": {
+        "required": ["status"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "success",
+              "failure",
+              "pending",
+              "building",
+              "uploading",
+              "registering"
+            ],
+            "example": "success"
+          },
+          "upload_status": {
+            "$ref": "#/components/schemas/UploadStatus"
+          },
+          "error": {
+            "$ref": "#/components/schemas/ComposeStatusError"
+          }
+        }
+      },
+      "ComposeStatusError": {
+        "required": ["id", "reason"],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "UploadStatus": {
+        "required": ["status", "type", "options"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["success", "failure", "pending", "running"]
+          },
+          "type": {
+            "$ref": "#/components/schemas/UploadTypes"
+          },
+          "options": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AWSUploadStatus"
+              },
+              {
+                "$ref": "#/components/schemas/AWSS3UploadStatus"
+              },
+              {
+                "$ref": "#/components/schemas/GCPUploadStatus"
+              },
+              {
+                "$ref": "#/components/schemas/AzureUploadStatus"
+              },
+              {
+                "$ref": "#/components/schemas/OCIUploadStatus"
+              }
+            ]
+          }
+        }
+      },
+      "AWSUploadStatus": {
+        "type": "object",
+        "required": ["ami", "region"],
+        "properties": {
+          "ami": {
+            "type": "string",
+            "example": "ami-0c830793775595d4b"
+          },
+          "region": {
+            "type": "string",
+            "example": "eu-west-1"
+          }
+        }
+      },
+      "AWSS3UploadStatus": {
+        "type": "object",
+        "required": ["url"],
+        "properties": {
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "GCPUploadStatus": {
+        "type": "object",
+        "required": ["project_id", "image_name"],
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "example": "ascendant-braid-303513"
+          },
+          "image_name": {
+            "type": "string",
+            "example": "my-image"
+          }
+        }
+      },
+      "AzureUploadStatus": {
+        "type": "object",
+        "required": ["image_name"],
+        "properties": {
+          "image_name": {
+            "type": "string",
+            "example": "my-image"
+          }
+        }
+      },
+      "OCIUploadStatus": {
+        "type": "object",
+        "required": ["url"],
+        "properties": {
+          "url": {
             "type": "string"
           }
         }

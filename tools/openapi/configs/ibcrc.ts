@@ -20,6 +20,7 @@ const filterOptions = {
       'getComposes',
       'composeImage',
       'deleteCompose',
+      'getComposeStatus',
       'createBlueprint',
     ],
     unusedComponents: [
