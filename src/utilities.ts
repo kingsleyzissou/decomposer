@@ -1,9 +1,8 @@
-import { SOCKET_PATH } from '@app/constants';
 import { AppError, DatabaseError, isPouchError } from '@app/errors';
 
-export const removeSocket = async () => {
-  if (await Bun.file(SOCKET_PATH).exists()) {
-    await Bun.file(SOCKET_PATH).unlink();
+export const removeSocket = async (socket: string) => {
+  if (await Bun.file(socket).exists()) {
+    await Bun.file(socket).unlink();
   }
 };
 

@@ -1,6 +1,6 @@
 import { parseArgs } from 'util';
 
-import { STORE_PATH } from '@app/constants';
+import { SOCKET_PATH, STORE_PATH } from '@app/constants';
 
 export const { values: cliArgs } = parseArgs({
   args: Bun.argv,
@@ -8,6 +8,10 @@ export const { values: cliArgs } = parseArgs({
     store: {
       type: 'string',
       default: process.env.STORE_PATH ?? STORE_PATH,
+    },
+    socket: {
+      type: 'string',
+      default: process.env.SOCKET_PATH ?? SOCKET_PATH,
     },
   },
   strict: true,
