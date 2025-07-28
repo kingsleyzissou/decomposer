@@ -35,6 +35,17 @@ export class AppError extends Error {
       this.code,
     );
   }
+
+  public object() {
+    return {
+      body: {
+        message: this.message,
+        details: this.details,
+        code: this.code,
+      },
+      code: this.code,
+    };
+  }
 }
 
 export class ValidationError extends AppError {
@@ -90,6 +101,17 @@ export class DatabaseError extends AppError {
     this.name = 'Database Error';
   }
 }
+
+export const withDatabaseError = (error: unknown) => {
+  if (error instanceof Error && isPouchError(error)) {
+    return new DatabaseError(error);
+  }
+
+  return new AppError({
+    message: 'Unable to complete transaction',
+    details: [error],
+  });
+};
 
 export const notFound: NotFoundHandler = (ctx) => {
   throw new AppError({

@@ -26,18 +26,26 @@ export const composes = new Hono<ComposeContext>()
   // -X GET 'http://localhost/api/image-builder-composer/v2/composes'
   .get('/composes', async (ctx) => {
     const service = ctx.get('service');
-    const composes = await service.composes();
+    const result = await service.composes();
 
-    const first = composes.length > 0 ? composes[0].id : '';
-    const last = composes.length > 0 ? composes[composes.length - 1].id : '';
-
-    return ctx.json<ComposesResponse>({
-      meta: { count: composes.length },
-      links: {
-        first,
-        last,
+    return result.match({
+      Ok: (composes) => {
+        const length = composes.length;
+        const first = length > 0 ? composes[0].id : '';
+        const last = length > 0 ? composes[length - 1].id : '';
+        return ctx.json<ComposesResponse>({
+          meta: { count: composes.length },
+          links: {
+            first,
+            last,
+          },
+          data: composes,
+        });
       },
-      data: composes,
+      Err: (error) => {
+        const { body, code } = error.object();
+        return ctx.json(body, code);
+      },
     });
   })
 
@@ -47,8 +55,17 @@ export const composes = new Hono<ComposeContext>()
   // -X POST 'http://localhost/api/image-builder-composer/v2/compose'
   .post('/compose', validators.createCompose, async (ctx) => {
     const service = ctx.get('service');
-    const { id } = await service.add(ctx.req.valid('json'));
-    return ctx.json<ComposeResponse>({ id });
+    const result = await service.add(ctx.req.valid('json'));
+
+    return result.match({
+      Ok: ({ id }) => {
+        return ctx.json<ComposeResponse>({ id });
+      },
+      Err: (error) => {
+        const { body, code } = error.object();
+        return ctx.json(body, code);
+      },
+    });
   })
 
   // curl --unix-socket /run/decomposer-httpd.sock \
@@ -56,11 +73,19 @@ export const composes = new Hono<ComposeContext>()
   .get('/composes/:id', async (ctx) => {
     const id = ctx.req.param('id');
     const service = ctx.get('service');
-    const compose = await service.get(id);
-    return ctx.json<ComposeStatusResponse>({
-      request: compose.request!,
-      image_status: {
-        status: compose.status,
+    const result = await service.get(id);
+    return result.match({
+      Ok: (compose) => {
+        return ctx.json<ComposeStatusResponse>({
+          request: compose.request!,
+          image_status: {
+            status: compose.status,
+          },
+        });
+      },
+      Err: (error) => {
+        const { body, code } = error.object();
+        return ctx.json(body, code);
       },
     });
   })
@@ -70,6 +95,12 @@ export const composes = new Hono<ComposeContext>()
   .delete('/compose/:id', async (ctx) => {
     const id = ctx.req.param('id');
     const service = ctx.get('service');
-    await service.delete(id);
-    return ctx.json({ message: 'OK' });
+    const result = await service.delete(id);
+    return result.match({
+      Ok: () => ctx.json({ message: 'OK' }),
+      Err: (error) => {
+        const { body, code } = error.object();
+        return ctx.json(body, code);
+      },
+    });
   });

@@ -1,5 +1,7 @@
+import { Result } from 'true-myth';
 import z from 'zod';
 
+import { DatabaseError } from '@app/errors';
 import { AppContext, ComposeDoc, ComposeRequest } from '@app/types';
 import * as schema from '@gen/ibcrc/zod';
 
@@ -17,8 +19,10 @@ export type ComposeContext = AppContext & {
 };
 
 export type ComposeService = {
-  composes: () => Promise<Compose[]>;
-  add: (request: ComposeRequest) => Promise<{ id: string }>;
-  get: (id: string) => Promise<ComposeDoc>;
-  delete: (id: string) => Promise<void>;
+  composes: () => Promise<Result<Compose[], DatabaseError>>;
+  add: (
+    request: ComposeRequest,
+  ) => Promise<Result<{ id: string }, DatabaseError>>;
+  get: (id: string) => Promise<Result<ComposeDoc, DatabaseError>>;
+  delete: (id: string) => Promise<Result<void, DatabaseError>>;
 };
