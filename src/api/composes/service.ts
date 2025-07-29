@@ -1,3 +1,4 @@
+import { Mutex } from 'async-mutex';
 import { StatusCodes } from 'http-status-codes';
 import { rmdir } from 'node:fs/promises';
 import path from 'node:path';
@@ -23,10 +24,12 @@ import { ComposeService as Service } from './types';
 export class ComposeService implements Service {
   private store: Store;
   private queue: JobQueue<ComposeRequest>;
+  private mutex: Mutex;
 
   constructor(queue: JobQueue<ComposeRequest>, store: Store) {
     this.queue = queue;
     this.store = store;
+    this.mutex = new Mutex();
     this.queue.events.on('message', async ({ data }: JobMessage) => {
       await this.update(data.id, { status: data.result } as ComposeDoc);
     });
@@ -89,9 +92,11 @@ export class ComposeService implements Service {
     this.queue.remove(id);
     const task = Task.fromPromise(
       resolve(async () => {
-        const compose = await this.store.composes.get(id);
-        await this.store.composes.remove(compose);
-        await rmdir(path.join(this.store.path, id), { recursive: true });
+        await this.mutex.runExclusive(async () => {
+          const compose = await this.store.composes.get(id);
+          await this.store.composes.remove(compose);
+          await rmdir(path.join(this.store.path, id), { recursive: true });
+        });
       }),
     );
 
@@ -101,10 +106,12 @@ export class ComposeService implements Service {
   public async update(id: string, changes: ComposeDoc) {
     const task = Task.fromPromise(
       resolve(async () => {
-        const compose = await this.store.composes.get(id);
-        await this.store.composes.put({
-          ...compose,
-          ...changes,
+        await this.mutex.runExclusive(async () => {
+          const compose = await this.store.composes.get(id);
+          await this.store.composes.put({
+            ...compose,
+            ...changes,
+          });
         });
       }),
     );
