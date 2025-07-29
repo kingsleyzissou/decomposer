@@ -23,10 +23,7 @@ describe('Test the worker queue', () => {
     queue.enqueue({ id: 'task1', request: 'First task' });
     expect(queueProcessorSpy).toHaveBeenCalledTimes(1);
     expect(queue.current).toStrictEqual({ id: 'task1', request: 'First task' });
-    // simulate job execution
-    setTimeout(() => {
-      expect(queueProcessorSpy).toHaveBeenCalledTimes(2);
-    }, 200);
+    expect(queueProcessorSpy).toHaveBeenCalledTimes(1);
   });
 
   it('enqueuing 3 requests should call the process function multiple times', () => {
@@ -38,13 +35,10 @@ describe('Test the worker queue', () => {
     expect(queueProcessorSpy).toHaveBeenCalledTimes(3);
     expect(queue.queue.length).toBe(2);
     expect(queue.current).toStrictEqual({ id: 'task1', request: 'First task' });
-    // simulate job execution
-    setTimeout(() => {
-      expect(queueProcessorSpy).toHaveBeenCalledTimes(4);
-    }, 200);
+    expect(queueProcessorSpy).toHaveBeenCalledTimes(3);
   });
 
-  it('completed queue should have no items and current should not be set', () => {
+  it('completed queue should have no items and current should not be set', async () => {
     expect(queue.queue.length).toBe(0);
     queue.enqueue({ id: 'task1', request: 'First task' });
     expect(queueProcessorSpy).toHaveBeenCalledTimes(1);
@@ -52,12 +46,8 @@ describe('Test the worker queue', () => {
     expect(queueProcessorSpy).toHaveBeenCalledTimes(2);
     expect(queue.current).toStrictEqual({ id: 'task1', request: 'First task' });
     expect(queue.queue.length).toBe(1);
-    // simulate job execution
-    setTimeout(() => {
-      expect(queueProcessorSpy).toHaveBeenCalledTimes(4);
-      expect(queue.current).toBe({ id: 'task2', request: 'Second task' });
-      expect(queue.queue.length).toBe(0);
-      expect(queue.current).not.toBeDefined();
-    }, 200);
+    // wait for all the jobs to clear the queue
+    await Bun.sleep(4);
+    expect(queue.current).not.toBeDefined();
   });
 });
