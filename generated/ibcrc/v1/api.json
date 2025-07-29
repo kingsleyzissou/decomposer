@@ -471,9 +471,6 @@
           "content_template_name": {
             "type": "string",
             "description": "Name of the content template. Used when registering the system to Insights.\n"
-          },
-          "aap_registration": {
-            "$ref": "#/components/schemas/AAPRegistration"
           }
         }
       },
@@ -842,6 +839,9 @@
           },
           "cacerts": {
             "$ref": "#/components/schemas/CACertsCustomization"
+          },
+          "aap_registration": {
+            "$ref": "#/components/schemas/AAPRegistration"
           }
         }
       },

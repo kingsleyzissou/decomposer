@@ -121,13 +121,6 @@ export const OSTree = z
   .partial()
   .passthrough();
 
-export const AAPRegistration = z.object({
-  ansible_callback_url: z.string(),
-  host_config_key: z.string(),
-  tls_certificate_authority: z.string().optional(),
-  skip_tls_verification: z.boolean().optional(),
-});
-
 export const ImageRequest = z.object({
   architecture: z.enum(['x86_64', 'aarch64']),
   image_type: ImageTypes,
@@ -137,7 +130,6 @@ export const ImageRequest = z.object({
   snapshot_date: z.string().optional(),
   content_template: z.string().optional(),
   content_template_name: z.string().optional(),
-  aap_registration: AAPRegistration.optional(),
 });
 
 export const Container = z
@@ -362,6 +354,13 @@ export const CACertsCustomization = z.object({
   pem_certs: z.array(z.string()),
 });
 
+export const AAPRegistration = z.object({
+  ansible_callback_url: z.string(),
+  host_config_key: z.string(),
+  tls_certificate_authority: z.string().optional(),
+  skip_tls_verification: z.boolean().optional(),
+});
+
 export const Customizations = z
   .object({
     containers: z.array(Container),
@@ -390,6 +389,7 @@ export const Customizations = z
     fips: FIPS,
     installer: Installer,
     cacerts: CACertsCustomization,
+    aap_registration: AAPRegistration,
   })
   .partial()
   .passthrough();
