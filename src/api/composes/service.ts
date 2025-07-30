@@ -12,7 +12,7 @@ import { JobQueue } from '@app/queue';
 import {
   ComposeDoc,
   ComposeRequest,
-  JobMessage,
+  JobResult,
   Status,
   Store,
 } from '@app/types';
@@ -29,7 +29,7 @@ export class ComposeService implements Service {
     this.queue = queue;
     this.store = store;
     this.mutex = new Mutex();
-    this.queue.events.on('message', async ({ data }: JobMessage) => {
+    this.queue.events.on('message', async ({ data }: JobResult) => {
       await this.update(data.id, { status: data.result } as ComposeDoc);
     });
   }
