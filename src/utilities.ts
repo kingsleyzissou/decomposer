@@ -1,3 +1,5 @@
+import { arch } from 'node:os';
+
 import { AppError } from '@app/errors';
 
 export const removeSocket = async (socket: string) => {
@@ -44,4 +46,17 @@ export const imageTypeLookup = {
         });
     }
   },
+};
+
+export const getHostArch = () => {
+  const hostArch = arch();
+  if (['arm', 'arm64'].includes(hostArch)) {
+    return 'aarch64';
+  }
+
+  if (['x64'].includes(hostArch)) {
+    return 'x86_64';
+  }
+
+  throw Error('Unknown host arch');
 };
