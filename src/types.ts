@@ -24,6 +24,11 @@ export type ComposeDoc = {
   request?: ComposeRequest;
 };
 
+export type Job<T> = {
+  id: string;
+  request: T;
+};
+
 export type JobResult = {
   type: string;
   data: {
@@ -31,6 +36,8 @@ export type JobResult = {
     result: Status;
   };
 };
+
+export type Worker<T> = (request: Job<T>) => Promise<Result<string, unknown>>;
 
 export type Store = {
   path: string;

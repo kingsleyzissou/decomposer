@@ -4,9 +4,9 @@ import { createApp } from '@app/app';
 import { cliArgs } from '@app/cli';
 import { API_ENDPOINT } from '@app/constants';
 import { logger } from '@app/logger';
-import { createQueue } from '@app/queue';
 import { createStore } from '@app/store';
 import { prettyPrint, removeSocket } from '@app/utilities';
+import { createWorker } from '@app/worker';
 
 // we need to make sure that the socket doesn't
 // already exist, otherwise we run into issues
@@ -14,8 +14,8 @@ import { prettyPrint, removeSocket } from '@app/utilities';
 await removeSocket(cliArgs.socket);
 
 const store = createStore(cliArgs.store);
-const queue = createQueue(store);
-const app = createApp(cliArgs.socket, store, queue);
+const worker = createWorker(store, 'build');
+const app = createApp(cliArgs.socket, store, worker);
 Bun.serve(app);
 
 // we need to change this so that we can

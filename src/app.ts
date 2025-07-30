@@ -7,14 +7,15 @@ import { ComposeService } from '@app/api/composes/service';
 import { API_ENDPOINT } from '@app/constants';
 import { notFound, onError } from '@app/errors';
 import { logger } from '@app/logger';
-import { JobQueue } from '@app/queue';
-import { AppContext, ComposeRequest, Store } from '@app/types';
+import { createQueue } from '@app/queue';
+import { AppContext, ComposeRequest, Store, Worker } from '@app/types';
 
 export const createApp = (
   socket: string,
   store: Store,
-  queue: JobQueue<ComposeRequest>,
+  worker: Worker<ComposeRequest>,
 ) => {
+  const queue = createQueue(worker);
   const composeService = new ComposeService(queue, store);
 
   const middleware = new Hono<AppContext>();
