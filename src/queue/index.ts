@@ -1,12 +1,9 @@
-import { ComposeRequest, Store } from '@app/types';
+import { ComposeRequest, Worker } from '@app/types';
 
 import { JobQueue } from './queue';
-import { buildImage } from './worker';
 
-export * from './types';
-
-export const createQueue = (store: Store) => {
-  return new JobQueue<ComposeRequest>(buildImage(store.path));
+export const createQueue = (worker: Worker<ComposeRequest>) => {
+  return new JobQueue<ComposeRequest>(worker);
 };
 
-export { buildImage, JobQueue };
+export { JobQueue };

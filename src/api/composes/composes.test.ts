@@ -8,9 +8,7 @@ import path from 'node:path';
 import { validate } from 'uuid';
 
 import { createApp } from '@app/app';
-import { JobQueue } from '@app/queue';
-import { buildImage } from '@app/queue';
-import { ComposeRequest } from '@app/types';
+import { createWorker } from '@app/worker';
 
 import { composeRequest, createTestStore } from '@fixtures';
 
@@ -20,8 +18,8 @@ const executable = path.join(__dirname, '..', '..', '__mocks__', 'ibcli');
 
 const createTestClient = (tmp: string) => {
   const store = createTestStore(tmp);
-  const queue = new JobQueue<ComposeRequest>(buildImage(tmp, executable));
-  const { app } = createApp('', store, queue);
+  const worker = createWorker(store, 'manifest', executable);
+  const { app } = createApp('', store, worker);
   const client = testClient(app);
   return client.api['image-builder-composer'].v2;
 };

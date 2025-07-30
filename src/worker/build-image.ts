@@ -1,49 +1,19 @@
-import { mkdir } from 'fs/promises';
 import path from 'path';
 import { Result } from 'true-myth/result';
 import * as Task from 'true-myth/task';
-import z from 'zod';
 
-import { mapHostedToOnPrem } from '@app/blueprint';
-import { ComposeRequest } from '@app/types';
-import { imageTypeLookup, jsonFormat } from '@app/utilities';
-import { Customizations } from '@gen/ibcrc/zod';
+import { ComposeRequest, Job } from '@app/types';
+import { imageTypeLookup } from '@app/utilities';
 
-import { Job } from './types';
+import { saveBlueprint } from './save-blueprint';
+import { WorkerArgs } from './types';
 
-type Customizations = z.infer<typeof Customizations>;
-
-const createArtifactsDir = async (outputDir: string) => {
-  return Task.fromPromise(mkdir(outputDir, { recursive: true }));
-};
-
-const saveBlueprint = async (
-  outputDir: string,
-  id: string,
-  customizations?: Customizations,
-) => {
-  const blueprint = mapHostedToOnPrem({
-    name: id,
-    customizations: customizations || {},
-  });
-
-  const bpPath = path.join(outputDir, 'blueprint.json');
-  const task = Task.fromPromise(Bun.file(bpPath).write(jsonFormat(blueprint)));
-
-  return task.map(() => bpPath);
-};
-
-export const buildImage = (
-  store: string,
-  executable: string = 'image-builder',
-) => {
+export const buildImage = ({
+  store,
+  executable = 'image-builder',
+}: WorkerArgs) => {
   return async ({ request, id }: Job<ComposeRequest>) => {
     const outputDir = path.join(store, id);
-    const dirResult = await createArtifactsDir(outputDir);
-    if (dirResult.isErr) {
-      return Result.err(dirResult.error);
-    }
-
     const bpResult = await saveBlueprint(outputDir, id, request.customizations);
     if (bpResult.isErr) {
       return Result.err(bpResult.error);
@@ -65,6 +35,7 @@ export const buildImage = (
         bpPath,
         '--output-dir',
         outputDir,
+        '--with-manifest',
         '--distro',
         request.distribution,
         imageType,
