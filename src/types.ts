@@ -25,13 +25,11 @@ export type ComposeDoc = {
 };
 
 export type JobResult = {
-  id: string;
-  result: Status;
-};
-
-export type JobMessage = {
   type: string;
-  data: JobResult;
+  data: {
+    id: string;
+    result: Status;
+  };
 };
 
 export type Store = {

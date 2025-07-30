@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:stream';
 
 import { logger } from '@app/logger';
-import { JobMessage, Status } from '@app/types';
+import { JobResult, Status } from '@app/types';
 
 import { Job, Worker } from './types';
 
@@ -15,7 +15,7 @@ export class JobQueue<T> {
     this.queue = [];
     this.run = cmd;
     this.events = new EventEmitter();
-    this.events.on('message', (message: JobMessage) => {
+    this.events.on('message', (message: JobResult) => {
       if (message.type === 'ready') {
         this.current = undefined;
         this.process();
@@ -68,20 +68,22 @@ export class JobQueue<T> {
       return;
     }
 
+    const { id } = job;
     this.events.emit('message', {
       type: 'update',
-      data: { id: job.id, result: Status.BUILDING },
+      data: { id, result: Status.BUILDING },
     });
-    return await this.run(job)
-      .then((result) => {
-        return result;
-      })
-      .catch((err) => {
-        // Just handle the error and return a failed result, there
-        // was some issue either saving the blueprint to the state
-        // directory or with the build itself
-        logger.error('There was an error executing the job', err);
-        return { id: job.id, result: Status.FAILURE };
-      });
+
+    const result = await this.run(job);
+    return result.match({
+      Ok: () => {
+        logger.info(`✅ Image build successful: ${id}`);
+        return { id, result: Status.SUCCESS };
+      },
+      Err: (reason) => {
+        logger.info(`❌ Image build failed for ${id}: ${reason}`);
+        return { id, result: Status.FAILURE };
+      },
+    });
   }
 }
