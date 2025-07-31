@@ -56,6 +56,66 @@
         }
       }
     },
+    "/distributions": {
+      "get": {
+        "summary": "get the distributions available to this user",
+        "operationId": "getDistributions",
+        "tags": ["distribution"],
+        "responses": {
+          "200": {
+            "description": "A list of distributions this user has access to. Some distributions are restricted, so\nthis list might not correspond to the Distributions (enum) schema for a given user.\n",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DistributionsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/architectures/{distribution}": {
+      "get": {
+        "summary": "get the architectures and their image types available for a given distribution",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "distribution",
+            "schema": {
+              "$ref": "#/components/schemas/Distributions"
+            },
+            "required": true,
+            "description": "distribution for which to look up available architectures",
+            "example": "rhel-84"
+          }
+        ],
+        "operationId": "getArchitectures",
+        "tags": ["distribution", "architecture"],
+        "responses": {
+          "200": {
+            "description": "a list of available architectures and their associated image types",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Architectures"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "user is not allowed to build or query this distribution",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/blueprints": {
       "post": {
         "summary": "create blueprint",
@@ -310,6 +370,50 @@
             "type": "string"
           }
         }
+      },
+      "DistributionsResponse": {
+        "type": "array",
+        "description": "List of distributions this user is allowed to build.\n",
+        "items": {
+          "$ref": "#/components/schemas/DistributionItem"
+        }
+      },
+      "DistributionItem": {
+        "type": "object",
+        "required": ["name", "description"],
+        "properties": {
+          "description": {
+            "type": "string",
+            "example": "Red Hat Enterprise Linux (RHEL) 8.4"
+          },
+          "name": {
+            "type": "string",
+            "example": "rhel-84"
+          }
+        }
+      },
+      "Architectures": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/ArchitectureItem"
+        }
+      },
+      "ArchitectureItem": {
+        "type": "object",
+        "properties": {
+          "arch": {
+            "type": "string",
+            "example": "x86_64"
+          },
+          "image_types": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "qcow2"
+            }
+          }
+        },
+        "required": ["arch", "image_types"]
       },
       "ComposeStatus": {
         "required": ["image_status", "request"],
