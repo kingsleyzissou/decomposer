@@ -2,6 +2,26 @@ import { z } from 'zod';
 
 export const Readiness = z.object({ readiness: z.string() }).passthrough();
 
+export const DistributionItem = z
+  .object({ description: z.string(), name: z.string() })
+  .passthrough();
+
+export const DistributionsResponse = z.array(DistributionItem);
+
+export const ArchitectureItem = z
+  .object({ arch: z.string(), image_types: z.array(z.string()) })
+  .passthrough();
+
+export const Architectures = z.array(ArchitectureItem);
+
+export const HTTPError = z
+  .object({ title: z.string(), detail: z.string() })
+  .passthrough();
+
+export const HTTPErrorList = z
+  .object({ errors: z.array(HTTPError) })
+  .passthrough();
+
 export const Distributions = z.enum([
   'rhel-8',
   'rhel-8-nightly',
@@ -413,14 +433,6 @@ export const CreateBlueprintRequest = z.object({
 
 export const CreateBlueprintResponse = z
   .object({ id: z.string().uuid() })
-  .passthrough();
-
-export const HTTPError = z
-  .object({ title: z.string(), detail: z.string() })
-  .passthrough();
-
-export const HTTPErrorList = z
-  .object({ errors: z.array(HTTPError) })
   .passthrough();
 
 export const ListResponseMeta = z

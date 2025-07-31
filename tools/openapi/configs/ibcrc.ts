@@ -22,6 +22,8 @@ const filterOptions = {
       'deleteCompose',
       'getComposeStatus',
       'createBlueprint',
+      'getDistributions',
+      'getArchitectures',
     ],
     unusedComponents: [
       'schemas',
@@ -88,6 +90,23 @@ const overlayOptions = {
         // prettier-ignore
         target: '$.components.schemas.File.properties.data_encoding.default',
         // The default value breaks the optionality of this option, so just leave
+        remove: true,
+      },
+      {
+        // prettier-ignore
+        target: '$.components.schemas.ArchitectureItem.required',
+        remove: true,
+      },
+      {
+        // prettier-ignore
+        target: '$.components.schemas.ArchitectureItem',
+        update: {
+          required: ['arch', 'image_types'],
+        },
+      },
+      {
+        // prettier-ignore
+        target: '$.components.schemas.ArchitectureItem.properties.repositories',
         remove: true,
       },
     ],
