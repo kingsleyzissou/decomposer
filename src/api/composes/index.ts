@@ -14,7 +14,7 @@ export const composes = new Hono<AppContext>()
   // -X GET 'http://localhost/api/image-builder-composer/v2/composes'
   .get('/composes', async (ctx) => {
     const { compose: service } = ctx.get('services');
-    const result = await service.composes();
+    const result = await service.all();
 
     return result.match({
       Ok: (composes) => {
@@ -94,3 +94,5 @@ export const composes = new Hono<AppContext>()
       },
     });
   });
+
+export * from './types';

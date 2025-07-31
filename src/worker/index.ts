@@ -1,4 +1,4 @@
-import { Store } from '@app/types';
+import { Store } from '@app/store';
 
 import { buildImage } from './build-image';
 import { buildManifest } from './build-manifest';
@@ -16,3 +16,5 @@ export const createWorker = (
 };
 
 export { buildImage, buildManifest };
+
+export * from './types';
