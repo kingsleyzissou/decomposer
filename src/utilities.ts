@@ -28,6 +28,7 @@ export const imageTypeLookup = {
   hostedToOnPrem: (distro: string, imageType: string) => {
     // TODO: add these aliases to the images library:
     // https://issues.redhat.com/browse/HMS-8730
+    // https://github.com/osbuild/images/pull/1716
     const prefix = distro.startsWith('fedora') ? 'server-' : '';
     switch (imageType) {
       case 'guest-image':
@@ -45,6 +46,25 @@ export const imageTypeLookup = {
           message: `Unknown image type ${imageType} for distro ${distro}`,
         });
     }
+  },
+  onPremToHosted: (imageType: string) => {
+    // Fedora image types have a `server-` prefix that
+    const image = imageType.startsWith('server-')
+      ? imageType.slice('server-'.length)
+      : imageType;
+
+    // this is a list of types that we know we need to translate
+    const lookup: Record<string, string> = {
+      qcow2: 'guest-image',
+      ami: 'aws',
+      gce: 'gcp',
+      vhd: 'azure',
+      vmdk: 'vshpere',
+      ova: 'vsphere-ova',
+    };
+
+    const result = lookup[image];
+    return result ? result : image;
   },
 };
 
