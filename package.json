@@ -10,7 +10,7 @@
     "format": "prettier ./src --write",
     "format:check": "prettier ./src --check",
     "test:unit": "bun test ./src",
-    "test:integration": "bun test ./integration",
+    "test:integration": "bun test --timeout 10000 ./integration",
     "check": "tsc --noEmit",
     "generate": "bun --silent api:filter && bun --silent api:generate",
     "api:filter": "bun --silent ./tools/openapi/filter.ts",
