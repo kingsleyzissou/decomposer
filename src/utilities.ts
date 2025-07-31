@@ -46,6 +46,28 @@ export const imageTypeLookup = {
         });
     }
   },
+  onPremToHosted: (imageType: string) => {
+    // TODO: ibcli doesn't return aliases, so we need to do this
+    // translation. Possibly the best fix would be to add this to
+    // ibcli upstream
+    const image = imageType.startsWith('server-')
+      ? imageType.split('server-')[1]
+      : imageType;
+    switch (image) {
+      case 'qcow2':
+        return 'guest-image';
+      case 'ami':
+        return 'aws';
+      case 'vhd':
+        return 'azure';
+      case 'vmdk':
+        return 'vshper';
+      case 'ova':
+        return 'vsphere-ova';
+      default:
+        return image;
+    }
+  },
 };
 
 export const getHostArch = () => {
