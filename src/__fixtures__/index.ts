@@ -8,3 +8,5 @@ export const blueprint = await Bun.file(
 ).json();
 
 export { createTestStore } from './store';
+
+export { imageTypes } from './imagetype-list';

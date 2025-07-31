@@ -58,10 +58,12 @@ export const imageTypeLookup = {
         return 'guest-image';
       case 'ami':
         return 'aws';
+      case 'gce':
+        return 'gcp';
       case 'vhd':
         return 'azure';
       case 'vmdk':
-        return 'vshper';
+        return 'vsphere';
       case 'ova':
         return 'vsphere-ova';
       default:

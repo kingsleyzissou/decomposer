@@ -10,3 +10,8 @@ export enum Status {
   PENDING = 'pending',
   BUILDING = 'building',
 }
+
+export enum Architecture {
+  AARCH64 = 'aarch64',
+  X86_64 = 'x86_64',
+}

@@ -19,6 +19,7 @@ export const createApp = (
 ) => {
   const queue = createQueue(worker);
   const composeService = new services.Compose(queue, store);
+  const distributionService = new services.Distribution();
 
   const middleware = new Hono<AppContext>();
   middleware.use(prettyJSON());
@@ -26,6 +27,7 @@ export const createApp = (
   middleware.use(async (ctx, next) => {
     ctx.set('services', {
       compose: composeService,
+      distribution: distributionService,
     });
     await next();
   });

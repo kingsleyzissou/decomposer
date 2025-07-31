@@ -1,33 +1,46 @@
-import { Context } from 'hono';
 import { Hono } from 'hono';
-import z from 'zod';
 
-import * as schema from '@gen/ibcrc/zod';
+import { AppContext } from '@app/types';
 
-// pre-load the json list of distribution data on app
-// startup and inject it to the route through middleware
-import { list } from './distributions';
+import {
+  ArchitecturesResponse,
+  Distributions,
+  DistributionsResponse,
+} from './types';
 
-export type DistributionsResponse = z.infer<
-  typeof schema.DistributionsResponse
->;
-
-type RouteContext = {
-  Variables: {
-    distributions: DistributionsResponse;
-  };
-};
-
-export const distributions = new Hono<RouteContext>()
-
-  .use(async (ctx, next) => {
-    ctx.set('distributions', list);
-    await next();
-  })
+export const distributions = new Hono<AppContext>()
 
   // curl --unix-socket /run/decomposer-httpd.sock \
   // -X GET 'http://localhost/api/image-builder-composer/v2/distributions'
-  .get('/distributions', (ctx: Context) => {
-    const distributions = ctx.get('distributions');
-    return ctx.json<DistributionsResponse>(distributions);
+  .get('/distributions', (ctx) => {
+    const { distribution: service } = ctx.get('services');
+    const result = service.all();
+
+    return result.match({
+      Ok: (distributions) => {
+        return ctx.json<DistributionsResponse>(distributions);
+      },
+      Err: (error) => {
+        const { body, code } = error.response();
+        return ctx.json(body, code);
+      },
+    });
+  })
+
+  // curl --unix-socket /run/decomposer-httpd.sock \
+  // -X GET 'http://localhost/api/image-builder-composer/v2/architectures/rhel-9.0'
+  .get('/architectures/:distribution', async (ctx) => {
+    const distribution = ctx.req.param('distribution') as Distributions;
+    const { distribution: service } = ctx.get('services');
+    const result = await service.getArchitectures(distribution);
+
+    return result.match({
+      Ok: (architectures) => {
+        return ctx.json<ArchitecturesResponse>(architectures);
+      },
+      Err: (error) => {
+        const { body, code } = error.response();
+        return ctx.json(body, code);
+      },
+    });
   });
