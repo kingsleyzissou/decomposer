@@ -23,3 +23,5 @@ export const logger = pino({
   },
   timestamp: pino.stdTimeFunctions.unixTime,
 });
+
+export type Logger = typeof logger;

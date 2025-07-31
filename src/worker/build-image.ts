@@ -2,11 +2,11 @@ import path from 'path';
 import { Result } from 'true-myth/result';
 import * as Task from 'true-myth/task';
 
-import { ComposeRequest, Job } from '@app/types';
+import { ComposeRequest } from '@app/api/composes';
 import { imageTypeLookup } from '@app/utilities';
 
 import { saveBlueprint } from './save-blueprint';
-import { WorkerArgs } from './types';
+import { Job, WorkerArgs } from './types';
 
 export const buildImage = ({
   store,

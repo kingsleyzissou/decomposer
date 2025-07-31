@@ -7,18 +7,14 @@ import * as Task from 'true-myth/task';
 import { v4 as uuid } from 'uuid';
 import z from 'zod';
 
+import { Status } from '@app/constants';
 import { AppError, withDatabaseError } from '@app/errors';
 import { JobQueue } from '@app/queue';
-import {
-  ComposeDoc,
-  ComposeRequest,
-  JobResult,
-  Status,
-  Store,
-} from '@app/types';
-import { ComposeService as Service } from '@app/types';
+import { ComposeDoc, JobResult, Store } from '@app/types';
 import { resolve } from '@app/utilities';
 import { ClientId } from '@gen/ibcrc/zod';
+
+import { ComposeRequest, ComposeService as Service } from './types';
 
 export class ComposeService implements Service {
   private store: Store;

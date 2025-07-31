@@ -1,7 +1,7 @@
 import pouchdb from 'pouchdb';
 import memoryAdapter from 'pouchdb-adapter-memory';
 
-import { ComposeDoc } from '@app/types';
+import { ComposeDoc } from '@app/store';
 
 pouchdb.plugin(memoryAdapter);
 
