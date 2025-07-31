@@ -12,7 +12,7 @@ type RouteContext = {
   };
 };
 
-const meta = new Hono<RouteContext>()
+export const meta = new Hono<RouteContext>()
 
   // the meta routes are the only routes that
   // need access to the openapi spec
@@ -32,5 +32,3 @@ const meta = new Hono<RouteContext>()
   .get('/openapi.json', async (ctx: Context) => {
     return ctx.json(ctx.get('schema'));
   });
-
-export { meta };

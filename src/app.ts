@@ -35,7 +35,8 @@ export const createApp = (
     .onError(onError)
     .route('*', middleware)
     .route(API_ENDPOINT, api.meta)
-    .route(API_ENDPOINT, api.composes);
+    .route(API_ENDPOINT, api.composes)
+    .route(API_ENDPOINT, api.distributions);
 
   return {
     app,
