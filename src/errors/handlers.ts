@@ -1,7 +1,9 @@
 import { ErrorHandler, NotFoundHandler } from 'hono';
 import { StatusCodes } from 'http-status-codes';
 
-import { AppError, DatabaseError, ValidationError } from '.';
+import { AppError } from './app';
+import { DatabaseError } from './database';
+import { ValidationError } from './validation';
 
 export const notFound: NotFoundHandler = (ctx) => {
   throw new AppError({
