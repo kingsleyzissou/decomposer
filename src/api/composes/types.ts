@@ -1,9 +1,21 @@
-import z from 'zod';
+import { Result } from 'true-myth/result';
 
-import * as schema from '@gen/ibcrc/zod';
+import { DatabaseError } from '@app/errors';
+import { ComposeDoc } from '@app/store';
+import { Schemas } from '@gen/ibcrc';
 
-export type ComposesResponse = z.infer<typeof schema.ComposesResponse>;
+export type Compose = Schemas['ComposesResponseItem'];
+export type ComposeRequest = Schemas['ComposeRequest'];
+export type Composes = Schemas['ComposesResponse'];
+export type ComposeId = Schemas['ComposeResponse'];
+export type ComposeStatus = Schemas['ComposeStatus'];
 
-export type ComposeResponse = z.infer<typeof schema.ComposeResponse>;
+type ServiceTask<T> = Promise<Result<T, DatabaseError>>;
 
-export type ComposeStatusResponse = z.infer<typeof schema.ComposeStatus>;
+export type ComposeService = {
+  composes: () => ServiceTask<Compose[]>;
+  add: (request: ComposeRequest) => ServiceTask<ComposeId>;
+  get: (id: string) => ServiceTask<ComposeDoc>;
+  update: (id: string, changes: ComposeDoc) => ServiceTask<void>;
+  delete: (id: string) => ServiceTask<unknown>;
+};

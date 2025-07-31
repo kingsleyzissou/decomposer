@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
 import { $ZodError } from 'zod/v4/core';
 
-import { blueprint, customizations, name } from '@app/__fixtures__';
+import { blueprint, customizations, name } from '@fixtures';
 
 import { mapHostedToOnPrem, validatedHostedToOnPrem } from '.';
 

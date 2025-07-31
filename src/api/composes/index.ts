@@ -2,11 +2,7 @@ import { Hono } from 'hono';
 
 import { AppContext } from '@app/types';
 
-import {
-  ComposeResponse,
-  ComposeStatusResponse,
-  ComposesResponse,
-} from './types';
+import { ComposeId, ComposeStatus, Composes } from './types';
 import * as validators from './validators';
 
 export const composes = new Hono<AppContext>()
@@ -21,7 +17,7 @@ export const composes = new Hono<AppContext>()
         const length = composes.length;
         const first = length > 0 ? composes[0].id : '';
         const last = length > 0 ? composes[length - 1].id : '';
-        return ctx.json<ComposesResponse>({
+        return ctx.json<Composes>({
           meta: { count: length },
           links: {
             first,
@@ -47,7 +43,7 @@ export const composes = new Hono<AppContext>()
 
     return result.match({
       Ok: ({ id }) => {
-        return ctx.json<ComposeResponse>({ id });
+        return ctx.json<ComposeId>({ id });
       },
       Err: (error) => {
         const { body, code } = error.response();
@@ -65,7 +61,7 @@ export const composes = new Hono<AppContext>()
 
     return result.match({
       Ok: (compose) => {
-        return ctx.json<ComposeStatusResponse>({
+        return ctx.json<ComposeStatus>({
           request: compose.request!,
           image_status: {
             status: compose.status,
@@ -94,3 +90,5 @@ export const composes = new Hono<AppContext>()
       },
     });
   });
+
+export * from './types';

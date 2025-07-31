@@ -1,7 +1,8 @@
 import { EventEmitter } from 'node:stream';
 
+import { Status } from '@app/constants';
 import { logger } from '@app/logger';
-import { Job, JobResult, Status, Worker } from '@app/types';
+import { Job, JobResult, Worker } from '@app/worker';
 
 export class JobQueue<T> {
   current?: Job<T> | undefined;

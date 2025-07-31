@@ -12,7 +12,7 @@ import { createWorker } from '@app/worker';
 
 import { composeRequest, createTestStore } from '@fixtures';
 
-import { ComposesResponse } from './types';
+import { Composes } from './types';
 
 const executable = path.join(__dirname, '..', '..', '__mocks__', 'ibcli');
 
@@ -37,7 +37,7 @@ describe('Composes handler tests', async () => {
   it('GET /composes should initially be empty', async () => {
     const res = await client.composes.$get();
     expect(res.status).toBe(StatusCodes.OK);
-    const body = (await res.json()) as ComposesResponse;
+    const body = (await res.json()) as Composes;
     expect(body).not.toBeUndefined();
     expect(body.meta.count).toBe(0);
     expect(body.data).not.toBeUndefined();
@@ -59,7 +59,7 @@ describe('Composes handler tests', async () => {
     // the post request
     const res = await client.composes.$get();
     expect(res.status).toBe(StatusCodes.OK);
-    const body = (await res.json()) as ComposesResponse;
+    const body = (await res.json()) as Composes;
     expect(body).not.toBeUndefined();
     expect(body.meta.count).toBe(1);
     expect(body.data).not.toBeUndefined();
@@ -77,7 +77,7 @@ describe('Composes handler tests', async () => {
   it('GET /composes should empty again', async () => {
     const res = await client.composes.$get();
     expect(res.status).toBe(StatusCodes.OK);
-    const body = (await res.json()) as ComposesResponse;
+    const body = (await res.json()) as Composes;
     expect(body).not.toBeUndefined();
     expect(body.meta.count).toBe(0);
     expect(body.data).not.toBeUndefined();
