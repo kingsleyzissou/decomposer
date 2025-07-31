@@ -1,4 +1,4 @@
-import type { ComposeService } from '@app/api';
+import type { ComposeService, DistributionService } from '@app/api';
 import type { Logger } from '@app/logger';
 
 export type { ComposeDoc, Store } from '@app/store';
@@ -9,6 +9,7 @@ export type AppContext = {
     logger: Logger;
     services: {
       compose: ComposeService;
+      distribution: DistributionService;
     };
   };
 };
