@@ -81,4 +81,32 @@ describe('Blueprints handler tests', async () => {
     expect(body.name).toBe(blueprintRequest.name);
     expect(body.description).toBe(blueprintRequest.description);
   });
+
+  it('DELETE /blueprints/:id should delete a blueprint', async () => {
+    await Bun.sleep(4);
+    const res = await client.blueprints[':id'].$delete({
+      param: { id: newBlueprint },
+    });
+    expect(res.status).toBe(StatusCodes.OK);
+  });
+
+  it('GET /composes should empty again', async () => {
+    const res = await client.blueprints.$get();
+    expect(res.status).toBe(StatusCodes.OK);
+    const body = (await res.json()) as Blueprints;
+    expect(body).not.toBeUndefined();
+    expect(body.meta.count).toBe(0);
+    expect(body.data).not.toBeUndefined();
+    expect(body.data.length).toBe(0);
+  });
+
+  it('GET /blueprints/:id for non-existing blueprint should return 404', async () => {
+    const res = await client.blueprints[':id'].$get({ param: { id: '123' } });
+    expect(res.status).toBe(StatusCodes.NOT_FOUND);
+  });
+
+  it('DELETE /blueprints/:id for non-existing blueprint should return 404', async () => {
+    const res = await client.blueprints[':id'].$get({ param: { id: '123' } });
+    expect(res.status).toBe(StatusCodes.NOT_FOUND);
+  });
 });
