@@ -4,7 +4,8 @@ import Maybe from 'true-myth/maybe';
 import { AppContext } from '@app/types';
 
 import { asPaginatedResponse } from '../pagination';
-import { Blueprint, Blueprints } from './types';
+import { Blueprint, BlueprintId, Blueprints } from './types';
+import * as validators from './validators';
 
 export const blueprints = new Hono<AppContext>()
 
@@ -24,6 +25,25 @@ export const blueprints = new Hono<AppContext>()
             Maybe.of(offset),
           ),
         );
+      },
+      Err: (error) => {
+        const { body, code } = error.response();
+        return ctx.json(body, code);
+      },
+    });
+  })
+
+  // curl --unix-socket /run/decomposer-httpd.sock \
+  // -H "Content-Type: application/json" \
+  // -d @src/__mocks__/blueprint.json \
+  // -X POST 'http://localhost/api/image-builder-composer/v2/blueprint'
+  .post('/blueprint', validators.createBlueprint, async (ctx) => {
+    const { blueprint: service } = ctx.get('services');
+    const result = await service.add(ctx.req.valid('json'));
+
+    return result.match({
+      Ok: ({ id }) => {
+        return ctx.json<BlueprintId>({ id });
       },
       Err: (error) => {
         const { body, code } = error.response();
