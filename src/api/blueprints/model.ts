@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 import { withAppError } from '@app/errors';
 import { BlueprintDocument } from '@app/store';
 
-import { Blueprint, BlueprintRequest } from './types';
+import { BlueprintMetadata, BlueprintRequest } from './types';
 import * as validators from './validators';
 
 export class Model {
@@ -31,12 +31,23 @@ export class Model {
   }
 
   async findAll() {
-    return Task.tryOrElse(withAppError, async (): Promise<Blueprint[]> => {
-      const docs = await this.store.allDocs({
-        include_docs: true,
-      });
+    return Task.tryOrElse(
+      withAppError,
+      async (): Promise<BlueprintMetadata[]> => {
+        const docs = await this.store.allDocs({
+          include_docs: true,
+        });
 
-      return docs.rows.map((row) => row.doc!).map(validators.blueprintResponse);
+        return docs.rows
+          .map((row) => row.doc!)
+          .map(validators.blueprintResponse);
+      },
+    );
+  }
+
+  async findById(id: string) {
+    return Task.tryOrElse(withAppError, async () => {
+      return this.store.get(id);
     });
   }
 }
