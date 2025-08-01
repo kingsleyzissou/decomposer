@@ -19,4 +19,16 @@ export class BlueprintService implements Service {
 
     return result.map(({ id }) => ({ id }));
   }
+
+  public async get(id: string) {
+    const result = await this.model.findById(id);
+
+    return result.map((blueprint) => ({
+      id: blueprint._id,
+      name: blueprint.name,
+      version: blueprint.version,
+      description: blueprint.description,
+      last_modified_at: blueprint.last_modified_at,
+    }));
+  }
 }

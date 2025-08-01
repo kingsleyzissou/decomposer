@@ -39,6 +39,8 @@ describe('Blueprints handler tests', async () => {
     await rmdir(tmp, { recursive: true });
   });
 
+  let newBlueprint = '';
+
   it('GET /blueprints should initially be empty', async () => {
     const res = await client.blueprints.$get();
     expect(res.status).toBe(StatusCodes.OK);
@@ -55,6 +57,7 @@ describe('Blueprints handler tests', async () => {
     });
     expect(res.status).toBe(StatusCodes.OK);
     const { id } = await res.json();
+    newBlueprint = id;
     expect(validate(id)).toBeTrue();
   });
 
@@ -66,5 +69,16 @@ describe('Blueprints handler tests', async () => {
     expect(body.meta.count).toBe(1);
     expect(body.data).not.toBeUndefined();
     expect(body.data.length).toBe(1);
+  });
+
+  it('GET /blueprints/:id should get a blueprint', async () => {
+    await Bun.sleep(4);
+    const res = await client.blueprints[':id'].$get({
+      param: { id: newBlueprint },
+    });
+    expect(res.status).toBe(StatusCodes.OK);
+    const body = (await res.json()) as Blueprints;
+    expect(body.name).toBe(blueprintRequest.name);
+    expect(body.description).toBe(blueprintRequest.description);
   });
 });

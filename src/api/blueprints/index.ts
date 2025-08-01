@@ -4,7 +4,7 @@ import Maybe from 'true-myth/maybe';
 import { AppContext } from '@app/types';
 
 import { asPaginatedResponse } from '../pagination';
-import { Blueprint, BlueprintId, Blueprints } from './types';
+import { Blueprint, BlueprintId, BlueprintMetadata, Blueprints } from './types';
 import * as validators from './validators';
 
 export const blueprints = new Hono<AppContext>()
@@ -19,7 +19,7 @@ export const blueprints = new Hono<AppContext>()
     return result.match({
       Ok: (blueprints) => {
         return ctx.json<Blueprints>(
-          asPaginatedResponse<Blueprint>(
+          asPaginatedResponse<BlueprintMetadata>(
             blueprints,
             Maybe.of(limit),
             Maybe.of(offset),
@@ -44,6 +44,24 @@ export const blueprints = new Hono<AppContext>()
     return result.match({
       Ok: ({ id }) => {
         return ctx.json<BlueprintId>({ id });
+      },
+      Err: (error) => {
+        const { body, code } = error.response();
+        return ctx.json(body, code);
+      },
+    });
+  })
+
+  // curl --unix-socket /run/decomposer-httpd.sock \
+  // -X GET 'http://localhost/api/image-builder-composer/v2/blueprints/123e4567-e89b-12d3-a456-426655440000'
+  .get('/blueprints/:id', async (ctx) => {
+    const id = ctx.req.param('id');
+    const { blueprint: service } = ctx.get('services');
+    const result = await service.get(id);
+
+    return result.match({
+      Ok: (blueprint) => {
+        return ctx.json<Blueprint>(blueprint);
       },
       Err: (error) => {
         const { body, code } = error.response();
