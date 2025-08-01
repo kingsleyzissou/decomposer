@@ -19,6 +19,7 @@ export const createApp = (
 ) => {
   const queue = createQueue(worker);
   const composeService = new services.Compose(queue, store);
+  const blueprintService = new services.Blueprint(store);
   const distributionService = new services.Distribution();
 
   const middleware = new Hono<AppContext>();
@@ -26,6 +27,7 @@ export const createApp = (
   middleware.use(pinoLogger({ pino: logger }));
   middleware.use(async (ctx, next) => {
     ctx.set('services', {
+      blueprint: blueprintService,
       compose: composeService,
       distribution: distributionService,
     });
@@ -40,6 +42,7 @@ export const createApp = (
     .route('*', middleware)
     .route(API_ENDPOINT, api.meta)
     .route(API_ENDPOINT, api.composes)
+    .route(API_ENDPOINT, api.blueprints)
     .route(API_ENDPOINT, api.distributions);
 
   return {
