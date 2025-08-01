@@ -50,4 +50,11 @@ export class Model {
       return this.store.get(id);
     });
   }
+
+  async delete(id: string) {
+    return Task.tryOrElse(withAppError, async () => {
+      const blueprint = await this.store.get(id);
+      await this.store.remove(blueprint);
+    });
+  }
 }

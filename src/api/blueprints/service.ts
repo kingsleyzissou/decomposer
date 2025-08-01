@@ -31,4 +31,8 @@ export class BlueprintService implements Service {
       last_modified_at: blueprint.last_modified_at,
     }));
   }
+
+  public async delete(id: string) {
+    return this.model.delete(id);
+  }
 }
