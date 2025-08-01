@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid';
 
 import { withDatabaseError } from '@app/errors';
 import { BlueprintDocument, Store } from '@app/store';
+import { resolve } from '@app/utilities';
 
 import {
   Blueprint,
@@ -69,5 +70,16 @@ export class BlueprintService implements Service {
         last_modified_at: blueprint.last_modified_at,
       } as Blueprint;
     });
+  }
+
+  public async delete(id: string) {
+    const task = Task.fromPromise(
+      resolve(async () => {
+        const blueprint = await this.store.blueprints.get(id);
+        await this.store.blueprints.remove(blueprint);
+      }),
+    );
+
+    return await task.mapRejected(withDatabaseError);
   }
 }

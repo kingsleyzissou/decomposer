@@ -24,6 +24,7 @@ const filterOptions = {
       'createBlueprint',
       'getBlueprints',
       'getBlueprint',
+      'deleteBlueprint',
       'getDistributions',
       'getArchitectures',
     ],

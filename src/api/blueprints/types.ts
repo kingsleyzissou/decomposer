@@ -27,4 +27,5 @@ export type BlueprintService = {
   all: () => ServiceTask<Blueprint[]>;
   add: (request: CreateBlueprintRequest) => ServiceTask<{ id: string }>;
   get: (id: string) => ServiceTask<Blueprint>;
+  delete: (id: string) => ServiceTask<unknown>;
 };
