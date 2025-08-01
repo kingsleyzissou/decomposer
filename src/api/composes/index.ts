@@ -1,30 +1,30 @@
 import { Hono } from 'hono';
+import Maybe from 'true-myth/maybe';
 
 import { AppContext } from '@app/types';
 
-import { ComposeId, ComposeStatus, Composes } from './types';
+import { asPaginatedResponse } from '../pagination';
+import { Compose, ComposeId, ComposeStatus, Composes } from './types';
 import * as validators from './validators';
 
 export const composes = new Hono<AppContext>()
+
   // curl --unix-socket /run/decomposer-httpd.sock \
   // -X GET 'http://localhost/api/image-builder-composer/v2/composes'
   .get('/composes', async (ctx) => {
+    const { limit, offset } = ctx.req.query();
     const { compose: service } = ctx.get('services');
     const result = await service.composes();
 
     return result.match({
       Ok: (composes) => {
-        const length = composes.length;
-        const first = length > 0 ? composes[0].id : '';
-        const last = length > 0 ? composes[length - 1].id : '';
-        return ctx.json<Composes>({
-          meta: { count: length },
-          links: {
-            first,
-            last,
-          },
-          data: composes,
-        });
+        return ctx.json<Composes>(
+          asPaginatedResponse<Compose>(
+            composes,
+            Maybe.of(limit),
+            Maybe.of(offset),
+          ),
+        );
       },
       Err: (error) => {
         const { body, code } = error.response();
