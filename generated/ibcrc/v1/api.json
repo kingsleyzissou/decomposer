@@ -117,6 +117,65 @@
       }
     },
     "/blueprints": {
+      "get": {
+        "summary": "get a collection of blueprints",
+        "description": "get a collection of blueprints, returns just the latest version of each blueprint",
+        "operationId": "getBlueprints",
+        "tags": ["blueprint"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "fetch blueprint with specific name"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "search for blueprints by name or description"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "minimum": 1,
+              "maximum": 100
+            },
+            "description": "max amount of blueprints, default 100"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            },
+            "description": "blueprint page offset, default 0"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "a list of blueprints",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlueprintsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "summary": "create blueprint",
         "description": "create blueprint",
@@ -629,6 +688,50 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "BlueprintsResponse": {
+        "required": ["meta", "links", "data"],
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ListResponseMeta"
+          },
+          "links": {
+            "$ref": "#/components/schemas/ListResponseLinks"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlueprintItem"
+            }
+          }
+        }
+      },
+      "BlueprintItem": {
+        "required": [
+          "id",
+          "version",
+          "name",
+          "description",
+          "last_modified_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "last_modified_at": {
+            "type": "string"
           }
         }
       },

@@ -22,6 +22,7 @@ const filterOptions = {
       'deleteCompose',
       'getComposeStatus',
       'createBlueprint',
+      'getBlueprints',
       'getDistributions',
       'getArchitectures',
     ],

@@ -1,6 +1,7 @@
 import path from 'path';
 import pouchdb from 'pouchdb';
 
+import { BlueprintWithRequest } from '@app/api/blueprints';
 import { ComposeWithBuildStatus } from '@app/api/composes';
 
 type Document = {
@@ -8,23 +9,26 @@ type Document = {
   _rev?: string;
 };
 
-// pouchdb uses `_id` instead of `id` for the primary key
-// we also want to keep track of the compose status in the document,
-// so we add that type too
 export type ComposeDocument = Document & ComposeWithBuildStatus;
+
+export type BlueprintDocument = Document & BlueprintWithRequest;
 
 export type Store = {
   path: string;
   composes: PouchDB.Database<ComposeDocument>;
+  blueprints: PouchDB.Database<BlueprintDocument>;
 };
 
 export const createStore = (store: string) => {
-  const composesPath = path.join(store, 'composes');
   const composesStore: PouchDB.Database<ComposeDocument> = new pouchdb(
-    composesPath,
+    path.join(store, 'composes'),
+  );
+  const blueprintsStore: PouchDB.Database<BlueprintDocument> = new pouchdb(
+    path.join(store, 'blueprints'),
   );
   return {
     path: store,
     composes: composesStore,
+    blueprints: blueprintsStore,
   };
 };
