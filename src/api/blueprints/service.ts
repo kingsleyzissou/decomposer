@@ -1,9 +1,14 @@
 import * as Task from 'true-myth/task';
+import { v4 as uuid } from 'uuid';
 
 import { withDatabaseError } from '@app/errors';
 import { BlueprintDocument, Store } from '@app/store';
 
-import { Blueprint, BlueprintService as Service } from './types';
+import {
+  Blueprint,
+  CreateBlueprintRequest,
+  BlueprintService as Service,
+} from './types';
 
 export class BlueprintService implements Service {
   private store: Store;
@@ -32,5 +37,23 @@ export class BlueprintService implements Service {
           } as Blueprint;
         });
     });
+  }
+
+  async add(request: CreateBlueprintRequest) {
+    const id = uuid();
+    const task = Task.fromPromise(
+      this.store.blueprints.put({
+        _id: id,
+        name: request.name,
+        description: request.description,
+        distribution: request.distribution,
+        image_requests: request.image_requests,
+        customizations: request.customizations,
+        last_modified_at: new Date().toISOString(),
+        version: 1,
+      }),
+    );
+
+    return await task.mapRejected(withDatabaseError).map(() => ({ id }));
   }
 }

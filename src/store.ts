@@ -1,7 +1,7 @@
 import path from 'path';
 import pouchdb from 'pouchdb';
 
-import { Blueprint, BlueprintRequest } from '@app/api/blueprints';
+import { Blueprint, CreateBlueprintRequest } from '@app/api/blueprints';
 import { Compose, ComposeStatus } from '@app/api/composes';
 
 type Document = {
@@ -19,7 +19,7 @@ export type BlueprintDocument = Document &
   // we need a mix of these two types for the
   // document that we save to the database
   Omit<Blueprint, 'id'> &
-  BlueprintRequest;
+  CreateBlueprintRequest;
 
 export type Store = {
   path: string;
