@@ -461,6 +461,17 @@ export const CreateBlueprintResponse = z
   .object({ id: z.string().uuid() })
   .passthrough();
 
+export const BlueprintResponse = z
+  .object({
+    id: z.string().uuid(),
+    name: z.string(),
+    description: z.string(),
+    distribution: Distributions,
+    image_requests: z.array(ImageRequest).min(1),
+    customizations: Customizations,
+  })
+  .passthrough();
+
 export const ClientId = z.enum(['api', 'ui', 'mcp']);
 
 export const ComposeRequest = z.object({

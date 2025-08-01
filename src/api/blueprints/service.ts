@@ -56,4 +56,18 @@ export class BlueprintService implements Service {
 
     return await task.mapRejected(withDatabaseError).map(() => ({ id }));
   }
+
+  public async get(id: string) {
+    const task = Task.fromPromise(this.store.blueprints.get(id));
+
+    return await task.mapRejected(withDatabaseError).map((blueprint) => {
+      return {
+        id: blueprint.id,
+        name: blueprint.name,
+        version: blueprint.version,
+        description: blueprint.description,
+        last_modified_at: blueprint.last_modified_at,
+      } as Blueprint;
+    });
+  }
 }

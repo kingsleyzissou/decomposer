@@ -15,9 +15,16 @@ export type CreateBlueprintResponse = z.infer<
   typeof schema.CreateBlueprintResponse
 >;
 
+// The types are a bit awkward here, we only need some of
+// the return type, so let's just wrap it in a `Partial`
+export type BlueprintResponse = Partial<
+  z.infer<typeof schema.BlueprintResponse>
+>;
+
 type ServiceTask<T> = Promise<Result<T, DatabaseError>>;
 
 export type BlueprintService = {
   all: () => ServiceTask<Blueprint[]>;
   add: (request: CreateBlueprintRequest) => ServiceTask<{ id: string }>;
+  get: (id: string) => ServiceTask<Blueprint>;
 };
