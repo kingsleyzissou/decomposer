@@ -5,10 +5,11 @@ import { StatusCodes } from 'http-status-codes';
 import { mkdtemp, rmdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+import { validate } from 'uuid';
 
 import { AppContext } from '@app/types';
 
-import { createTestStore } from '@fixtures';
+import { blueprintRequest, createTestStore } from '@fixtures';
 
 import { Blueprints, blueprints } from '.';
 import { BlueprintService } from './service';
@@ -46,5 +47,24 @@ describe('Blueprints handler tests', async () => {
     expect(body.meta.count).toBe(0);
     expect(body.data).not.toBeUndefined();
     expect(body.data.length).toBe(0);
+  });
+
+  it('POST /compose should create a new compose', async () => {
+    const res = await client.blueprint.$post({
+      json: blueprintRequest,
+    });
+    expect(res.status).toBe(StatusCodes.OK);
+    const { id } = await res.json();
+    expect(validate(id)).toBeTrue();
+  });
+
+  it('GET /blueprints should have one blueprint now', async () => {
+    const res = await client.blueprints.$get();
+    expect(res.status).toBe(StatusCodes.OK);
+    const body = (await res.json()) as Blueprints;
+    expect(body).not.toBeUndefined();
+    expect(body.meta.count).toBe(1);
+    expect(body.data).not.toBeUndefined();
+    expect(body.data.length).toBe(1);
   });
 });

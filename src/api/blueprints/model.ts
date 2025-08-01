@@ -1,9 +1,10 @@
 import * as Task from 'true-myth/task';
+import { v4 as uuid } from 'uuid';
 
 import { withAppError } from '@app/errors';
 import { BlueprintDocument } from '@app/store';
 
-import { Blueprint } from './types';
+import { Blueprint, BlueprintRequest } from './types';
 import * as validators from './validators';
 
 export class Model {
@@ -11,6 +12,22 @@ export class Model {
 
   constructor(store: PouchDB.Database<BlueprintDocument>) {
     this.store = store;
+  }
+
+  async create(request: BlueprintRequest) {
+    return Task.tryOrElse(withAppError, async () => {
+      const id = uuid();
+      return this.store.put({
+        _id: id,
+        name: request.name,
+        description: request.description,
+        distribution: request.distribution,
+        image_requests: request.image_requests,
+        customizations: request.customizations,
+        last_modified_at: new Date().toISOString(),
+        version: 1,
+      });
+    });
   }
 
   async findAll() {

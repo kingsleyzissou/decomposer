@@ -7,6 +7,10 @@ export const blueprint = await Bun.file(
   path.join(__dirname, 'blueprint.json'),
 ).json();
 
+export const blueprintRequest = await Bun.file(
+  path.join(__dirname, 'blueprint-request.json'),
+).json();
+
 export { createTestStore } from './store';
 
 export { imageTypes } from './imagetype-list';

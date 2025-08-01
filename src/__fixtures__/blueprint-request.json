@@ -1,0 +1,25 @@
+{
+  "name": "decomposer-test-blueprint",
+  "description": "Blueprint to test the decomposer shim",
+  "distribution": "fedora-41",
+  "image_requests": [
+    {
+      "architecture": "x86_64",
+      "image_type": "guest-image",
+      "upload_request": {
+        "type": "aws.s3",
+        "options": {}
+      }
+    }
+  ],
+  "customizations": {
+    "users": [
+      {
+        "name": "test",
+        "password": "password42",
+        "groups": ["wheel"],
+        "hasPassword": true
+      }
+    ]
+  }
+}
