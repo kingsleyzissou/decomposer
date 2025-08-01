@@ -5,16 +5,14 @@ import path from 'node:path';
 import { Result } from 'true-myth';
 import * as Task from 'true-myth/task';
 import { v4 as uuid } from 'uuid';
-import z from 'zod';
 
 import { Status } from '@app/constants';
 import { AppError, withDatabaseError } from '@app/errors';
 import { JobQueue } from '@app/queue';
-import { ComposeDoc, JobResult, Store } from '@app/types';
+import { ComposeDocument, JobResult, Store } from '@app/types';
 import { resolve } from '@app/utilities';
-import { ClientId } from '@gen/ibcrc/zod';
 
-import { ComposeRequest, ComposeService as Service } from './types';
+import { Compose, ComposeRequest, ComposeService as Service } from './types';
 
 export class ComposeService implements Service {
   private store: Store;
@@ -26,7 +24,7 @@ export class ComposeService implements Service {
     this.store = store;
     this.mutex = new Mutex();
     this.queue.events.on('message', async ({ data }: JobResult) => {
-      await this.update(data.id, { status: data.result } as ComposeDoc);
+      await this.update(data.id, { status: data.result } as ComposeDocument);
     });
   }
 
@@ -40,13 +38,13 @@ export class ComposeService implements Service {
     return await task.mapRejected(withDatabaseError).map((composes) => {
       return composes.rows
         .map((row) => row.doc!)
-        .map((compose) => {
+        .map((compose: ComposeDocument) => {
           return {
             id: compose._id,
-            client_id: 'ui' as z.infer<typeof ClientId>, // hardcoded for cockpit
+            request: compose.request,
+            client_id: compose.client_id,
             created_at: compose.created_at,
-            request: compose.request!,
-          };
+          } as Compose;
         });
     });
   }
@@ -70,9 +68,7 @@ export class ComposeService implements Service {
   public async get(id: string) {
     const task = Task.fromPromise(this.store.composes.get(id));
 
-    return await task.mapRejected(withDatabaseError).map((compose) => {
-      return compose;
-    });
+    return await task.mapRejected(withDatabaseError);
   }
 
   public async delete(id: string) {
@@ -98,7 +94,7 @@ export class ComposeService implements Service {
     return await task.mapRejected(withDatabaseError);
   }
 
-  public async update(id: string, changes: ComposeDoc) {
+  public async update(id: string, changes: ComposeDocument) {
     const task = Task.fromPromise(
       resolve(async () => {
         await this.mutex.runExclusive(async () => {

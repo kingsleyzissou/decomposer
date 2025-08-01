@@ -17,7 +17,7 @@ import { ComposesResponse } from './types';
 const executable = path.join(__dirname, '..', '..', '__mocks__', 'ibcli');
 
 const createTestClient = (tmp: string) => {
-  const store = createTestStore(tmp);
+  const store = createTestStore(tmp, 'composes');
   const worker = createWorker(store, 'manifest', executable);
   const { app } = createApp('', store, worker);
   const client = testClient(app);

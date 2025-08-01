@@ -5,6 +5,7 @@ import { pagify } from '@app/utilities';
 
 import {
   Compose,
+  ComposeRequest,
   ComposeResponse,
   ComposeStatusResponse,
   ComposesResponse,
@@ -59,7 +60,7 @@ export const composes = new Hono<AppContext>()
     return result.match({
       Ok: (compose) => {
         return ctx.json<ComposeStatusResponse>({
-          request: compose.request!,
+          request: compose.request as ComposeRequest,
           image_status: {
             status: compose.status,
           },
