@@ -57,16 +57,11 @@ export const composes = new Hono<AppContext>()
   .get('/composes/:id', async (ctx) => {
     const id = ctx.req.param('id');
     const { compose: service } = ctx.get('services');
-    const result = await service.get(id);
+    const result = await service.status(id);
 
     return result.match({
-      Ok: (compose) => {
-        return ctx.json<ComposeStatus>({
-          request: compose.request!,
-          image_status: {
-            status: compose.status,
-          },
-        });
+      Ok: (status) => {
+        return ctx.json<ComposeStatus>(status);
       },
       Err: (error) => {
         const { body, code } = error.response();
