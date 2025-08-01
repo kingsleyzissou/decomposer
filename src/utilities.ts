@@ -84,3 +84,17 @@ export const getHostArch = () => {
 
   throw Error('Unknown host arch');
 };
+
+export const pagify = <T extends { id: string }>(items: T[]) => {
+  const length = items.length;
+  const first = length > 0 ? items[0].id : '';
+  const last = length > 0 ? items[length - 1].id : '';
+  return {
+    meta: { count: length },
+    links: {
+      first,
+      last,
+    },
+    data: items,
+  };
+};
