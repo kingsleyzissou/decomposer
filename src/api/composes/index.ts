@@ -1,8 +1,10 @@
 import { Hono } from 'hono';
 
 import { AppContext } from '@app/types';
+import { pagify } from '@app/utilities';
 
 import {
+  Compose,
   ComposeResponse,
   ComposeStatusResponse,
   ComposesResponse,
@@ -10,6 +12,7 @@ import {
 import * as validators from './validators';
 
 export const composes = new Hono<AppContext>()
+
   // curl --unix-socket /run/decomposer-httpd.sock \
   // -X GET 'http://localhost/api/image-builder-composer/v2/composes'
   .get('/composes', async (ctx) => {
@@ -18,17 +21,7 @@ export const composes = new Hono<AppContext>()
 
     return result.match({
       Ok: (composes) => {
-        const length = composes.length;
-        const first = length > 0 ? composes[0].id : '';
-        const last = length > 0 ? composes[length - 1].id : '';
-        return ctx.json<ComposesResponse>({
-          meta: { count: length },
-          links: {
-            first,
-            last,
-          },
-          data: composes,
-        });
+        return ctx.json<ComposesResponse>(pagify<Compose>(composes));
       },
       Err: (error) => {
         const { body, code } = error.response();
