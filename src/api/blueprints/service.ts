@@ -1,7 +1,7 @@
 import { Store } from '@app/store';
 
 import { Model } from './model';
-import { BlueprintService as Service } from './types';
+import { BlueprintRequest, BlueprintService as Service } from './types';
 
 export class BlueprintService implements Service {
   private model: Model;
@@ -10,7 +10,13 @@ export class BlueprintService implements Service {
     this.model = new Model(store.blueprints);
   }
 
-  async all() {
+  public async all() {
     return this.model.findAll();
+  }
+
+  public async add(request: BlueprintRequest) {
+    const result = await this.model.create(request);
+
+    return result.map(({ id }) => ({ id }));
   }
 }

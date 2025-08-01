@@ -1,8 +1,19 @@
+import { zValidator } from '@hono/zod-validator';
 import { parserFor } from 'true-myth-zod';
 
-import { DatabaseError } from '@app/errors';
+import { DatabaseError, ValidationError } from '@app/errors';
 import { BlueprintDocument } from '@app/store';
-import { BlueprintItem } from '@gen/ibcrc/zod';
+import { BlueprintItem, CreateBlueprintRequest } from '@gen/ibcrc/zod';
+
+export const createBlueprint = zValidator(
+  'json',
+  CreateBlueprintRequest,
+  (result) => {
+    if (!result.success) {
+      throw new ValidationError(result.error);
+    }
+  },
+);
 
 export const blueprintResponse = (blueprint: BlueprintDocument) => {
   const parser = parserFor(BlueprintItem);
