@@ -22,6 +22,32 @@ export const HTTPErrorList = z
   .object({ errors: z.array(HTTPError) })
   .passthrough();
 
+export const ListResponseMeta = z
+  .object({ count: z.number().int() })
+  .passthrough();
+
+export const ListResponseLinks = z
+  .object({ first: z.string(), last: z.string() })
+  .passthrough();
+
+export const BlueprintItem = z
+  .object({
+    id: z.string().uuid(),
+    version: z.number().int(),
+    name: z.string(),
+    description: z.string(),
+    last_modified_at: z.string(),
+  })
+  .passthrough();
+
+export const BlueprintsResponse = z
+  .object({
+    meta: ListResponseMeta,
+    links: ListResponseLinks,
+    data: z.array(BlueprintItem),
+  })
+  .passthrough();
+
 export const Distributions = z.enum([
   'rhel-8',
   'rhel-8-nightly',
@@ -433,14 +459,6 @@ export const CreateBlueprintRequest = z.object({
 
 export const CreateBlueprintResponse = z
   .object({ id: z.string().uuid() })
-  .passthrough();
-
-export const ListResponseMeta = z
-  .object({ count: z.number().int() })
-  .passthrough();
-
-export const ListResponseLinks = z
-  .object({ first: z.string(), last: z.string() })
   .passthrough();
 
 export const ClientId = z.enum(['api', 'ui', 'mcp']);
