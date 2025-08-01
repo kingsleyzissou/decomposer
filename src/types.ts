@@ -1,4 +1,8 @@
-import type { ComposeService, DistributionService } from '@app/api';
+import type {
+  BlueprintService,
+  ComposeService,
+  DistributionService,
+} from '@app/api';
 import type { Logger } from '@app/logger';
 
 export type { ComposeDocument, Store } from '@app/store';
@@ -8,6 +12,7 @@ export type AppContext = {
   Variables: {
     logger: Logger;
     services: {
+      blueprint: BlueprintService;
       compose: ComposeService;
       distribution: DistributionService;
     };
