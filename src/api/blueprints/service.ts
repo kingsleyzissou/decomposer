@@ -32,6 +32,10 @@ export class BlueprintService implements Service {
     }));
   }
 
+  public async update(id: string, changes: BlueprintRequest) {
+    return this.model.update(id, changes);
+  }
+
   public async delete(id: string) {
     return this.model.delete(id);
   }

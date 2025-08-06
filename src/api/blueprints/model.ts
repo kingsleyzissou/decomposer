@@ -51,6 +51,19 @@ export class Model {
     });
   }
 
+  async update(id: string, changes: BlueprintRequest) {
+    return Task.tryOrElse(withAppError, async () => {
+      const blueprint = await this.store.get(id);
+
+      await this.store.put({
+        ...blueprint,
+        ...changes,
+      });
+
+      return { id };
+    });
+  }
+
   async delete(id: string) {
     return Task.tryOrElse(withAppError, async () => {
       const blueprint = await this.store.get(id);
