@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import { Result } from 'true-myth';
+import { Maybe, Result } from 'true-myth';
 
 import { AppError } from '@app/errors';
 import { JobQueue } from '@app/queue';
@@ -20,8 +20,8 @@ export class ComposeService implements Service {
     });
   }
 
-  public async all() {
-    return this.model.findAll();
+  public async all(blueprintId?: string) {
+    return this.model.findAll(Maybe.of(blueprintId));
   }
 
   public async add(request: ComposeRequest) {

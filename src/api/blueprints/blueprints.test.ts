@@ -9,6 +9,7 @@ import { blueprintRequest } from '@fixtures';
 import { createTestClient } from '@mocks';
 
 import { BlueprintRequest, Blueprints } from '.';
+import { Composes } from '../composes';
 
 describe('Blueprints handler tests', async () => {
   const tmp = await mkdtemp(path.join(tmpdir(), 'decomposer-test'));
@@ -60,6 +61,18 @@ describe('Blueprints handler tests', async () => {
     const body = (await res.json()) as Blueprints;
     expect(body.name).toBe(blueprintRequest.name);
     expect(body.description).toBe(blueprintRequest.description);
+  });
+
+  it('GET /blueprints/:id/composes should initially be empty', async () => {
+    const res = await client.blueprints[':id'].composes.$get({
+      param: { id: newBlueprint },
+    });
+    expect(res.status).toBe(StatusCodes.OK);
+    const body = (await res.json()) as Composes;
+    expect(body).not.toBeUndefined();
+    expect(body.meta.count).toBe(0);
+    expect(body.data).not.toBeUndefined();
+    expect(body.data.length).toBe(0);
   });
 
   it('PUT /blueprints/:id should update the blueprint and return 200', async () => {
