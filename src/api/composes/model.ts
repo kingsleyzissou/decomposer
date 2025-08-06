@@ -1,6 +1,7 @@
 import { Mutex } from 'async-mutex';
 import { mkdir, rmdir } from 'node:fs/promises';
 import path from 'node:path';
+import { Maybe } from 'true-myth/maybe';
 import * as Task from 'true-myth/task';
 import { v4 as uuid } from 'uuid';
 
@@ -37,13 +38,21 @@ export class Model {
     });
   }
 
-  async findAll() {
+  async findAll(blueprintId: Maybe<string>) {
     return Task.tryOrElse(withAppError, async (): Promise<Compose[]> => {
       const docs = await this.db.allDocs({
         include_docs: true,
       });
 
-      return docs.rows.map((row) => row.doc!).map(validators.composesResponse);
+      return docs.rows
+        .map((row) => row.doc!)
+        .map(validators.composesResponse)
+        .filter((compose) => {
+          return blueprintId?.match({
+            Just: (bp) => bp === compose.blueprint_id,
+            Nothing: () => true,
+          });
+        });
     });
   }
 

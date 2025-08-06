@@ -3,6 +3,7 @@ import Maybe from 'true-myth/maybe';
 
 import { AppContext } from '@app/types';
 
+import { Compose, Composes } from '../composes';
 import { asPaginatedResponse } from '../pagination';
 import { Blueprint, BlueprintId, BlueprintMetadata, Blueprints } from './types';
 import * as validators from './validators';
@@ -99,6 +100,35 @@ export const blueprints = new Hono<AppContext>()
 
     return result.match({
       Ok: () => ctx.json({ message: 'OK' }),
+      Err: (error) => {
+        const { body, code } = error.response();
+        return ctx.json(body, code);
+      },
+    });
+  })
+
+  // curl --unix-socket /run/decomposer-httpd.sock \
+  // -X GET 'http://localhost/api/image-builder-composer/v2/blueprints/123e4567-e89b-12d3-a456-426655440000/composes'
+  .get('/blueprints/:id/composes', async (ctx) => {
+    const id = ctx.req.param('id');
+    const { limit, offset } = ctx.req.query();
+    const { compose: service } = ctx.get('services');
+    const result = await service.all(id);
+
+    // TODO: look at filters
+    // - ignoreImageTypes
+    // - blueprint_version
+    //   - this may not be possible since we only store the latest
+    return result.match({
+      Ok: (composes) => {
+        return ctx.json<Composes>(
+          asPaginatedResponse<Compose>(
+            composes,
+            Maybe.of(limit),
+            Maybe.of(offset),
+          ),
+        );
+      },
       Err: (error) => {
         const { body, code } = error.response();
         return ctx.json(body, code);
