@@ -7,11 +7,12 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { validate } from 'uuid';
 
+import { onError } from '@app/errors';
 import { AppContext } from '@app/types';
 
 import { blueprintRequest, createTestStore } from '@fixtures';
 
-import { Blueprints, blueprints } from '.';
+import { BlueprintRequest, Blueprints, blueprints } from '.';
 import { BlueprintService } from './service';
 
 const createTestClient = (tmp: string) => {
@@ -19,6 +20,7 @@ const createTestClient = (tmp: string) => {
   const service = new BlueprintService(store);
   return testClient(
     new Hono<AppContext>()
+      .onError(onError)
       .use(async (ctx, next) => {
         // @ts-expect-error we don't need to set
         // the compose service here for testing
@@ -40,6 +42,7 @@ describe('Blueprints handler tests', async () => {
   });
 
   let newBlueprint = '';
+  const updatedName = 'New Name';
 
   it('GET /blueprints should initially be empty', async () => {
     const res = await client.blueprints.$get();
@@ -82,6 +85,29 @@ describe('Blueprints handler tests', async () => {
     expect(body.description).toBe(blueprintRequest.description);
   });
 
+  it('PUT /blueprints/:id should update the blueprint and return 200', async () => {
+    const res = await client.blueprints[':id'].$put({
+      param: {
+        id: newBlueprint,
+      },
+      json: {
+        ...blueprintRequest,
+        name: updatedName,
+      },
+    });
+    expect(res.status).toBe(StatusCodes.OK);
+  });
+
+  it('GET /blueprints/:id should get the blueprint with updates', async () => {
+    await Bun.sleep(4);
+    const res = await client.blueprints[':id'].$get({
+      param: { id: newBlueprint },
+    });
+    expect(res.status).toBe(StatusCodes.OK);
+    const body = (await res.json()) as Blueprints;
+    expect(body.name).toBe(updatedName);
+  });
+
   it('DELETE /blueprints/:id should delete a blueprint', async () => {
     await Bun.sleep(4);
     const res = await client.blueprints[':id'].$delete({
@@ -90,7 +116,7 @@ describe('Blueprints handler tests', async () => {
     expect(res.status).toBe(StatusCodes.OK);
   });
 
-  it('GET /composes should empty again', async () => {
+  it('GET /blueprints should empty again', async () => {
     const res = await client.blueprints.$get();
     expect(res.status).toBe(StatusCodes.OK);
     const body = (await res.json()) as Blueprints;
@@ -105,8 +131,30 @@ describe('Blueprints handler tests', async () => {
     expect(res.status).toBe(StatusCodes.NOT_FOUND);
   });
 
+  it('PUT /blueprints/:id for non-existing blueprint should return 404', async () => {
+    const res = await client.blueprints[':id'].$put({
+      param: {
+        id: '123',
+      },
+      json: blueprintRequest,
+    });
+    expect(res.status).toBe(StatusCodes.NOT_FOUND);
+  });
+
+  it('PUT /blueprints/:id with bad input blueprint should return 422', async () => {
+    const res = await client.blueprints[':id'].$put({
+      param: {
+        id: '123',
+      },
+      json: {} as BlueprintRequest,
+    });
+    expect(res.status).toBe(StatusCodes.UNPROCESSABLE_ENTITY);
+  });
+
   it('DELETE /blueprints/:id for non-existing blueprint should return 404', async () => {
-    const res = await client.blueprints[':id'].$get({ param: { id: '123' } });
+    const res = await client.blueprints[':id'].$delete({
+      param: { id: '123' },
+    });
     expect(res.status).toBe(StatusCodes.NOT_FOUND);
   });
 });
