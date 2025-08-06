@@ -1,11 +1,13 @@
 import { Schemas } from '@gen/ibcrc';
 
+import { ComposeId } from '../composes';
 import { ServiceTask as Task } from '../types';
 
 export type BlueprintMetadata = Schemas['BlueprintItem'];
 export type Blueprints = Schemas['BlueprintsResponse'];
 export type BlueprintRequest = Schemas['CreateBlueprintRequest'];
 export type BlueprintId = Schemas['CreateBlueprintResponse'];
+export type BlueprintBody = Schemas['composeBlueprint_Body'];
 
 // The types are a bit awkward here, we only need some of
 // the return type, so let's just wrap it in a `Partial`
@@ -22,4 +24,5 @@ export type BlueprintService = {
   update: (id: string, request: BlueprintRequest) => Task<BlueprintId>;
   get: (id: string) => Task<Blueprint>;
   delete: (id: string) => Task<unknown>;
+  compose: (id: string, body?: BlueprintBody) => Task<ComposeId>;
 };

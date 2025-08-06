@@ -339,6 +339,72 @@
         }
       }
     },
+    "/blueprints/{id}/compose": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "123e4567-e89b-12d3-a456-426655440000",
+            "required": true,
+            "description": "UUID of a blueprint"
+          }
+        ],
+        "summary": "create new compose from blueprint",
+        "description": "create new compose from blueprint, optionally specifying the target image types to build",
+        "operationId": "composeBlueprint",
+        "tags": ["blueprint"],
+        "requestBody": {
+          "required": false,
+          "description": "list of target image types that the user wants to build for this compose",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image_types": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ImageTypes"
+                    },
+                    "example": ["azure", "aws"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "compose was created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ComposeResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "user is not allowed to compose from blueprints",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/blueprints/{id}/composes": {
       "get": {
         "summary": "get composes associated with a blueprint",
