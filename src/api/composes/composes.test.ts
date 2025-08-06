@@ -1,5 +1,4 @@
 import { afterAll, describe, expect, it } from 'bun:test';
-import { testClient } from 'hono/testing';
 import { ContentfulStatusCode } from 'hono/utils/http-status';
 import { StatusCodes } from 'http-status-codes';
 import { mkdtemp, rmdir } from 'node:fs/promises';
@@ -7,22 +6,10 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { validate } from 'uuid';
 
-import { createApp } from '@app/app';
-import { createWorker } from '@app/worker';
-
-import { composeRequest, createTestStore } from '@fixtures';
+import { composeRequest } from '@fixtures';
+import { createTestClient } from '@mocks';
 
 import { Composes } from './types';
-
-const executable = path.join(__dirname, '..', '..', '__mocks__', 'ibcli');
-
-const createTestClient = (tmp: string) => {
-  const store = createTestStore(tmp);
-  const worker = createWorker(store, 'manifest', executable);
-  const { app } = createApp('', store, worker);
-  const client = testClient(app);
-  return client.api['image-builder-composer'].v2;
-};
 
 describe('Composes handler tests', async () => {
   const tmp = await mkdtemp(path.join(tmpdir(), 'decomposer-test'));

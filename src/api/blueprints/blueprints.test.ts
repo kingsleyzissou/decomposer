@@ -1,37 +1,14 @@
 import { afterAll, describe, expect, it } from 'bun:test';
-import { Hono } from 'hono';
-import { testClient } from 'hono/testing';
 import { StatusCodes } from 'http-status-codes';
 import { mkdtemp, rmdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { validate } from 'uuid';
 
-import { onError } from '@app/errors';
-import { AppContext } from '@app/types';
+import { blueprintRequest } from '@fixtures';
+import { createTestClient } from '@mocks';
 
-import { blueprintRequest, createTestStore } from '@fixtures';
-
-import { BlueprintRequest, Blueprints, blueprints } from '.';
-import { BlueprintService } from './service';
-
-const createTestClient = (tmp: string) => {
-  const store = createTestStore(tmp);
-  const service = new BlueprintService(store);
-  return testClient(
-    new Hono<AppContext>()
-      .onError(onError)
-      .use(async (ctx, next) => {
-        // @ts-expect-error we don't need to set
-        // the compose service here for testing
-        ctx.set('services', {
-          blueprint: service,
-        });
-        await next();
-      })
-      .route('/', blueprints),
-  );
-};
+import { BlueprintRequest, Blueprints } from '.';
 
 describe('Blueprints handler tests', async () => {
   const tmp = await mkdtemp(path.join(tmpdir(), 'decomposer-test'));
