@@ -240,6 +240,45 @@
           "description": "UUID of a blueprint"
         }
       ],
+      "put": {
+        "summary": "update blueprint",
+        "description": "update blueprint",
+        "operationId": "updateBlueprint",
+        "tags": ["blueprint"],
+        "requestBody": {
+          "required": true,
+          "description": "details of blueprint",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBlueprintRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "blueprint was updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBlueprintResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "blueprint was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorList"
+                }
+              }
+            }
+          }
+        }
+      },
       "get": {
         "summary": "get detail of a blueprint",
         "description": "get a blueprint detail",
