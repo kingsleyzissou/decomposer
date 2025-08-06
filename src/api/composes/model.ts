@@ -23,7 +23,7 @@ export class Model {
     this.mutex = new Mutex();
   }
 
-  async create(request: ComposeRequest) {
+  async create(request: ComposeRequest, blueprintId: Maybe<string>) {
     return Task.tryOrElse(withAppError, async () => {
       const id = uuid();
       await mkdir(path.join(this.store, id), { recursive: true });
@@ -31,6 +31,7 @@ export class Model {
         _id: id,
         created_at: new Date().toISOString(),
         status: Status.PENDING,
+        blueprintId: blueprintId.unwrapOr(undefined),
         request,
       });
 
@@ -49,7 +50,7 @@ export class Model {
         .map(validators.composesResponse)
         .filter((compose) => {
           return blueprintId?.match({
-            Just: (bp) => bp === compose.blueprint_id,
+            Just: (bp) => bp === compose.blueprintId,
             Nothing: () => true,
           });
         });

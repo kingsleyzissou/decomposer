@@ -24,8 +24,8 @@ export class ComposeService implements Service {
     return this.model.findAll(Maybe.of(blueprintId));
   }
 
-  public async add(request: ComposeRequest) {
-    const result = await this.model.create(request);
+  public async add(request: ComposeRequest, blueprintId?: string) {
+    const result = await this.model.create(request, Maybe.of(blueprintId));
 
     return result.map(({ id }) => {
       this.queue.enqueue({ id, request });

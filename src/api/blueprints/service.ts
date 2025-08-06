@@ -1,13 +1,22 @@
+import { Result } from 'true-myth/result';
+
 import { Store } from '@app/store';
 
+import { ComposeRequest, ComposeService } from '../composes';
 import { Model } from './model';
-import { BlueprintRequest, BlueprintService as Service } from './types';
+import {
+  BlueprintBody,
+  BlueprintRequest,
+  BlueprintService as Service,
+} from './types';
 
 export class BlueprintService implements Service {
   private model: Model;
+  private composer: ComposeService;
 
-  constructor(store: Store) {
+  constructor(store: Store, composer: ComposeService) {
     this.model = new Model(store.blueprints);
+    this.composer = composer;
   }
 
   public async all() {
@@ -38,5 +47,22 @@ export class BlueprintService implements Service {
 
   public async delete(id: string) {
     return this.model.delete(id);
+  }
+
+  public async compose(id: string, body?: BlueprintBody) {
+    const blueprint = await this.model.findById(id, body);
+    if (blueprint.isErr) {
+      return Result.err(blueprint.error);
+    }
+
+    // the compose request is basically just a subset
+    // of the blueprint, so this is okay
+    const cr: ComposeRequest = {
+      ...blueprint.value,
+      client_id: 'ui',
+    };
+
+    const result = await this.composer.add(cr, id);
+    return result.map(({ id }) => ({ id }));
   }
 }

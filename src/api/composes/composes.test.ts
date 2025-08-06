@@ -42,8 +42,6 @@ describe('Composes handler tests', async () => {
   });
 
   it('GET /composes should have one compose now', async () => {
-    // delay the request so we can finish simulating
-    // the post request
     const res = await client.composes.$get();
     expect(res.status).toBe(StatusCodes.OK);
     const body = (await res.json()) as Composes;
