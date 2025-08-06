@@ -3,7 +3,7 @@ import Maybe from 'true-myth/maybe';
 
 import { AppContext } from '@app/types';
 
-import { Compose, Composes } from '../composes';
+import { Compose, ComposeId, Composes } from '../composes';
 import { asPaginatedResponse } from '../pagination';
 import { Blueprint, BlueprintId, BlueprintMetadata, Blueprints } from './types';
 import * as validators from './validators';
@@ -129,6 +129,25 @@ export const blueprints = new Hono<AppContext>()
           ),
         );
       },
+      Err: (error) => {
+        const { body, code } = error.response();
+        return ctx.json(body, code);
+      },
+    });
+  })
+
+  // -H "Content-Type: application/json" \
+  // -d @src/__mocks__/compose.json \
+  // -X POST 'http://localhost/api/image-builder-composer/v2/compose'
+  // TODO: fix endpoint comment doc
+  .post('/blueprints/:id/compose', validators.composeBlueprint, async (ctx) => {
+    const id = ctx.req.param('id');
+    const body = ctx.req.valid('json');
+    const { blueprint: service } = ctx.get('services');
+    const result = await service.compose(id, body);
+
+    return result.match({
+      Ok: ({ id }) => ctx.json<ComposeId>({ id }),
       Err: (error) => {
         const { body, code } = error.response();
         return ctx.json(body, code);

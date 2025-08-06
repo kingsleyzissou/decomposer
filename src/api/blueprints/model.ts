@@ -3,8 +3,9 @@ import { v4 as uuid } from 'uuid';
 
 import { withAppError } from '@app/errors';
 import { BlueprintDocument } from '@app/store';
+import { maybeEmptyObject } from '@app/utilities';
 
-import { BlueprintMetadata, BlueprintRequest } from './types';
+import { BlueprintBody, BlueprintMetadata, BlueprintRequest } from './types';
 import * as validators from './validators';
 
 export class Model {
@@ -45,9 +46,21 @@ export class Model {
     );
   }
 
-  async findById(id: string) {
+  async findById(id: string, body?: BlueprintBody) {
     return Task.tryOrElse(withAppError, async () => {
-      return this.store.get(id);
+      const blueprint = await this.store.get(id);
+
+      return maybeEmptyObject<BlueprintBody>(body).match({
+        Nothing: () => blueprint,
+        Just: (body) => {
+          return {
+            ...blueprint,
+            image_requests: blueprint.image_requests.filter((ir) =>
+              body.image_types?.includes(ir.image_type),
+            ),
+          };
+        },
+      }) as BlueprintDocument;
     });
   }
 

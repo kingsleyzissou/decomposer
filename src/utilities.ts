@@ -1,4 +1,5 @@
 import { arch } from 'node:os';
+import { Maybe } from 'true-myth/maybe';
 
 import { AppError } from '@app/errors';
 
@@ -75,4 +76,16 @@ export const getHostArch = () => {
   }
 
   throw Error('Unknown host arch');
+};
+
+export const maybeEmptyObject = <T>(obj?: T): Maybe<T> => {
+  if (!obj) {
+    return Maybe.nothing(undefined);
+  }
+
+  if (Object.keys(obj).length === 0 && obj.constructor === Object) {
+    return Maybe.nothing(undefined);
+  }
+
+  return Maybe.just(obj);
 };

@@ -19,7 +19,7 @@ export const createApp = (
 ) => {
   const queue = createQueue(worker);
   const composeService = new services.Compose(queue, store);
-  const blueprintService = new services.Blueprint(store);
+  const blueprintService = new services.Blueprint(store, composeService);
   const distributionService = new services.Distribution();
 
   const middleware = new Hono<AppContext>();

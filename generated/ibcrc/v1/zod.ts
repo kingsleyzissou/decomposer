@@ -472,6 +472,15 @@ export const BlueprintResponse = z
   })
   .passthrough();
 
+export const composeBlueprint_Body = z
+  .object({ image_types: z.array(ImageTypes) })
+  .partial()
+  .passthrough();
+
+export const ComposeResponse = z
+  .object({ id: z.string().uuid() })
+  .passthrough();
+
 export const ClientId = z.enum(['api', 'ui', 'mcp']);
 
 export const ComposeRequest = z.object({
@@ -554,8 +563,4 @@ export const ImageStatus = z
 
 export const ComposeStatus = z
   .object({ image_status: ImageStatus, request: ComposeRequest })
-  .passthrough();
-
-export const ComposeResponse = z
-  .object({ id: z.string().uuid() })
   .passthrough();

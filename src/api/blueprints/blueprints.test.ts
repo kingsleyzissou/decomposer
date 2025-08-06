@@ -19,6 +19,7 @@ describe('Blueprints handler tests', async () => {
     await rmdir(tmp, { recursive: true });
   });
 
+  let newCompose = '';
   let newBlueprint = '';
   const updatedName = 'New Name';
 
@@ -73,6 +74,37 @@ describe('Blueprints handler tests', async () => {
     expect(body.meta.count).toBe(0);
     expect(body.data).not.toBeUndefined();
     expect(body.data.length).toBe(0);
+  });
+
+  it('POST /blueprints/:id/compose should queue a compose for the blueprint', async () => {
+    const res = await client.blueprints[':id'].compose.$post({
+      param: { id: newBlueprint },
+      json: {},
+    });
+    expect(res.status).toBe(StatusCodes.OK);
+    const { id } = await res.json();
+    newCompose = id;
+    expect(validate(id)).toBeTrue();
+  });
+
+  it('GET /blueprints/:id/composes should now have one compose', async () => {
+    const res = await client.blueprints[':id'].composes.$get({
+      param: { id: newBlueprint },
+    });
+    expect(res.status).toBe(StatusCodes.OK);
+    const body = (await res.json()) as Composes;
+    expect(body).not.toBeUndefined();
+    expect(body.meta.count).toBe(1);
+    expect(body.data).not.toBeUndefined();
+    expect(body.data.length).toBe(1);
+  });
+
+  it('DELETE /compose/:id should delete a compose', async () => {
+    await Bun.sleep(4);
+    const res = await client.compose[':id'].$delete({
+      param: { id: newCompose },
+    });
+    expect(res.status).toBe(StatusCodes.OK);
   });
 
   it('PUT /blueprints/:id should update the blueprint and return 200', async () => {
