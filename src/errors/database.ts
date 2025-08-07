@@ -10,25 +10,6 @@ export const isPouchError = (err: unknown): err is PouchDB.Core.Error => {
   );
 };
 
-export const withDatabaseError = (error: unknown) => {
-  if (error instanceof Error && isPouchError(error)) {
-    return new DatabaseError(error);
-  }
-
-  if (error instanceof DatabaseError || error instanceof AppError) {
-    return error;
-  }
-
-  if (error instanceof Error && error.name === 'OpenError') {
-    return new DatabaseError(error);
-  }
-
-  return new AppError({
-    message: 'Unable to complete transaction',
-    details: [error],
-  });
-};
-
 export class DatabaseError extends AppError {
   constructor(error: unknown) {
     if (error instanceof Error && error.name === 'OpenError') {

@@ -1,4 +1,4 @@
 export { AppError } from './app';
-export { DatabaseError, withDatabaseError } from './database';
+export { DatabaseError } from './database';
 export { ValidationError } from './validation';
-export { onError, notFound } from './handlers';
+export { onError, notFound, withAppError } from './handlers';
