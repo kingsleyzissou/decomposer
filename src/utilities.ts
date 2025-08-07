@@ -20,10 +20,6 @@ export const jsonFormat = (o: object) => {
   return JSON.stringify(o, null, 2);
 };
 
-// this is a simple higher order function so that we can
-// execute a promise with `true-myth` tasks
-export const resolve = <T>(fn: () => Promise<T>): Promise<T> => fn();
-
 export const imageTypeLookup = {
   hostedToOnPrem: (distro: string, imageType: string) => {
     // TODO: add these aliases to the images library:

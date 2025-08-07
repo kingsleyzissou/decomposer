@@ -1,74 +1,42 @@
-import { Mutex } from 'async-mutex';
 import { StatusCodes } from 'http-status-codes';
-import { rmdir } from 'node:fs/promises';
-import path from 'node:path';
 import { Result } from 'true-myth';
-import * as Task from 'true-myth/task';
-import { v4 as uuid } from 'uuid';
 
-import { Status } from '@app/constants';
-import { AppError, withDatabaseError } from '@app/errors';
+import { AppError } from '@app/errors';
 import { JobQueue } from '@app/queue';
 import { ComposeDocument, JobResult, Store } from '@app/types';
-import { resolve } from '@app/utilities';
 
-import { Compose, ComposeRequest, ComposeService as Service } from './types';
+import { Model } from './model';
+import { ComposeRequest, ComposeService as Service } from './types';
 
 export class ComposeService implements Service {
-  private store: Store;
+  private model: Model;
   private queue: JobQueue<ComposeRequest>;
-  private mutex: Mutex;
 
   constructor(queue: JobQueue<ComposeRequest>, store: Store) {
     this.queue = queue;
-    this.store = store;
-    this.mutex = new Mutex();
+    this.model = new Model(store.path, store.composes);
     this.queue.events.on('message', async ({ data }: JobResult) => {
       await this.update(data.id, { status: data.result });
     });
   }
 
   public async composes() {
-    const task = Task.fromPromise(
-      this.store.composes.allDocs({
-        include_docs: true,
-      }),
-    );
-
-    return task.mapRejected(withDatabaseError).map((composes) => {
-      return composes.rows
-        .map((row) => row.doc!)
-        .map((compose: ComposeDocument) => {
-          return {
-            id: compose._id,
-            request: compose.request,
-            client_id: compose.client_id,
-            created_at: compose.created_at,
-          } as Compose;
-        });
-    });
+    return this.model.findAll();
   }
 
   public async add(request: ComposeRequest) {
-    const task = Task.fromPromise(
-      this.store.composes.put({
-        _id: uuid(),
-        created_at: new Date().toISOString(),
-        status: Status.PENDING,
-        request,
-      }),
-    );
+    const result = await this.model.create(request);
 
-    return task.mapRejected(withDatabaseError).map((compose) => {
+    return result.map((compose) => {
       this.queue.enqueue({ id: compose.id, request });
       return { id: compose.id };
     });
   }
 
   public async status(id: string) {
-    const task = Task.fromPromise(this.store.composes.get(id));
+    const result = await this.model.findById(id);
 
-    return task.mapRejected(withDatabaseError).map((compose) => {
+    return result.map((compose) => {
       return {
         request: compose.request as ComposeRequest,
         image_status: {
@@ -88,32 +56,10 @@ export class ComposeService implements Service {
       );
     }
     this.queue.remove(id);
-    const task = Task.fromPromise(
-      resolve(async () => {
-        await this.mutex.runExclusive(async () => {
-          const compose = await this.store.composes.get(id);
-          await this.store.composes.remove(compose);
-          await rmdir(path.join(this.store.path, id), { recursive: true });
-        });
-      }),
-    );
-
-    return task.mapRejected(withDatabaseError);
+    return this.model.delete(id);
   }
 
   public async update(id: string, changes: Partial<ComposeDocument>) {
-    const task = Task.fromPromise(
-      resolve(async () => {
-        await this.mutex.runExclusive(async () => {
-          const compose = await this.store.composes.get(id);
-          await this.store.composes.put({
-            ...compose,
-            ...changes,
-          });
-        });
-      }),
-    );
-
-    return task.mapRejected(withDatabaseError);
+    return this.model.update(id, changes);
   }
 }
