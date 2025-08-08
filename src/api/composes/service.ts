@@ -20,16 +20,16 @@ export class ComposeService implements Service {
     });
   }
 
-  public async composes() {
+  public async all() {
     return this.model.findAll();
   }
 
   public async add(request: ComposeRequest) {
     const result = await this.model.create(request);
 
-    return result.map((compose) => {
-      this.queue.enqueue({ id: compose.id, request });
-      return { id: compose.id };
+    return result.map(({ id }) => {
+      this.queue.enqueue({ id, request });
+      return { id };
     });
   }
 
