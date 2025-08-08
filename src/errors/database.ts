@@ -20,7 +20,6 @@ export class DatabaseError extends AppError {
 
     if (!isPouchError(error)) {
       super({ message: 'Unknown error occured' });
-      console.log(error);
       this.name = 'Database Error';
       return;
     }
