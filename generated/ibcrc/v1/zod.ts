@@ -22,6 +22,32 @@ export const HTTPErrorList = z
   .object({ errors: z.array(HTTPError) })
   .passthrough();
 
+export const ListResponseMeta = z
+  .object({ count: z.number().int() })
+  .passthrough();
+
+export const ListResponseLinks = z
+  .object({ first: z.string(), last: z.string() })
+  .passthrough();
+
+export const BlueprintItem = z
+  .object({
+    id: z.string().uuid(),
+    version: z.number().int(),
+    name: z.string(),
+    description: z.string(),
+    last_modified_at: z.string(),
+  })
+  .passthrough();
+
+export const BlueprintsResponse = z
+  .object({
+    meta: ListResponseMeta,
+    links: ListResponseLinks,
+    data: z.array(BlueprintItem),
+  })
+  .passthrough();
+
 export const Distributions = z.enum([
   'rhel-8',
   'rhel-8-nightly',
@@ -435,12 +461,24 @@ export const CreateBlueprintResponse = z
   .object({ id: z.string().uuid() })
   .passthrough();
 
-export const ListResponseMeta = z
-  .object({ count: z.number().int() })
+export const BlueprintResponse = z
+  .object({
+    id: z.string().uuid(),
+    name: z.string(),
+    description: z.string(),
+    distribution: Distributions,
+    image_requests: z.array(ImageRequest).min(1),
+    customizations: Customizations,
+  })
   .passthrough();
 
-export const ListResponseLinks = z
-  .object({ first: z.string(), last: z.string() })
+export const composeBlueprint_Body = z
+  .object({ image_types: z.array(ImageTypes) })
+  .partial()
+  .passthrough();
+
+export const ComposeResponse = z
+  .object({ id: z.string().uuid() })
   .passthrough();
 
 export const ClientId = z.enum(['api', 'ui', 'mcp']);
@@ -525,8 +563,4 @@ export const ImageStatus = z
 
 export const ComposeStatus = z
   .object({ image_status: ImageStatus, request: ComposeRequest })
-  .passthrough();
-
-export const ComposeResponse = z
-  .object({ id: z.string().uuid() })
   .passthrough();

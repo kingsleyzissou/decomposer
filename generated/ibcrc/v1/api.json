@@ -117,6 +117,65 @@
       }
     },
     "/blueprints": {
+      "get": {
+        "summary": "get a collection of blueprints",
+        "description": "get a collection of blueprints, returns just the latest version of each blueprint",
+        "operationId": "getBlueprints",
+        "tags": ["blueprint"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "fetch blueprint with specific name"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "search for blueprints by name or description"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "minimum": 1,
+              "maximum": 100
+            },
+            "description": "max amount of blueprints, default 100"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            },
+            "description": "blueprint page offset, default 0"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "a list of blueprints",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlueprintsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
       "post": {
         "summary": "create blueprint",
         "description": "create blueprint",
@@ -156,6 +215,270 @@
           },
           "422": {
             "description": "blueprint is malformed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blueprints/{id}": {
+      "parameters": [
+        {
+          "in": "path",
+          "name": "id",
+          "schema": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "example": "123e4567-e89b-12d3-a456-426655440000",
+          "required": true,
+          "description": "UUID of a blueprint"
+        }
+      ],
+      "put": {
+        "summary": "update blueprint",
+        "description": "update blueprint",
+        "operationId": "updateBlueprint",
+        "tags": ["blueprint"],
+        "requestBody": {
+          "required": true,
+          "description": "details of blueprint",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBlueprintRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "blueprint was updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBlueprintResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "blueprint was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "get detail of a blueprint",
+        "description": "get a blueprint detail",
+        "operationId": "getBlueprint",
+        "tags": ["blueprint"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "version",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filter by a specific version of the Blueprint we want to fetch.\nOmit or pass -1 to fetch latest version.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "detail of a blueprint",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BlueprintResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "blueprint was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorList"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "delete a blueprint",
+        "description": "Deletes all versions of Blueprint, the compose will still count towards quota.\n",
+        "operationId": "deleteBlueprint",
+        "tags": ["blueprint"],
+        "responses": {
+          "204": {
+            "description": "Successfully deleted"
+          },
+          "404": {
+            "description": "Blueprint to delete was not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blueprints/{id}/compose": {
+      "post": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "123e4567-e89b-12d3-a456-426655440000",
+            "required": true,
+            "description": "UUID of a blueprint"
+          }
+        ],
+        "summary": "create new compose from blueprint",
+        "description": "create new compose from blueprint, optionally specifying the target image types to build",
+        "operationId": "composeBlueprint",
+        "tags": ["blueprint"],
+        "requestBody": {
+          "required": false,
+          "description": "list of target image types that the user wants to build for this compose",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "image_types": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ImageTypes"
+                    },
+                    "example": ["azure", "aws"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "compose was created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ComposeResponse"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "user is not allowed to compose from blueprints",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPErrorList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/blueprints/{id}/composes": {
+      "get": {
+        "summary": "get composes associated with a blueprint",
+        "description": "get a collection of composes associated to a blueprint, allows for filtering by version",
+        "operationId": "getBlueprintComposes",
+        "tags": ["blueprint"],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "example": "123e4567-e89b-12d3-a456-426655440000",
+            "required": true,
+            "description": "UUID of a blueprint"
+          },
+          {
+            "in": "query",
+            "name": "blueprint_version",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filter by a specific version of the Blueprint we want to fetch composes for.\nPass special value -1 to fetch composes for latest version of the Blueprint.\n"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "minimum": 1,
+              "maximum": 100
+            },
+            "description": "max amount of composes, default 100"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            },
+            "description": "composes page offset, default 0"
+          },
+          {
+            "in": "query",
+            "name": "ignoreImageTypes",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ImageTypes",
+                "example": ["rhel-edge-installer", "rhel-edge-commit", "..."]
+              }
+            },
+            "description": "Filter the composes on image type. The filter is optional and can be specified multiple times.\n"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "a list of composes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComposesResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "blueprint was not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -632,6 +955,87 @@
           }
         }
       },
+      "BlueprintsResponse": {
+        "required": ["meta", "links", "data"],
+        "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/ListResponseMeta"
+          },
+          "links": {
+            "$ref": "#/components/schemas/ListResponseLinks"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlueprintItem"
+            }
+          }
+        }
+      },
+      "BlueprintItem": {
+        "required": [
+          "id",
+          "version",
+          "name",
+          "description",
+          "last_modified_at"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "last_modified_at": {
+            "type": "string"
+          }
+        }
+      },
+      "BlueprintResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "distribution": {
+            "$ref": "#/components/schemas/Distributions"
+          },
+          "image_requests": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/ImageRequest"
+            },
+            "uniqueItems": true,
+            "description": "Array of image requests. Having more image requests in a single blueprint is currently not supported.\n"
+          },
+          "customizations": {
+            "$ref": "#/components/schemas/Customizations"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "distribution",
+          "image_requests",
+          "customizations"
+        ]
+      },
       "BlueprintMetadata": {
         "required": ["parent_id", "exported_at", "is_on_prem"],
         "properties": {
@@ -646,6 +1050,32 @@
           "is_on_prem": {
             "type": "boolean",
             "default": false
+          }
+        }
+      },
+      "BlueprintLint": {
+        "required": ["errors"],
+        "description": "Linting errors in the current blueprint, these might need to be resolved before the\nblueprint can be used to build images again.\n",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlueprintLintItem"
+            }
+          }
+        }
+      },
+      "BlueprintLintItem": {
+        "type": "object",
+        "required": ["name", "description"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Compliance"
+          },
+          "description": {
+            "type": "string",
+            "example": "package a required by policy is not present"
           }
         }
       },

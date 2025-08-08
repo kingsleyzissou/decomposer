@@ -1,20 +1,28 @@
 import pouchdb from 'pouchdb';
 import memoryAdapter from 'pouchdb-adapter-memory';
 
-import { ComposeDocument } from '@app/store';
+import { BlueprintDocument, ComposeDocument } from '@app/store';
 
 pouchdb.plugin(memoryAdapter);
 
 export const createTestStore = (store: string) => {
-  const composesStore: PouchDB.Database<ComposeDocument> = new pouchdb(
+  const options = {
+    adapter: 'memory',
+  };
+
+  const composes: PouchDB.Database<ComposeDocument> = new pouchdb(
     'composes',
-    {
-      adapter: 'memory',
-    },
+    options,
+  );
+
+  const blueprints: PouchDB.Database<BlueprintDocument> = new pouchdb(
+    'blueprints',
+    options,
   );
 
   return {
     path: store,
-    composes: composesStore,
+    composes,
+    blueprints,
   };
 };

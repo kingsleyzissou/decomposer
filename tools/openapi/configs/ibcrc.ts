@@ -22,6 +22,12 @@ const filterOptions = {
       'deleteCompose',
       'getComposeStatus',
       'createBlueprint',
+      'getBlueprints',
+      'getBlueprint',
+      'deleteBlueprint',
+      'updateBlueprint',
+      'getBlueprintComposes',
+      'composeBlueprint',
       'getDistributions',
       'getArchitectures',
     ],
@@ -107,6 +113,30 @@ const overlayOptions = {
       {
         // prettier-ignore
         target: '$.components.schemas.ArchitectureItem.properties.repositories',
+        remove: true,
+      },
+      {
+        // prettier-ignore
+        target: '$.components.schemas.BlueprintResponse.required',
+        remove: true,
+      },
+      {
+        // prettier-ignore
+        target: '$.components.schemas.BlueprintResponse',
+        update: {
+          required: [
+            'id',
+            'name',
+            'description',
+            'distribution',
+            'image_requests',
+            'customizations',
+          ],
+        },
+      },
+      {
+        // prettier-ignore
+        target: '$.components.schemas.BlueprintResponse.properties.lint',
         remove: true,
       },
     ],

@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import { Result } from 'true-myth';
+import { Maybe, Result } from 'true-myth';
 
 import { AppError } from '@app/errors';
 import { JobQueue } from '@app/queue';
@@ -20,16 +20,16 @@ export class ComposeService implements Service {
     });
   }
 
-  public async composes() {
-    return this.model.findAll();
+  public async all(blueprintId?: string) {
+    return this.model.findAll(Maybe.of(blueprintId));
   }
 
-  public async add(request: ComposeRequest) {
-    const result = await this.model.create(request);
+  public async add(request: ComposeRequest, blueprintId?: string) {
+    const result = await this.model.create(request, Maybe.of(blueprintId));
 
-    return result.map((compose) => {
-      this.queue.enqueue({ id: compose.id, request });
-      return { id: compose.id };
+    return result.map(({ id }) => {
+      this.queue.enqueue({ id, request });
+      return { id };
     });
   }
 
