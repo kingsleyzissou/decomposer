@@ -14,9 +14,9 @@ export type ComposeStatus = Schemas['ComposeStatus'];
 export type ComposeWithBuildStatus = Omit<Compose, 'id'> & ComposeBuildStatus;
 
 export type ComposeService = {
-  composes: () => Task<Compose[]>;
+  all: () => Task<Compose[]>;
   add: (request: ComposeRequest) => Task<ComposeId>;
   status: (id: string) => Task<ComposeStatus>;
-  update: (id: string, changes: Partial<ComposeDocument>) => Task<void>;
+  update: (id: string, changes: Partial<ComposeDocument>) => Task<ComposeId>;
   delete: (id: string) => Task<unknown>;
 };

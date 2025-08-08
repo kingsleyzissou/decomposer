@@ -14,7 +14,7 @@ export const composes = new Hono<AppContext>()
   .get('/composes', async (ctx) => {
     const { limit, offset } = ctx.req.query();
     const { compose: service } = ctx.get('services');
-    const result = await service.composes();
+    const result = await service.all();
 
     return result.match({
       Ok: (composes) => {
