@@ -1,15 +1,15 @@
 import { Mutex } from 'async-mutex';
 import { mkdir, rmdir } from 'node:fs/promises';
 import path from 'node:path';
-import { Maybe } from 'true-myth/maybe';
+import type { Maybe } from 'true-myth/maybe';
 import * as Task from 'true-myth/task';
 import { v4 as uuid } from 'uuid';
 
 import { Status } from '@app/constants';
 import { withAppError } from '@app/errors';
-import { ComposeDocument } from '@app/store';
+import type { ComposeDocument } from '@app/store';
 
-import { Compose, ComposeRequest } from './types';
+import type { Compose, ComposeRequest } from './types';
 import * as validators from './validators';
 
 export class Model {

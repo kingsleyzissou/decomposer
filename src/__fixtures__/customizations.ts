@@ -1,6 +1,6 @@
-import z from 'zod';
+import type z from 'zod';
 
-import { Customizations } from '@gen/ibcrc/zod';
+import type { Customizations } from '@gen/ibcrc/zod';
 
 export const customizations: z.infer<typeof Customizations> = {
   hostname: 'my-host',

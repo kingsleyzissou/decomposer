@@ -1,12 +1,14 @@
 import path from 'path';
+import { Maybe } from 'true-myth/maybe';
 import { Result } from 'true-myth/result';
 import * as Task from 'true-myth/task';
 
-import { ComposeRequest } from '@app/api/composes';
+import type { ComposeRequest } from '@app/api/composes';
+import { AppError } from '@app/errors';
 import { imageTypeLookup } from '@app/utilities';
 
 import { saveBlueprint } from './save-blueprint';
-import { Job, WorkerArgs } from './types';
+import type { Job, WorkerArgs } from './types';
 
 export const buildManifest = ({
   store,
@@ -21,10 +23,16 @@ export const buildManifest = ({
 
     const bpPath = bpResult.value;
 
+    const imageRequest = Maybe.of(request.image_requests[0]);
+    if (imageRequest.isNothing) {
+      // this really shouldn't happen since we validate the image request at
+      // the api handler level, but it is an additional runtime check, so it's ok
+      return Result.err(new AppError({ message: 'Image request is empty' }));
+    }
+
     const imageType = imageTypeLookup.hostedToOnPrem(
       request.distribution,
-      // there should only be one item, we have already validated this
-      request.image_requests[0].image_type,
+      imageRequest.value.image_type,
     );
 
     const proc = Bun.spawn(

@@ -2,7 +2,7 @@ import { zValidator } from '@hono/zod-validator';
 import { parserFor } from 'true-myth-zod';
 
 import { DatabaseError, ValidationError } from '@app/errors';
-import { ComposeDocument } from '@app/types';
+import type { ComposeDocument } from '@app/types';
 import { ComposeRequest, ComposesResponseItem } from '@gen/ibcrc/zod';
 
 // The zod schema ensures that there is only one single

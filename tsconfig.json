@@ -1,13 +1,22 @@
 {
   "compilerOptions": {
-    "noImplicitAny": true,
     "target": "es2021",
     "module": "esnext",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
     "strict": true,
     "strictNullChecks": true,
+    "noImplicitAny": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
     "paths": {
       "@app/*": ["./src/*"],

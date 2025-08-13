@@ -1,8 +1,8 @@
 import path from 'path';
 import pouchdb from 'pouchdb';
 
-import { BlueprintWithRequest } from '@app/api/blueprints';
-import { ComposeWithBuildStatus } from '@app/api/composes';
+import type { BlueprintWithRequest } from '@app/api/blueprints';
+import type { ComposeWithBuildStatus } from '@app/api/composes';
 
 type Document = {
   _id: string;

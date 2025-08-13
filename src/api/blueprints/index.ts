@@ -1,11 +1,16 @@
 import { Hono } from 'hono';
 import Maybe from 'true-myth/maybe';
 
-import { AppContext } from '@app/types';
+import type { AppContext } from '@app/types';
 
-import { Compose, ComposeId, Composes } from '../composes';
+import type { Compose, ComposeId, Composes } from '../composes';
 import { asPaginatedResponse } from '../pagination';
-import { Blueprint, BlueprintId, BlueprintMetadata, Blueprints } from './types';
+import type {
+  Blueprint,
+  BlueprintId,
+  BlueprintMetadata,
+  Blueprints,
+} from './types';
 import * as validators from './validators';
 
 export const blueprints = new Hono<AppContext>()
@@ -155,4 +160,4 @@ export const blueprints = new Hono<AppContext>()
     });
   });
 
-export * from './types';
+export type * from './types';

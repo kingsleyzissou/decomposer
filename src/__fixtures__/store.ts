@@ -1,7 +1,7 @@
 import pouchdb from 'pouchdb';
 import memoryAdapter from 'pouchdb-adapter-memory';
 
-import { BlueprintDocument, ComposeDocument } from '@app/store';
+import type { BlueprintDocument, ComposeDocument } from '@app/store';
 
 pouchdb.plugin(memoryAdapter);
 

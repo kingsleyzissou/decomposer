@@ -4,7 +4,7 @@ import { testClient } from 'hono/testing';
 import { StatusCodes } from 'http-status-codes';
 import z from 'zod';
 
-import { AppContext } from '@app/types';
+import type { AppContext } from '@app/types';
 import { ImageTypes } from '@gen/ibcrc/zod';
 
 import { ibcliList } from '@mocks';
@@ -12,7 +12,7 @@ import { ibcliList } from '@mocks';
 import { distributions } from '.';
 import { list } from './distribution-list';
 import { DistributionService } from './service';
-import { Architectures, Distributions } from './types';
+import type { Architectures, Distributions } from './types';
 
 // this is just a zod helper so we can parse the whole list
 // of image types in one go and ensure that they are okay

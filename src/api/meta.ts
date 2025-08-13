@@ -1,4 +1,4 @@
-import { Context } from 'hono';
+import type { Context } from 'hono';
 import { Hono } from 'hono';
 
 // load the openapi spec on app startup

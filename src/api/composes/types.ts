@@ -1,8 +1,8 @@
-import { Status } from '@app/constants';
-import { ComposeDocument } from '@app/store';
-import { type Schemas } from '@gen/ibcrc';
+import type { Status } from '@app/constants';
+import type { ComposeDocument } from '@app/store';
+import type { Schemas } from '@gen/ibcrc';
 
-import { ServiceTask as Task } from '../types';
+import type { ServiceTask as Task } from '../types';
 
 export type ComposeBuildStatus = { status: Status };
 export type Compose = Schemas['ComposesResponseItem'];

@@ -1,10 +1,10 @@
 import path from 'path';
 import * as Task from 'true-myth/task';
-import z from 'zod';
+import type z from 'zod';
 
 import { mapHostedToOnPrem } from '@app/blueprint';
 import { jsonFormat } from '@app/utilities';
-import { Customizations } from '@gen/ibcrc/zod';
+import type { Customizations } from '@gen/ibcrc/zod';
 
 type Customizations = z.infer<typeof Customizations>;
 

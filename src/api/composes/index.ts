@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
 import Maybe from 'true-myth/maybe';
 
-import { AppContext } from '@app/types';
+import type { AppContext } from '@app/types';
 
 import { asPaginatedResponse } from '../pagination';
-import { Compose, ComposeId, ComposeStatus, Composes } from './types';
+import type { Compose, ComposeId, ComposeStatus, Composes } from './types';
 import * as validators from './validators';
 
 export const composes = new Hono<AppContext>()
@@ -86,4 +86,4 @@ export const composes = new Hono<AppContext>()
     });
   });
 
-export * from './types';
+export type * from './types';

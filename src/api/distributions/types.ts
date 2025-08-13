@@ -1,7 +1,7 @@
-import { Result } from 'true-myth/result';
+import type { Result } from 'true-myth/result';
 
-import { AppError } from '@app/errors';
-import { Schemas } from '@gen/ibcrc';
+import type { AppError } from '@app/errors';
+import type { Schemas } from '@gen/ibcrc';
 
 export type Architectures = Schemas['Architectures'];
 export type Distributions = Schemas['DistributionsResponse'];

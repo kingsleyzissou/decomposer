@@ -6,8 +6,12 @@ export const asPaginatedResponse = <T extends { id: string }>(
   offset: Maybe<string>,
 ) => {
   const length = items.length;
-  const first = length > 0 ? items[0].id : '';
-  const last = length > 0 ? items[length - 1].id : '';
+  const first = Maybe.of<T>(items[0])
+    .map((item: T) => item.id)
+    .unwrapOr('');
+  const last = Maybe.of<T>(items[length - 1])
+    .map((item: T) => item.id)
+    .unwrapOr('');
 
   const l = limit.map((v) => parseInt(v)).unwrapOr(100);
   const o = offset.map((v) => parseInt(v)).unwrapOr(0);
