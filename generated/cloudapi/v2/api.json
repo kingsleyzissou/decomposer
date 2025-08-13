@@ -157,7 +157,6 @@
           "azure",
           "container",
           "oci.objectstorage",
-          "pulp.ostree",
           "local"
         ]
       },

@@ -66,7 +66,6 @@ export const UploadTypes = z.enum([
   'azure',
   'container',
   'oci.objectstorage',
-  'pulp.ostree',
   'local',
 ]);
 

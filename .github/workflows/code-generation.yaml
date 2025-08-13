@@ -1,0 +1,74 @@
+name: Code generation
+
+on:
+  schedule:
+    - cron: "0 5 * * *" # daily at 05:00 UTC
+  workflow_dispatch:
+
+jobs:
+  generate-api-code:
+    name: Generate API code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install bun
+        run: npm install -g bun
+      - name: Install dependencies
+        run: bun install
+      - name: Generate API
+        run: bun generate
+      - name: Detect API changes
+        run: |
+          bun generate
+          if [ $(git status --porcelain) ]; then
+            echo
+            echo "✓ No manual API changes detected"
+            exit 0
+          fi
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "generated: update generated code"
+          title: "generated: update generated code"
+          body: "Automated update from scheduled/workflow_dispatch run."
+          branch: update-generated-api
+          delete-branch: true
+          labels: maintenance, automated pr
+
+  generate-test-manifests:
+    name: Generate test manifests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js 22
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+    - name: Install bun
+      run: npm install -g bun
+    - name: Install dependencies
+      run: bun install
+    - name: Run integration tests
+      run: bun ./tools/gen-test-manifest.ts
+    - name: Detect changes changes
+      run: |
+        if [ $(git status --porcelain) ]; then
+          echo
+          echo "✓ No manual API changes detected"
+          exit 0
+        fi
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v6
+      with:
+        commit-message: "generated: update test manifests"
+        title: "generated: update test manifests"
+        body: "Automated update from scheduled/workflow_dispatch run."
+        branch: update-generated-manifests
+        delete-branch: true
+        labels: maintenance, automated pr
