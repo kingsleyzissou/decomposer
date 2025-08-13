@@ -1,6 +1,6 @@
-import { Result } from 'true-myth/result';
+import type { Result } from 'true-myth/result';
 
-import { Status } from '@app/constants';
+import type { Status } from '@app/constants';
 
 export type WorkerArgs = {
   store: string;

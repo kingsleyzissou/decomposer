@@ -10,8 +10,13 @@ import { ImageTypes } from '@gen/ibcrc/zod';
 // pre-load the json list of distribution data on app
 // startup and inject it to the route through middleware
 import { list } from './distribution-list';
-import { DistributionService as Service } from './types';
-import { Architectures, Distribution, Distributions, ImageType } from './types';
+import type { DistributionService as Service } from './types';
+import type {
+  Architectures,
+  Distribution,
+  Distributions,
+  ImageType,
+} from './types';
 
 const ibcliList = async (
   distribution: Distribution,

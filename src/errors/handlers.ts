@@ -1,4 +1,4 @@
-import { ErrorHandler, NotFoundHandler } from 'hono';
+import type { ErrorHandler, NotFoundHandler } from 'hono';
 import { StatusCodes } from 'http-status-codes';
 
 import { AppError } from './app';

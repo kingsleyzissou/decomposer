@@ -13,6 +13,6 @@ export const services = {
   Distribution: DistributionService,
 };
 
-export * from './blueprints/types';
-export * from './composes/types';
-export * from './distributions/types';
+export type * from './blueprints/types';
+export type * from './composes/types';
+export type * from './distributions/types';

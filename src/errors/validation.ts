@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import { $ZodError } from 'zod/v4/core';
+import type { $ZodError } from 'zod/v4/core';
 
 import { AppError } from './app';
 

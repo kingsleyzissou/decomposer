@@ -34,12 +34,19 @@ export default defineConfig([
       globals: {
         ...globals.node,
       },
-
-      parser: tsParser,
     },
   },
   {
     files: ['**/*.ts'],
+
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: __dirname,
+      },
+    },
+
     rules: {
       'no-restricted-exports': [
         'error',
@@ -47,6 +54,17 @@ export default defineConfig([
           restrictDefaultExports: { direct: true },
         },
       ],
+
+      // this works nicely with the typescript `verbatimModuleSyntax` rule
+      '@typescript-eslint/consistent-type-imports': [
+        'error',
+        {
+          prefer: 'type-imports',
+          fixStyle: 'separate-type-imports',
+        },
+      ],
+      '@typescript-eslint/consistent-type-exports': 'error',
+      '@typescript-eslint/no-import-type-side-effects': 'error',
     },
   },
 ]);

@@ -2,11 +2,11 @@ import { StatusCodes } from 'http-status-codes';
 import { Maybe, Result } from 'true-myth';
 
 import { AppError } from '@app/errors';
-import { JobQueue } from '@app/queue';
-import { ComposeDocument, JobResult, Store } from '@app/types';
+import type { JobQueue } from '@app/queue';
+import type { ComposeDocument, JobResult, Store } from '@app/types';
 
 import { Model } from './model';
-import { ComposeRequest, ComposeService as Service } from './types';
+import type { ComposeRequest, ComposeService as Service } from './types';
 
 export class ComposeService implements Service {
   private model: Model;

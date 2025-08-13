@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 
-import { AppContext } from '@app/types';
+import type { AppContext } from '@app/types';
 
-import { Architectures, Distribution, Distributions } from './types';
+import type { Architectures, Distribution, Distributions } from './types';
 
 export const distributions = new Hono<AppContext>()
 

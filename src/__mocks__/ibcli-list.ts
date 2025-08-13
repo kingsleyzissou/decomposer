@@ -1,5 +1,5 @@
-import { Distribution, ImageType } from '@app/api/distributions/types';
-import { Architecture } from '@app/constants';
+import type { Distribution, ImageType } from '@app/api/distributions/types';
+import type { Architecture } from '@app/constants';
 
 import { imageTypes } from '@fixtures';
 
@@ -9,7 +9,7 @@ export const ibcliList = async (
 ): Promise<ImageType[]> => {
   return new Promise((resolve) =>
     resolve(
-      imageTypes[distribution]
+      (imageTypes[distribution] ?? [])
         .filter((type) => type.arch === arch)
         .flatMap((type) => type.image_types)
         .map((type) => ({

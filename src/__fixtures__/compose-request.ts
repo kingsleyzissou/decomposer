@@ -1,6 +1,6 @@
-import z from 'zod';
+import type z from 'zod';
 
-import { ComposeRequest } from '@gen/ibcrc/zod';
+import type { ComposeRequest } from '@gen/ibcrc/zod';
 
 export const composeRequest: z.infer<typeof ComposeRequest> = {
   distribution: 'centos-9',

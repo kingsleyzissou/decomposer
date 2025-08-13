@@ -8,8 +8,8 @@ import { validate } from 'uuid';
 import { blueprintRequest } from '@fixtures';
 import { createTestClient } from '@mocks';
 
-import { BlueprintRequest, Blueprints } from '.';
-import { Composes } from '../composes';
+import type { BlueprintRequest, Blueprints } from '.';
+import type { Composes } from '../composes';
 
 describe('Blueprints handler tests', async () => {
   const tmp = await mkdtemp(path.join(tmpdir(), 'decomposer-test'));

@@ -2,10 +2,14 @@ import * as Task from 'true-myth/task';
 import { v4 as uuid } from 'uuid';
 
 import { withAppError } from '@app/errors';
-import { BlueprintDocument } from '@app/store';
+import type { BlueprintDocument } from '@app/store';
 import { maybeEmptyObject } from '@app/utilities';
 
-import { BlueprintBody, BlueprintMetadata, BlueprintRequest } from './types';
+import type {
+  BlueprintBody,
+  BlueprintMetadata,
+  BlueprintRequest,
+} from './types';
 import * as validators from './validators';
 
 export class Model {

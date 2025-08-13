@@ -2,7 +2,7 @@ import { zValidator } from '@hono/zod-validator';
 import { parserFor } from 'true-myth-zod';
 
 import { DatabaseError, ValidationError } from '@app/errors';
-import { BlueprintDocument } from '@app/store';
+import type { BlueprintDocument } from '@app/store';
 import {
   BlueprintItem,
   CreateBlueprintRequest,

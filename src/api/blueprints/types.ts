@@ -1,7 +1,7 @@
-import { Schemas } from '@gen/ibcrc';
+import type { Schemas } from '@gen/ibcrc';
 
-import { ComposeId } from '../composes';
-import { ServiceTask as Task } from '../types';
+import type { ComposeId } from '../composes';
+import type { ServiceTask as Task } from '../types';
 
 export type BlueprintMetadata = Schemas['BlueprintItem'];
 export type Blueprints = Schemas['BlueprintsResponse'];

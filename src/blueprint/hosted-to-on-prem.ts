@@ -1,7 +1,7 @@
-import z from 'zod';
+import type z from 'zod';
 
 import * as cloudapi from '@gen/cloudapi/zod';
-import * as ibcrc from '@gen/ibcrc/zod';
+import type * as ibcrc from '@gen/ibcrc/zod';
 
 type CreateBlueprintRequest = Pick<
   z.infer<typeof ibcrc.CreateBlueprintRequest>,

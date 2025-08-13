@@ -1,10 +1,10 @@
 import { Result } from 'true-myth/result';
 
-import { Store } from '@app/store';
+import type { Store } from '@app/store';
 
-import { ComposeRequest, ComposeService } from '../composes';
+import type { ComposeRequest, ComposeService } from '../composes';
 import { Model } from './model';
-import {
+import type {
   BlueprintBody,
   BlueprintRequest,
   BlueprintService as Service,
@@ -36,7 +36,7 @@ export class BlueprintService implements Service {
       id: blueprint._id,
       name: blueprint.name,
       version: blueprint.version,
-      description: blueprint.description,
+      description: blueprint.description ?? '',
       last_modified_at: blueprint.last_modified_at,
     }));
   }
