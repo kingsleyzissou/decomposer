@@ -11,6 +11,7 @@ export type { Job, JobResult, Worker } from '@app/worker';
 export type AppContext = {
   Variables: {
     logger: Logger;
+    requestId: string;
     services: {
       blueprint: BlueprintService;
       compose: ComposeService;
