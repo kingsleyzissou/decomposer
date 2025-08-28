@@ -17,6 +17,10 @@ const compat = new FlatCompat({
 
 export default defineConfig([
   {
+    // ignore all generated files
+    ignores: ['./generated/*'],
+  },
+  {
     extends: compat.extends(
       'eslint:recommended',
       'plugin:@typescript-eslint/recommended',

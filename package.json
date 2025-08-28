@@ -7,12 +7,15 @@
     "start": "bun ./src/index.ts",
     "dev": "bun --watch ./src/index.ts",
     "lint": "eslint ./src --ext .ts",
-    "format": "prettier ./src --write",
-    "format:check": "prettier ./src --check",
+    "format": "prettier ./src ./tools --write",
+    "format:check": "prettier ./src ./tools --check",
     "test": "bun test ./src",
     "test:coverage": "bun test --coverage ./src",
     "check": "tsc --noEmit",
-    "circular": "madge --circular ./src --extensions ts"
+    "generate": "bun --silent api:filter && bun --silent api:generate",
+    "api:filter": "bun --silent ./tools/openapi/filter.ts",
+    "api:generate": "bun --silent ./tools/openapi/generate.ts",
+    "circular": "madge --circular ./src ./tools --extensions ts"
   },
   "keywords": [],
   "author": "",
