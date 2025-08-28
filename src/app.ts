@@ -1,12 +1,13 @@
 import { Hono } from 'hono';
-import { logger } from 'hono/logger';
+import { pinoLogger } from 'hono-pino';
 import { prettyJSON } from 'hono/pretty-json';
 
 import { notFound, onError } from '@app/errors';
+import { logger } from '@app/logger';
 
 const middleware = new Hono();
 middleware.use(prettyJSON());
-middleware.use(logger());
+middleware.use(pinoLogger({ pino: logger }));
 
 // chaining the functions helps preserve RPC type inference
 export const app = new Hono()

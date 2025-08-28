@@ -1,9 +1,9 @@
-import chalk from 'chalk';
 import { chmod } from 'node:fs/promises';
 
 import { app } from '@app/app';
 import { args } from '@app/args';
 import { API_ENDPOINT } from '@app/constants';
+import { logger } from '@app/logger';
 import { prettyPrint, removeSocket } from '@app/utilities';
 
 // we need to make sure that the socket doesn't
@@ -23,7 +23,7 @@ Bun.serve(server);
 await chmod(args.socket, 0o775);
 
 const shutdown = async (signal: string) => {
-  chalk.blue(`Received ${signal}, shutting down gracefully...`);
+  logger.info(`Received ${signal}, shutting down gracefully...`);
   await removeSocket(args.socket);
   process.exit(0);
 };
@@ -31,8 +31,7 @@ const shutdown = async (signal: string) => {
 process.on('SIGINT', () => shutdown('SIGINT'));
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 
-console.log(
-  chalk.blue('[INFO]:'),
+logger.info(
   `🚀 Decomposer server started with configuration:\n${prettyPrint({
     socket: args.socket,
     api: API_ENDPOINT,
