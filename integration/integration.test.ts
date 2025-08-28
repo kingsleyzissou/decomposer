@@ -4,9 +4,9 @@ import { mkdtemp, rmdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import type { Compose } from '../src/api';
 import { createApp } from '../src/app';
 import { createStore } from '../src/store';
-import type { Compose } from '../src/types';
 import { getHostArch } from '../src/utilities';
 import { createWorker } from '../src/worker';
 

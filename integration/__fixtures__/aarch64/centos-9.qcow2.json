@@ -5247,9 +5247,7 @@
             "root-tree": {
               "type": "org.osbuild.tree",
               "origin": "org.osbuild.pipeline",
-              "references": [
-                "name:os"
-              ]
+              "references": ["name:os"]
             }
           },
           "options": {
