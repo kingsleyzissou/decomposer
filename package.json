@@ -6,9 +6,9 @@
   "scripts": {
     "start": "bun ./src/index.ts",
     "dev": "bun --watch ./src/index.ts",
-    "lint": "eslint ./src --ext .ts",
-    "format": "prettier ./src --write",
-    "format:check": "prettier ./src --check",
+    "lint": "eslint ./src ./tools ./integration --ext .ts",
+    "format": "prettier ./src ./tools ./integration --write",
+    "format:check": "prettier ./src ./tools ./integration --check",
     "test:unit": "bun test ./src",
     "test:coverage": "bun test --coverage ./src",
     "test:integration": "bun test --timeout 10000 ./integration",

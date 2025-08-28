@@ -1,8 +1,8 @@
 import openapi, {
-  OpenAPIFilterOptions,
-  OpenAPIOverlayOptions,
+  type OpenAPIFilterOptions,
+  type OpenAPIOverlayOptions,
 } from 'openapi-format';
-import { OpenAPIV3 } from 'openapi-types';
+import type { OpenAPIV3 } from 'openapi-types';
 
 export const parse = async (input: string) => {
   return (await openapi.parseFile(input)) as OpenAPIV3.Document;
