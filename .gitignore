@@ -1,0 +1,31 @@
+# Node & Bun environment
+node_modules/
+bun.lock
+
+# TypeScript build output
+dist/
+*.tsbuildinfo
+
+# Bun runtime temp files
+.bun/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# IDE/editor configs
+.vscode/
+.idea/
+*.sw?
+
+# dotenv files
+.env
+.env.*
