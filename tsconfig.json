@@ -13,8 +13,11 @@
     "noUncheckedIndexedAccess": true,
     "skipLibCheck": true,
     "paths": {
-      "@app/*": ["./src/*"]
+      "@app/*": ["./src/*"],
+      "@gen/cloudapi/*": ["./generated/cloudapi/v2/*"],
+      "@gen/ibcrc": ["./generated/ibcrc/v1"],
+      "@gen/ibcrc/*": ["./generated/ibcrc/v1/*"]
     }
   },
-  "include": ["./src"]
+  "include": ["./src", "./tools"]
 }
