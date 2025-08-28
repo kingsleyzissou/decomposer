@@ -1,0 +1,31 @@
+name: Run Typescript check
+
+on:
+  pull_request:
+    branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+  merge_group:
+
+# this prevents multiple jobs from the same pr
+# running when new changes are pushed.
+concurrency:
+  group: ${{github.workflow}}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    name: Type checks
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js 22
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+    - name: Install bun
+      run: npm install -g bun
+    - name: Install dependencies
+      run: bun install
+    - name: Run tsc check
+      run: bun check
