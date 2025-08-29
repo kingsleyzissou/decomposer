@@ -6,8 +6,10 @@ import { api } from '@app/api';
 import { API_ENDPOINT } from '@app/constants';
 import { notFound, onError } from '@app/errors';
 import { logger } from '@app/logger';
+import type { Store } from '@app/store';
 
-export const createApp = (socket: string) => {
+// eslint-disable-next-line
+export const createApp = (socket: string, store: Store) => {
   const middleware = new Hono()
     .notFound(notFound)
     .use(prettyJSON())
