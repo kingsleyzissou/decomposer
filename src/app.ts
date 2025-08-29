@@ -3,14 +3,23 @@ import { pinoLogger } from 'hono-pino';
 import { prettyJSON } from 'hono/pretty-json';
 
 import * as api from '@app/api';
+import type { ComposeRequest } from '@app/api';
 import { API_ENDPOINT } from '@app/constants';
 import { notFound, onError } from '@app/errors';
 import { logger } from '@app/logger';
 import type { Store } from '@app/store';
 import type { AppContext } from '@app/types';
+import type { Worker } from '@app/worker';
 
-export const createApp = (socket: string, store: Store) => {
-  const composeService = new api.services.Compose(store);
+import { createQueue } from './queue';
+
+export const createApp = (
+  socket: string,
+  store: Store,
+  worker: Worker<ComposeRequest>,
+) => {
+  const queue = createQueue(worker);
+  const composeService = new api.services.Compose(queue, store);
 
   const middleware = new Hono<AppContext>();
   middleware.use(prettyJSON());

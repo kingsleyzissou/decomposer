@@ -8,6 +8,7 @@ import { removeSocket } from '@app/utilities';
 
 import { version } from '../package.json';
 import { createStore } from './store';
+import { createWorker } from './worker';
 
 // we need to make sure that the socket doesn't
 // already exist, otherwise we run into issues
@@ -15,7 +16,8 @@ import { createStore } from './store';
 await removeSocket(args.socket);
 
 const store = createStore(args.store);
-const app = createApp(args.socket, store);
+const worker = createWorker(store);
+const app = createApp(args.socket, store, worker);
 Bun.serve(app);
 
 // we need to change this so that we can
