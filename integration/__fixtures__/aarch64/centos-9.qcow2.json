@@ -277,7 +277,7 @@
                   }
                 },
                 {
-                  "id": "sha256:41b56609ace237cf0bc4485f8f48fd7ad285720a67ed3e268e0d0b7e4d9ad442",
+                  "id": "sha256:9bc50345462446062c947d848f548ea4e8f1af8e6b820d5cac82d2f421dce723",
                   "options": {
                     "metadata": {
                       "rpm.check_gpg": true
@@ -285,7 +285,7 @@
                   }
                 },
                 {
-                  "id": "sha256:96edca61ce5946ca35f1a3dcaae2e329ab97e71ac3e9253ac777a24d87a793ed",
+                  "id": "sha256:9215622fa63928b492a411d9e70578c95b1f236c3e13eead0e77772012759a95",
                   "options": {
                     "metadata": {
                       "rpm.check_gpg": true
@@ -293,7 +293,7 @@
                   }
                 },
                 {
-                  "id": "sha256:52b60cbc43654c1e2c6c84c664ca25342b5bb13cfe70bd3a496b4372ceaf3707",
+                  "id": "sha256:3559f7cfeb35b11d4572bbcba4076a250d95f58303babd00b4b50451cbcdfa18",
                   "options": {
                     "metadata": {
                       "rpm.check_gpg": true
@@ -301,7 +301,7 @@
                   }
                 },
                 {
-                  "id": "sha256:e4af9bfa5526788765ee96bba0d7aada21145602e9a0c483216f7971ca2b9824",
+                  "id": "sha256:7b96058b823dbfbce39b93a7a976f9852ef3a8cbca84a1cff1b309302593f59c",
                   "options": {
                     "metadata": {
                       "rpm.check_gpg": true
@@ -2739,7 +2739,7 @@
                   }
                 },
                 {
-                  "id": "sha256:41b56609ace237cf0bc4485f8f48fd7ad285720a67ed3e268e0d0b7e4d9ad442",
+                  "id": "sha256:9bc50345462446062c947d848f548ea4e8f1af8e6b820d5cac82d2f421dce723",
                   "options": {
                     "metadata": {
                       "rpm.check_gpg": true
@@ -2747,7 +2747,7 @@
                   }
                 },
                 {
-                  "id": "sha256:96edca61ce5946ca35f1a3dcaae2e329ab97e71ac3e9253ac777a24d87a793ed",
+                  "id": "sha256:9215622fa63928b492a411d9e70578c95b1f236c3e13eead0e77772012759a95",
                   "options": {
                     "metadata": {
                       "rpm.check_gpg": true
@@ -2755,7 +2755,7 @@
                   }
                 },
                 {
-                  "id": "sha256:52b60cbc43654c1e2c6c84c664ca25342b5bb13cfe70bd3a496b4372ceaf3707",
+                  "id": "sha256:3559f7cfeb35b11d4572bbcba4076a250d95f58303babd00b4b50451cbcdfa18",
                   "options": {
                     "metadata": {
                       "rpm.check_gpg": true
@@ -2763,7 +2763,7 @@
                   }
                 },
                 {
-                  "id": "sha256:e4af9bfa5526788765ee96bba0d7aada21145602e9a0c483216f7971ca2b9824",
+                  "id": "sha256:7b96058b823dbfbce39b93a7a976f9852ef3a8cbca84a1cff1b309302593f59c",
                   "options": {
                     "metadata": {
                       "rpm.check_gpg": true
@@ -5247,7 +5247,9 @@
             "root-tree": {
               "type": "org.osbuild.tree",
               "origin": "org.osbuild.pipeline",
-              "references": ["name:os"]
+              "references": [
+                "name:os"
+              ]
             }
           },
           "options": {
@@ -5714,6 +5716,10 @@
           "path": "Packages/curl-7.76.1-31.el9.aarch64.rpm",
           "mirror": "61d0905df4d89342dcf7cafe5ee8268298b458a4d4ff393e96986e235bd03e82"
         },
+        "sha256:3559f7cfeb35b11d4572bbcba4076a250d95f58303babd00b4b50451cbcdfa18": {
+          "path": "Packages/glibc-gconv-extra-2.34-231.el9.aarch64.rpm",
+          "mirror": "61d0905df4d89342dcf7cafe5ee8268298b458a4d4ff393e96986e235bd03e82"
+        },
         "sha256:35cb2be21990b221f2159e121a843e1e57131f1b5b8f23a52fa53a5048b28064": {
           "path": "Packages/audit-3.1.5-7.el9.aarch64.rpm",
           "mirror": "61d0905df4d89342dcf7cafe5ee8268298b458a4d4ff393e96986e235bd03e82"
@@ -5793,10 +5799,6 @@
         "sha256:400577e6a1669a5b7c920ccc86841220191553fcec47d813559b6c928a17e8c9": {
           "path": "Packages/rpm-plugin-systemd-inhibit-4.16.1.3-39.el9.aarch64.rpm",
           "mirror": "334d30b73ff3c6506e0e7b495978e1f9ff78ec69d282d4990a910b469d0f22f2"
-        },
-        "sha256:41b56609ace237cf0bc4485f8f48fd7ad285720a67ed3e268e0d0b7e4d9ad442": {
-          "path": "Packages/glibc-2.34-228.el9.aarch64.rpm",
-          "mirror": "61d0905df4d89342dcf7cafe5ee8268298b458a4d4ff393e96986e235bd03e82"
         },
         "sha256:42441d837af8fb07a81e514f4975c50a6ec17588bd1ebd00ba7a507e4d1c4596": {
           "path": "Packages/kbd-legacy-2.4.0-11.el9.noarch.rpm",
@@ -5948,10 +5950,6 @@
         },
         "sha256:5221803f08964b33f3fad3d55348e590b9633f4f45704638a0bf799b37cc18f5": {
           "path": "Packages/passwd-0.80-12.el9.aarch64.rpm",
-          "mirror": "61d0905df4d89342dcf7cafe5ee8268298b458a4d4ff393e96986e235bd03e82"
-        },
-        "sha256:52b60cbc43654c1e2c6c84c664ca25342b5bb13cfe70bd3a496b4372ceaf3707": {
-          "path": "Packages/glibc-gconv-extra-2.34-228.el9.aarch64.rpm",
           "mirror": "61d0905df4d89342dcf7cafe5ee8268298b458a4d4ff393e96986e235bd03e82"
         },
         "sha256:52ba79e72eb6feef925cd94e1989b879750a33a5f926cc48f576368211799796": {
@@ -6242,6 +6240,10 @@
           "path": "Packages/ncurses-libs-6.2-12.20210508.el9.aarch64.rpm",
           "mirror": "61d0905df4d89342dcf7cafe5ee8268298b458a4d4ff393e96986e235bd03e82"
         },
+        "sha256:7b96058b823dbfbce39b93a7a976f9852ef3a8cbca84a1cff1b309302593f59c": {
+          "path": "Packages/glibc-minimal-langpack-2.34-231.el9.aarch64.rpm",
+          "mirror": "61d0905df4d89342dcf7cafe5ee8268298b458a4d4ff393e96986e235bd03e82"
+        },
         "sha256:7b99e8f1081ba2c511021b666b9f8176abb31168920e86c392cd45299f400b59": {
           "path": "Packages/libtasn1-4.16.0-9.el9.aarch64.rpm",
           "mirror": "61d0905df4d89342dcf7cafe5ee8268298b458a4d4ff393e96986e235bd03e82"
@@ -6390,6 +6392,10 @@
           "path": "Packages/libacl-2.3.1-4.el9.aarch64.rpm",
           "mirror": "61d0905df4d89342dcf7cafe5ee8268298b458a4d4ff393e96986e235bd03e82"
         },
+        "sha256:9215622fa63928b492a411d9e70578c95b1f236c3e13eead0e77772012759a95": {
+          "path": "Packages/glibc-common-2.34-231.el9.aarch64.rpm",
+          "mirror": "61d0905df4d89342dcf7cafe5ee8268298b458a4d4ff393e96986e235bd03e82"
+        },
         "sha256:92bede5dcdaa87eecf3e6616c7b699d59ae8e50512c606268445a9216e3fb6d2": {
           "path": "Packages/libuser-0.63-17.el9.aarch64.rpm",
           "mirror": "61d0905df4d89342dcf7cafe5ee8268298b458a4d4ff393e96986e235bd03e82"
@@ -6433,10 +6439,6 @@
         "sha256:96b41507e6504409b4b6f10c88dca8d072d61c79998cd18d6287e47b0857d877": {
           "path": "Packages/perl-Getopt-Std-1.12-483.el9.noarch.rpm",
           "mirror": "334d30b73ff3c6506e0e7b495978e1f9ff78ec69d282d4990a910b469d0f22f2"
-        },
-        "sha256:96edca61ce5946ca35f1a3dcaae2e329ab97e71ac3e9253ac777a24d87a793ed": {
-          "path": "Packages/glibc-common-2.34-228.el9.aarch64.rpm",
-          "mirror": "61d0905df4d89342dcf7cafe5ee8268298b458a4d4ff393e96986e235bd03e82"
         },
         "sha256:96f3d4427ff10d17577e4a00d575ff5c35a7df57237dac6bb753fba9c1a0e689": {
           "path": "Packages/crypto-policies-20250804-1.git2c74f3d.el9.noarch.rpm",
@@ -6508,6 +6510,10 @@
         },
         "sha256:9b756ae0148672fd428182ecbfae0e6d4fe249ad41cddb5f99ef2868b1b07c27": {
           "path": "Packages/polkit-0.117-14.el9.aarch64.rpm",
+          "mirror": "61d0905df4d89342dcf7cafe5ee8268298b458a4d4ff393e96986e235bd03e82"
+        },
+        "sha256:9bc50345462446062c947d848f548ea4e8f1af8e6b820d5cac82d2f421dce723": {
+          "path": "Packages/glibc-2.34-231.el9.aarch64.rpm",
           "mirror": "61d0905df4d89342dcf7cafe5ee8268298b458a4d4ff393e96986e235bd03e82"
         },
         "sha256:9c77b0feaca43beef71bd1be0ee2729a69af90a645ad6b702e71bc08b6d3037c": {
@@ -7044,10 +7050,6 @@
         },
         "sha256:e428d4d3318c5ea832e4d740e58c9d49b8b082eb2262f22a250a0df4856f4263": {
           "path": "Packages/libreport-filesystem-2.15.2-6.el9.noarch.rpm",
-          "mirror": "61d0905df4d89342dcf7cafe5ee8268298b458a4d4ff393e96986e235bd03e82"
-        },
-        "sha256:e4af9bfa5526788765ee96bba0d7aada21145602e9a0c483216f7971ca2b9824": {
-          "path": "Packages/glibc-minimal-langpack-2.34-228.el9.aarch64.rpm",
           "mirror": "61d0905df4d89342dcf7cafe5ee8268298b458a4d4ff393e96986e235bd03e82"
         },
         "sha256:e52de538f131646122dccc4985b63d448ef1c641543fac2df066b31798e16131": {
