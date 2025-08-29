@@ -3,3 +3,10 @@
 @host=http://unix\{{ socket }}:
 
 {{ method }} {{ api }}{{ path }} HTTP/1.1
+{{#if headers}}
+{{ headers }}
+{{/if}}
+{{#if data}}
+
+{{{ data }}}
+{{/if}}

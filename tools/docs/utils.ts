@@ -1,3 +1,4 @@
+import type { Spec } from 'comment-parser';
 import hbs from 'handlebars';
 import type { RouterRoute } from 'hono/types';
 import path from 'path';
@@ -24,12 +25,12 @@ export const commonFields = {
 export const createTemplate = async (
   type: keyof typeof templates,
   filename: string,
-  route: RouterRoute,
+  metadata: Metadata,
   component: string,
 ) => {
   const template = templates[type]({
     ...commonFields,
-    ...route,
+    ...metadata,
     default_socket: SOCKET_PATH,
   });
   const ext = type === 'bash' ? '.sh' : '.http';
@@ -44,17 +45,14 @@ export const templates = {
   http: await loadTemplate('http.hbs'),
 };
 
-const getFilename = (route: RouterRoute, component: string) => {
+const getFilename = (route: RouterRoute, component: string, tags?: Spec[]) => {
   if (component === 'meta') {
     return route.path.split('/')[1]!.split('.')[0];
   }
 
-  if (
-    component === 'composes' &&
-    route.method === 'GET' &&
-    route.path === '/composes'
-  ) {
-    return 'index';
+  const tag = tags && tags.find((t) => t.tag === 'rest');
+  if (tag) {
+    return tag.name;
   }
 
   throw Error(`Unknown route [${component}]: ${route.path}`);
@@ -70,16 +68,39 @@ export const filterUnique = () => {
   };
 };
 
-export const mapTemplates = (tsDocs: string[], component: string) => {
+type tsDoc = {
+  description: string;
+  tags: Spec[];
+};
+
+type Metadata = RouterRoute & {
+  description: string;
+  bash?: string;
+  http?: string;
+  headers?: string;
+  data?: string;
+};
+
+export const mapTemplates = (tsDocs: tsDoc[], component: string) => {
   return async (route: RouterRoute, index: number) => {
-    const filename = getFilename(route, component);
-    const bash = await createTemplate('bash', filename!, route, component);
-    const http = await createTemplate('http', filename!, route, component);
-    return {
+    const output: Metadata = {
       ...route,
-      description: tsDocs[index],
-      bash,
-      http,
+      description: tsDocs[index]!.description,
     };
+
+    const doc = tsDocs[index];
+    if (route.method === 'POST') {
+      const input = doc?.tags.find((t) => t.tag === 'example');
+      const str = input!.name;
+      const content = await Bun.file(str).json();
+      output.headers = 'Content-Type: application/json';
+      output.data = JSON.stringify(content, null, 2);
+    }
+
+    const filename = getFilename(route, component, doc?.tags);
+    output.bash = await createTemplate('bash', filename!, output, component);
+    output.http = await createTemplate('http', filename!, output, component);
+
+    return output;
   };
 };

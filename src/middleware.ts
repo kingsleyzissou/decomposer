@@ -2,13 +2,17 @@ import { Hono } from 'hono';
 import { pinoLogger } from 'hono-pino';
 import { prettyJSON } from 'hono/pretty-json';
 
-import { services } from '@app/api';
+import { type ComposeRequest, services } from '@app/api';
 import { notFound } from '@app/errors';
 import { logger } from '@app/logger';
+import type { JobQueue } from '@app/queue';
 import type { AppContext, Store } from '@app/types';
 
-export const createMiddleware = (store: Store) => {
-  const composeService = new services.Compose(store);
+export const createMiddleware = (
+  queue: JobQueue<ComposeRequest>,
+  store: Store,
+) => {
+  const composeService = new services.Compose(queue, store);
 
   return new Hono<AppContext>()
     .notFound(notFound)

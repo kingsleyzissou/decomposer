@@ -1,4 +1,13 @@
 SOCKET="${SOCKET_PATH:-'{{default_socket}}'}"
 
 curl --silent --unix-socket $SOCKET \
+{{#unless headers}}
   --request {{ method }} "http://localhost{{ api }}{{ path }}"
+{{/unless}}
+{{#if headers}}
+  --request {{ method }} "http://localhost{{ api }}{{ path }}" \
+  --header '{{ headers }}' \
+{{/if}}
+{{#if data}}
+  --data '{{{ data }}}'
+{{/if}}

@@ -6,30 +6,38 @@ import { meta } from '@app/api/meta';
 
 import { commonFields, filterUnique, mapTemplates, templates } from './utils';
 
-const metaFile = Bun.file(path.join('src', 'api', 'meta', 'index.ts'));
-const metaDocs = parse(await metaFile.text()).map((b) => b.description);
-const metaRoutes = meta.routes
-  .filter(filterUnique())
-  .map(mapTemplates(metaDocs, 'meta'));
+const components = {
+  meta: {
+    title: 'Meta Endpoints',
+    routes: meta.routes,
+  },
+  composes: {
+    title: 'Compose Endpoints',
+    routes: composes.routes,
+  },
+};
 
-const composesFile = Bun.file(path.join('src', 'api', 'composes', 'index.ts'));
-const composeDocs = parse(await composesFile.text()).map((b) => b.description);
-const composeRoutes = composes.routes
-  .filter(filterUnique())
-  .map(mapTemplates(composeDocs, 'composes'));
+const getComponentDetails = async (key: keyof typeof components) => {
+  const file = Bun.file(path.join('src', 'api', key, 'index.ts'));
+  const tsDocs = parse(await file.text()).map(({ description, tags }) => {
+    return { description, tags };
+  });
+  const component = components[key];
+  const routes = component.routes
+    .filter(filterUnique())
+    .map(mapTemplates(tsDocs, key));
+  return {
+    title: component.title,
+    routes: await Promise.all(routes),
+  };
+};
+
+const metaDetails = await getComponentDetails('meta');
+const composesDetails = await getComponentDetails('composes');
 
 const data = {
   ...commonFields,
-  endpoint: [
-    {
-      title: 'Meta Endpoints',
-      routes: await Promise.all(metaRoutes),
-    },
-    {
-      title: 'Compose Endpoints',
-      routes: await Promise.all(composeRoutes),
-    },
-  ],
+  endpoint: [metaDetails, composesDetails],
 };
 
 console.log('📄 Generating API Docs');
