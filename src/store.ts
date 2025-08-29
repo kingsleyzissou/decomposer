@@ -1,14 +1,12 @@
 import path from 'path';
 import pouchdb from 'pouchdb';
 
-import type { Schemas } from '@gen/ibcrc';
+import type { Compose } from '@app/api/composes/types';
 
 type Document = {
   _id: string;
   _rev?: string;
 };
-
-type Compose = Schemas['ComposesResponseItem'];
 
 // pouchdb uses `_id` instead of `id` for the primary key
 // we also want to keep track of the compose status in the document,
