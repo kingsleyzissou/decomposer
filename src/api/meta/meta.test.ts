@@ -1,24 +1,21 @@
 import { $ } from 'bun';
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
-import { Hono } from 'hono';
-import { testClient } from 'hono/testing';
 import { StatusCodes } from 'http-status-codes';
-import { mkdtemp, rm } from 'node:fs/promises';
+import { mkdtemp, rm, rmdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'path';
 
-import { API_ENDPOINT } from '@app/constants';
 import { schema } from '@gen/decomposer';
 
-import { meta } from '.';
+import { createTestClient, createTestStore } from '@fixtures';
 
 const CURL_DIR = path.join('generated', 'examples', 'curl', 'meta');
 const HTTP_DIR = path.join('generated', 'examples', 'http', 'meta');
 
 describe('Meta handler tests', async () => {
   const tmp = await mkdtemp(path.join(tmpdir(), 'decomposer-test'));
-  const client = testClient(meta);
-  const app = new Hono().route(API_ENDPOINT, meta);
+  const store = createTestStore(tmp);
+  const { app, client } = createTestClient(store);
   const socket = path.join(tmp, 'test.sock');
 
   beforeAll(() => {
@@ -30,6 +27,7 @@ describe('Meta handler tests', async () => {
 
   afterAll(async () => {
     await rm(socket);
+    await rmdir(tmp, { recursive: true });
   });
 
   describe('/ready endpoint tests', () => {
