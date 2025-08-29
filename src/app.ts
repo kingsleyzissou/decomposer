@@ -1,15 +1,21 @@
 import { Hono } from 'hono';
-import { logger } from 'hono/logger';
+import { pinoLogger } from 'hono-pino';
 import { prettyJSON } from 'hono/pretty-json';
 
 import { notFound, onError } from '@app/errors';
+import { logger } from '@app/logger';
+import type { AppContext } from '@app/types';
 
-const middleware = new Hono();
+const middleware = new Hono<AppContext>();
 middleware.use(prettyJSON());
-middleware.use(logger());
+middleware.use(pinoLogger({ pino: logger }));
+middleware.use(async (ctx, next) => {
+  ctx.set('logger', logger);
+  await next();
+});
 
 // chaining the functions helps preserve RPC type inference
-export const app = new Hono()
+export const app = new Hono<AppContext>()
   .notFound(notFound)
   .onError(onError)
   .route('*', middleware)
