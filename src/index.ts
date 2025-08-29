@@ -7,13 +7,15 @@ import { API_ENDPOINT } from '@app/constants';
 import { removeSocket } from '@app/utilities';
 
 import { version } from '../package.json';
+import { createStore } from './store';
 
 // we need to make sure that the socket doesn't
 // already exist, otherwise we run into issues
 // where the server can't run
 await removeSocket(args.socket);
 
-const app = createApp(args.socket);
+const store = createStore(args.store);
+const app = createApp(args.socket, store);
 Bun.serve(app);
 
 // we need to change this so that we can
@@ -33,6 +35,7 @@ process.on('SIGTERM', () => shutdown('SIGTERM'));
 console.log(`
   🚀 ${chalk.magenta(chalk.bold('Decomposer', version))}
   → socket: ${args.socket}
+  → store: ${store.path}
   → endpoint: ${API_ENDPOINT}
   → pid: ${process.pid}
 

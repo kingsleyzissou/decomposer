@@ -6,9 +6,11 @@ import * as api from '@app/api';
 import { API_ENDPOINT } from '@app/constants';
 import { notFound, onError } from '@app/errors';
 import { logger } from '@app/logger';
+import type { Store } from '@app/store';
 import type { AppContext } from '@app/types';
 
-export const createApp = (socket: string) => {
+// eslint-disable-next-line
+export const createApp = (socket: string, store: Store) => {
   const middleware = new Hono<AppContext>();
   middleware.use(prettyJSON());
   middleware.use(pinoLogger({ pino: logger }));
