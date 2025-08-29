@@ -17,7 +17,8 @@
       "@gen/cloudapi/*": ["./generated/cloudapi/v2/*"],
       "@gen/ibcrc": ["./generated/ibcrc/v1"],
       "@gen/ibcrc/*": ["./generated/ibcrc/v1/*"],
-      "@fixtures": ["./src/__fixtures__"]
+      "@fixtures": ["./src/__fixtures__"],
+      "@mocks": ["./src/__mocks__"]
     }
   },
   "include": ["./src", "./tools"]
