@@ -84,6 +84,8 @@ export const Distributions = z.enum([
   'fedora-40',
   'fedora-41',
   'fedora-42',
+  'fedora-43',
+  'fedora-44',
 ]);
 
 export const ImageTypes = z.enum([
