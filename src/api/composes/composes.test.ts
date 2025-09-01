@@ -90,7 +90,10 @@ describe('Composes handler tests', async () => {
       expect(res.status).toBe(StatusCodes.OK);
       const body = (await res.json()) as ComposeStatus;
       expect(body).not.toBeUndefined();
-      expect(body.image_status.status).toBe(Status.PENDING);
+      expect(body.image_status.status).toBeOneOf([
+        Status.SUCCESS,
+        Status.FAILURE,
+      ]);
     });
 
     it('should return the status of a compose with the curl example', async () => {
@@ -98,7 +101,10 @@ describe('Composes handler tests', async () => {
       const env = `SOCKET_PATH=${socket}`;
       const res = await $`${env} bash ${example} ${newCompose}`.json();
       expect(res).not.toBeUndefined();
-      expect(res.image_status.status).toBe(Status.PENDING);
+      expect(res.image_status.status).toBeOneOf([
+        Status.SUCCESS,
+        Status.FAILURE,
+      ]);
     });
 
     it('should return a 404 Response for non-existing compose', async () => {

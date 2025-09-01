@@ -1,4 +1,5 @@
 import type { Status } from '@app/constants';
+import type { ComposeDocument } from '@app/store';
 import type { Schemas } from '@gen/decomposer';
 
 import type { ServiceTask as Task } from '../types';
@@ -18,4 +19,5 @@ export type ComposeService = {
   all: () => Task<Compose[]>;
   add: (request: ComposeRequest) => Task<ComposeId>;
   status: (id: string) => Task<ComposeStatus>;
+  update: (id: string, changes: Partial<ComposeDocument>) => Task<ComposeId>;
 };

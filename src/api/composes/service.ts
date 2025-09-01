@@ -1,5 +1,5 @@
 import type { JobQueue } from '@app/queue';
-import type { Store } from '@app/types';
+import type { ComposeDocument, JobResult, Store } from '@app/types';
 
 import { Model } from './model';
 import type { ComposeRequest, ComposeService as Service } from './types';
@@ -11,6 +11,9 @@ export class ComposeService implements Service {
   constructor(queue: JobQueue<ComposeRequest>, store: Store) {
     this.queue = queue;
     this.model = new Model(store);
+    this.queue.events.on('message', async ({ data }: JobResult) => {
+      await this.update(data.id, { status: data.result });
+    });
   }
 
   public async all() {
@@ -37,5 +40,9 @@ export class ComposeService implements Service {
       this.queue.enqueue({ id, request });
       return { id };
     });
+  }
+
+  public async update(id: string, changes: Partial<ComposeDocument>) {
+    return this.model.update(id, changes);
   }
 }
