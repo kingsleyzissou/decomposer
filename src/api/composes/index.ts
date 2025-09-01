@@ -4,7 +4,7 @@ import Maybe from 'true-myth/maybe';
 import type { AppContext } from '@app/types';
 
 import { paginate } from '../pagination';
-import type { Compose, ComposeId, Composes } from './types';
+import type { Compose, ComposeId, ComposeStatus, Composes } from './types';
 import * as validators from './validators';
 
 export const composes = new Hono<AppContext>()
@@ -45,6 +45,25 @@ export const composes = new Hono<AppContext>()
     return result.match({
       Ok: ({ id }) => {
         return ctx.json<ComposeId>({ id });
+      },
+      Err: (error) => {
+        const { body, code } = error.response();
+        return ctx.json(body, code);
+      },
+    });
+  })
+
+  /**
+   * Get compose status
+   */
+  .get('/composes/:id', async (ctx) => {
+    const id = ctx.req.param('id');
+    const { compose: service } = ctx.get('services');
+    const result = await service.status(id);
+
+    return result.match({
+      Ok: (status) => {
+        return ctx.json<ComposeStatus>(status);
       },
       Err: (error) => {
         const { body, code } = error.response();

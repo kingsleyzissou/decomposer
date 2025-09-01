@@ -17,6 +17,19 @@ export class ComposeService implements Service {
     return this.model.findAll();
   }
 
+  public async status(id: string) {
+    const result = await this.model.findById(id);
+
+    return result.map((compose) => {
+      return {
+        request: compose.request as ComposeRequest,
+        image_status: {
+          status: compose.status,
+        },
+      };
+    });
+  }
+
   public async add(request: ComposeRequest) {
     const result = await this.model.create(request);
 

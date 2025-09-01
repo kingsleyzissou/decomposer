@@ -28,13 +28,17 @@ export const createTemplate = async (
   metadata: Metadata,
   component: string,
 ) => {
-  const template = templates[type]({
+  const input = {
     ...commonFields,
     ...metadata,
     default_socket: SOCKET_PATH,
-  });
+  };
   const ext = type === 'bash' ? '.sh' : '.http';
   const dir = type === 'bash' ? CURL_DIR : HTTP_DIR;
+  input.path = input.path.replace(':id', () =>
+    type === 'bash' ? '${1}' : '{{id}}',
+  );
+  const template = templates[type](input);
   await Bun.file(path.join(dir, component, filename + ext)).write(template);
   return template.trim();
 };
@@ -53,6 +57,10 @@ const getFilename = (route: RouterRoute, component: string, tags?: Spec[]) => {
   const tag = tags && tags.find((t) => t.tag === 'rest');
   if (tag) {
     return tag.name;
+  }
+
+  if (route.method === 'GET' && route.path === '/composes/:id') {
+    return 'show';
   }
 
   throw Error(`Unknown route [${component}]: ${route.path}`);

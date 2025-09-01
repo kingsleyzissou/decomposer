@@ -41,4 +41,8 @@ export class Model {
       return docs.rows.map((row) => row.doc!).map(validators.composesResponse);
     });
   }
+
+  async findById(id: string) {
+    return Task.tryOrElse(normalizeError, () => this.store.composes.get(id));
+  }
 }

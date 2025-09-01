@@ -23,6 +23,7 @@
   "license": "Apache-2.0",
   "description": "Lightweight TypeScript shim for the image-builder-cli",
   "dependencies": {
+    "@hono/zod-validator": "0.7.2",
     "chalk": "4.1.2",
     "hono": "4.8.4",
     "hono-pino": "0.10.2",

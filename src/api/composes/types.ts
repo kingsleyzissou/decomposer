@@ -17,4 +17,5 @@ export type ComposeWithBuildStatus = Omit<Compose, 'id'> & ComposeBuildStatus;
 export type ComposeService = {
   all: () => Task<Compose[]>;
   add: (request: ComposeRequest) => Task<ComposeId>;
+  status: (id: string) => Task<ComposeStatus>;
 };

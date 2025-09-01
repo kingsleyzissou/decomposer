@@ -6,11 +6,14 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { validate } from 'uuid';
 
+import { Status } from '@app/constants';
+
 import { composeRequest } from '@fixtures';
 import { createTestClient, createTestStore } from '@fixtures';
 
-import type { Composes } from './types';
+import type { ComposeStatus, Composes } from './types';
 
+const CURL_DIR = path.join('generated', 'examples', 'curl', 'composes');
 const HTTP_DIR = path.join('generated', 'examples', 'http', 'composes');
 
 describe('Composes handler tests', async () => {
@@ -31,7 +34,9 @@ describe('Composes handler tests', async () => {
     await rmdir(tmp, { recursive: true });
   });
 
-  describe('get /composes endpoint', () => {
+  let newCompose = '';
+
+  describe('get composes test', () => {
     it('should initially have no composes', async () => {
       const res = await client.composes.$get();
       expect(res.status).toBe(StatusCodes.OK);
@@ -50,6 +55,7 @@ describe('Composes handler tests', async () => {
       });
       expect(res.status).toBe(StatusCodes.OK);
       const { id } = await res.json();
+      newCompose = id;
       expect(validate(id)).toBeTrue();
     });
 
@@ -71,6 +77,33 @@ describe('Composes handler tests', async () => {
       expect(body.meta.count).toBe(2);
       expect(body.data).not.toBeUndefined();
       expect(body.data.length).toBe(2);
+    });
+  });
+
+  describe('get compose status test', () => {
+    it('should return the status of a compose', async () => {
+      const res = await client.composes[':id'].$get({
+        param: {
+          id: newCompose,
+        },
+      });
+      expect(res.status).toBe(StatusCodes.OK);
+      const body = (await res.json()) as ComposeStatus;
+      expect(body).not.toBeUndefined();
+      expect(body.image_status.status).toBe(Status.PENDING);
+    });
+
+    it('should return the status of a compose with the curl example', async () => {
+      const example = path.join(path.join(CURL_DIR, 'show.sh'));
+      const env = `SOCKET_PATH=${socket}`;
+      const res = await $`${env} bash ${example} ${newCompose}`.json();
+      expect(res).not.toBeUndefined();
+      expect(res.image_status.status).toBe(Status.PENDING);
+    });
+
+    it('should return a 404 Response for non-existing compose', async () => {
+      const res = await client.composes[':id'].$get({ param: { id: '123' } });
+      expect(res.status).toBe(StatusCodes.NOT_FOUND);
     });
   });
 });
