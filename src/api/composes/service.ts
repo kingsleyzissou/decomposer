@@ -1,3 +1,7 @@
+import { StatusCodes } from 'http-status-codes';
+import { Result } from 'true-myth/result';
+
+import { AppError } from '@app/errors';
 import type { JobQueue } from '@app/queue';
 import type { ComposeDocument, JobResult, Store } from '@app/types';
 
@@ -44,5 +48,18 @@ export class ComposeService implements Service {
 
   public async update(id: string, changes: Partial<ComposeDocument>) {
     return this.model.update(id, changes);
+  }
+
+  public async delete(id: string) {
+    if (this.queue.isCurrent(id)) {
+      return Result.err(
+        new AppError({
+          code: StatusCodes.FORBIDDEN,
+          message: 'Job is in progress, it cannot be deleted.',
+        }),
+      );
+    }
+    this.queue.remove(id);
+    return this.model.delete(id);
   }
 }

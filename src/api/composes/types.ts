@@ -20,4 +20,5 @@ export type ComposeService = {
   add: (request: ComposeRequest) => Task<ComposeId>;
   status: (id: string) => Task<ComposeStatus>;
   update: (id: string, changes: Partial<ComposeDocument>) => Task<ComposeId>;
+  delete: (id: string) => Task<unknown>;
 };

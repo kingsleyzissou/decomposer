@@ -59,8 +59,8 @@ const getFilename = (route: RouterRoute, component: string, tags?: Spec[]) => {
     return tag.name;
   }
 
-  if (route.method === 'GET' && route.path === '/composes/:id') {
-    return 'show';
+  if (route.method === 'DELETE' && route.path === '/composes/:id') {
+    return 'delete';
   }
 
   throw Error(`Unknown route [${component}]: ${route.path}`);

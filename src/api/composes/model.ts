@@ -1,5 +1,5 @@
 import { Mutex } from 'async-mutex';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, rmdir } from 'node:fs/promises';
 import path from 'node:path';
 import * as Task from 'true-myth/task';
 import { v4 as uuid } from 'uuid';
@@ -59,6 +59,16 @@ export class Model {
         });
 
         return { id };
+      });
+    });
+  }
+
+  async delete(id: string) {
+    return Task.tryOrElse(normalizeError, async () => {
+      await this.mutex.runExclusive(async () => {
+        const compose = await this.store.composes.get(id);
+        await this.store.composes.remove(compose);
+        await rmdir(path.join(this.store.path, id), { recursive: true });
       });
     });
   }

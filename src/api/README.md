@@ -54,6 +54,7 @@ GET /api/image-builder-composer/v2/openapi.json HTTP/1.1
 -- `GET /api/image-builder-composer/v2/composes - List composes`
 -- `POST /api/image-builder-composer/v2/compose - Create compose`
 -- `GET /api/image-builder-composer/v2/composes/:id - Get compose status`
+-- `DELETE /api/image-builder-composer/v2/composes/:id - Delete compose`
 
 ### List composes
 
@@ -147,4 +148,25 @@ Example HTTP request:
 @host=http://unix{{ socket }}:
 
 GET /api/image-builder-composer/v2/composes/{{id}} HTTP/1.1
+```
+
+### Delete compose
+
+Example curl request:
+
+```bash
+SOCKET="${SOCKET_PATH:-'/run/decomposer-httpd.sock'}"
+
+curl --silent --unix-socket $SOCKET \
+  --request DELETE "http://localhost/api/image-builder-composer/v2/composes/${1}"
+```
+
+Example HTTP request:
+
+```http
+# use .env SOCKET_PATH or fallback to default
+@socket={{SOCKET_PATH ?? '/run/decomposer-httpd.sock' }}
+@host=http://unix{{ socket }}:
+
+DELETE /api/image-builder-composer/v2/composes/{{id}} HTTP/1.1
 ```
