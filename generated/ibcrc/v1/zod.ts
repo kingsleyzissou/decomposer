@@ -62,6 +62,7 @@ export const Distributions = z.enum([
   'rhel-9-nightly',
   'rhel-9.6-nightly',
   'rhel-9.7-nightly',
+  'rhel-9.8-nightly',
   'rhel-9-beta',
   'rhel-90',
   'rhel-91',
@@ -74,6 +75,7 @@ export const Distributions = z.enum([
   'rhel-10-nightly',
   'rhel-10.0-nightly',
   'rhel-10.1-nightly',
+  'rhel-10.2-nightly',
   'rhel-10-beta',
   'rhel-10.0',
   'centos-9',
@@ -84,6 +86,8 @@ export const Distributions = z.enum([
   'fedora-40',
   'fedora-41',
   'fedora-42',
+  'fedora-43',
+  'fedora-44',
 ]);
 
 export const ImageTypes = z.enum([
@@ -127,7 +131,6 @@ export const GCPUploadRequestOptions = z
 
 export const AzureUploadRequestOptions = z
   .object({
-    source_id: z.string().optional(),
     tenant_id: z.string().optional(),
     subscription_id: z.string().optional(),
     resource_group: z.string(),
