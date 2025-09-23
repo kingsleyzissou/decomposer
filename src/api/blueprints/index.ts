@@ -41,9 +41,9 @@ export const blueprints = new Hono<AppContext>()
 
   // curl --unix-socket /run/decomposer-httpd.sock \
   // -H "Content-Type: application/json" \
-  // -d @src/__mocks__/blueprint.json \
-  // -X POST 'http://localhost/api/image-builder-composer/v2/blueprint'
-  .post('/blueprint', validators.createBlueprint, async (ctx) => {
+  // -d @src/__mocks__/blueprint-request.json \
+  // -X POST 'http://localhost/api/image-builder-composer/v2/blueprints'
+  .post('/blueprints', validators.createBlueprint, async (ctx) => {
     const { blueprint: service } = ctx.get('services');
     const result = await service.add(ctx.req.valid('json'));
 

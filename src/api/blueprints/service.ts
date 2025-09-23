@@ -37,7 +37,11 @@ export class BlueprintService implements Service {
       name: blueprint.name,
       version: blueprint.version,
       description: blueprint.description ?? '',
+      image_requests: blueprint.image_requests,
       last_modified_at: blueprint.last_modified_at,
+      lint: {
+        errors: [],
+      },
     }));
   }
 
