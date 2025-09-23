@@ -29,3 +29,6 @@ Thumbs.db
 # dotenv files
 .env
 .env.*
+
+# build files
+bin/

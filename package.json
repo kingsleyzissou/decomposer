@@ -6,6 +6,7 @@
   "scripts": {
     "start": "bun ./src/index.ts",
     "dev": "bun --watch ./src/index.ts",
+    "compile": "bun build --compile --outfile ./bin/decomposer ./src/index.ts",
     "lint": "eslint ./src ./tools ./integration --ext .ts",
     "format": "prettier ./src ./tools ./integration --write",
     "format:check": "prettier ./src ./tools ./integration --check",
