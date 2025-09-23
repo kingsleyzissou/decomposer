@@ -1,4 +1,4 @@
-import { EventEmitter } from 'node:stream';
+import { EventEmitter } from 'node:events';
 
 import { Status } from '@app/constants';
 import { logger } from '@app/logger';
