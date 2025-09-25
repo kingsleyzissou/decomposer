@@ -5,7 +5,7 @@ import { prettyJSON } from 'hono/pretty-json';
 import * as api from '@app/api';
 import type { ComposeRequest } from '@app/api';
 import { services } from '@app/api';
-import { API_ENDPOINT } from '@app/constants';
+import { API_ENDPOINT, CONTENT_ENDPOINT } from '@app/constants';
 import { notFound, onError } from '@app/errors';
 import { logger } from '@app/logger';
 import { createQueue } from '@app/queue';
@@ -22,6 +22,7 @@ export const createApp = (
   const composeService = new services.Compose(queue, store);
   const blueprintService = new services.Blueprint(store, composeService);
   const distributionService = new services.Distribution();
+  const contentService = new services.Content();
 
   const middleware = new Hono<AppContext>();
   middleware.use(prettyJSON());
@@ -31,6 +32,7 @@ export const createApp = (
       blueprint: blueprintService,
       compose: composeService,
       distribution: distributionService,
+      content: contentService,
     });
     await next();
   });
@@ -44,7 +46,8 @@ export const createApp = (
     .route(API_ENDPOINT, api.meta)
     .route(API_ENDPOINT, api.composes)
     .route(API_ENDPOINT, api.blueprints)
-    .route(API_ENDPOINT, api.distributions);
+    .route(API_ENDPOINT, api.distributions)
+    .route(CONTENT_ENDPOINT, api.content);
 
   return {
     app,

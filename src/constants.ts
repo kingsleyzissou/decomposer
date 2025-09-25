@@ -1,4 +1,5 @@
 export const API_ENDPOINT = '/api/image-builder-composer/v2';
+export const CONTENT_ENDPOINT = '/api/content-sources/v1';
 export const SOCKET_PATH = '/run/decomposer-httpd.sock';
 
 // Default store

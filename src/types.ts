@@ -2,6 +2,7 @@ import type {
   BlueprintService,
   ComposeService,
   DistributionService,
+  ContentService,
 } from '@app/api';
 import type { Logger } from '@app/logger';
 
@@ -15,6 +16,7 @@ export type AppContext = {
       blueprint: BlueprintService;
       compose: ComposeService;
       distribution: DistributionService;
+      content: ContentService;
     };
   };
 };
