@@ -162,7 +162,6 @@
       },
       "ComposeRequest": {
         "additionalProperties": false,
-        "required": ["distribution"],
         "not": {
           "required": ["customizations", "blueprint"]
         },
@@ -170,6 +169,9 @@
           "distribution": {
             "type": "string",
             "example": "rhel-8"
+          },
+          "bootc": {
+            "$ref": "#/components/schemas/Bootc"
           },
           "image_request": {
             "$ref": "#/components/schemas/ImageRequest"
@@ -188,6 +190,31 @@
           },
           "blueprint": {
             "$ref": "#/components/schemas/Blueprint"
+          },
+          "blueprint_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optional blueprint ID to record in RHSM facts. This is set automatically\nwhen composing from a blueprint via image-builder.\n"
+          }
+        }
+      },
+      "Bootc": {
+        "type": "object",
+        "required": ["reference"],
+        "properties": {
+          "reference": {
+            "type": "string",
+            "example": "quay.io/centos-bootc/centos-bootc:stream9"
+          },
+          "build_reference": {
+            "type": "string",
+            "description": "Optional container image reference used as the build container.\nWhen not set, the base reference is used for building as well.\n",
+            "example": "quay.io/centos-bootc/centos-bootc-build:stream9"
+          },
+          "iso_payload_reference": {
+            "type": "string",
+            "description": "Optional container image reference for a payload container to embed\nin the ISO's container storage. When set, the payload container is\navailable at install/boot time. Only valid for bootable-container-iso\nimage type.\n",
+            "example": "quay.io/centos-bootc/centos-bootc:stream9"
           }
         }
       },
@@ -234,6 +261,7 @@
         "type": "string",
         "enum": [
           "aws",
+          "aws-cvm",
           "aws-ha-rhui",
           "aws-rhui",
           "aws-sap-rhui",
@@ -243,6 +271,7 @@
           "azure-rhui",
           "azure-sapapps-rhui",
           "azure-sap-rhui",
+          "bootable-container-iso",
           "edge-commit",
           "edge-container",
           "edge-installer",
@@ -250,7 +279,6 @@
           "gcp-rhui",
           "guest-image",
           "image-installer",
-          "iot-bootable-container",
           "iot-commit",
           "iot-container",
           "iot-installer",
@@ -258,7 +286,11 @@
           "iot-simplified-installer",
           "live-installer",
           "minimal-raw",
+          "network-installer",
+          "everything-network-installer",
+          "server-network-installer",
           "oci",
+          "pxe-tar-xz",
           "vsphere",
           "vsphere-ova",
           "wsl"
@@ -933,6 +965,9 @@
           "disk": {
             "$ref": "#/components/schemas/Disk"
           },
+          "dnf": {
+            "$ref": "#/components/schemas/DNF"
+          },
           "installation_device": {
             "type": "string",
             "description": "Name of the installation device, currently only useful for the edge-simplified-installer type\n",
@@ -1186,6 +1221,9 @@
           },
           "disk": {
             "$ref": "#/components/schemas/Disk"
+          },
+          "dnf": {
+            "$ref": "#/components/schemas/DNF"
           }
         }
       },
@@ -1549,6 +1587,14 @@
           "patch_url": {
             "type": "string",
             "description": "Optional value used to specify the patch host when registering the system with Insights.\n"
+          },
+          "content_sets": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "content-label-1"
+            },
+            "description": "Optional list of repository IDs to enable with subscription-manager on first boot.\n"
           }
         }
       },
@@ -1994,6 +2040,25 @@
             "type": "string",
             "enum": ["ext4", "xfs", "vfat", "swap"],
             "description": "The filesystem type for the logical volume. Swap LVs must have an empty mountpoint.\n"
+          }
+        }
+      },
+      "DNF": {
+        "type": "object",
+        "x-go-name": "DNF",
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/DNFConfig"
+          }
+        }
+      },
+      "DNFConfig": {
+        "type": "object",
+        "properties": {
+          "set_releasever": {
+            "type": "boolean",
+            "default": false,
+            "description": "Set the releasever DNF variable, tying the system to a specific release of RHEL\n"
           }
         }
       },

@@ -61,9 +61,50 @@
         "summary": "get the distributions available to this user",
         "operationId": "getDistributions",
         "tags": ["distribution"],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "kind",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/DistributionKind"
+            },
+            "description": "Kind of distributions to return. When set to 'bootc', returns bootc/image-mode\ndistributions (each with distro, name, type, arch, and reference). Defaults to classic distributions.\n"
+          },
+          {
+            "in": "query",
+            "name": "distro",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "rhel-10.0"
+            },
+            "description": "Filter bootc distributions by distribution name. Only applies when kind=bootc.\n"
+          },
+          {
+            "in": "query",
+            "name": "arch",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "x86_64"
+            },
+            "description": "Filter bootc distributions by CPU architecture. Only applies when kind=bootc.\n"
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "aws"
+            },
+            "description": "Filter bootc distributions by image type. Only applies when kind=bootc.\n"
+          }
+        ],
         "responses": {
           "200": {
-            "description": "A list of distributions this user has access to. Some distributions are restricted, so\nthis list might not correspond to the Distributions (enum) schema for a given user.\n",
+            "description": "A list of distributions. The items in the array depend on the 'kind' parameter.\n",
             "content": {
               "application/json": {
                 "schema": {
@@ -459,9 +500,9 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/components/schemas/ImageTypes",
-                "example": ["rhel-edge-installer", "rhel-edge-commit", "..."]
-              }
+                "$ref": "#/components/schemas/ImageTypes"
+              },
+              "example": ["rhel-edge-installer", "rhel-edge-commit"]
             },
             "description": "Filter the composes on image type. The filter is optional and can be specified multiple times.\n"
           }
@@ -524,9 +565,9 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/components/schemas/ImageTypes",
-                "example": ["rhel-edge-installer", "rhel-edge-commit", "..."]
-              }
+                "$ref": "#/components/schemas/ImageTypes"
+              },
+              "example": ["rhel-edge-installer", "rhel-edge-commit"]
             },
             "description": "Filter the composes on image type. The filter is optional and can be specified multiple times.\n"
           }
@@ -698,7 +739,14 @@
         "type": "array",
         "description": "List of distributions this user is allowed to build.\n",
         "items": {
-          "$ref": "#/components/schemas/DistributionItem"
+          "oneOf": [
+            {
+              "$ref": "#/components/schemas/DistributionItem"
+            },
+            {
+              "$ref": "#/components/schemas/BootcDistributionItem"
+            }
+          ]
         }
       },
       "DistributionItem": {
@@ -712,6 +760,65 @@
           "name": {
             "type": "string",
             "example": "rhel-84"
+          }
+        }
+      },
+      "DistributionKind": {
+        "type": "string",
+        "description": "Kind of distributions to return.",
+        "enum": ["bootc"]
+      },
+      "BootcDistributionItem": {
+        "type": "object",
+        "required": ["distro", "name", "type", "arch", "reference"],
+        "properties": {
+          "distro": {
+            "type": "string",
+            "example": "rhel-10.0"
+          },
+          "name": {
+            "type": "string",
+            "example": "Red Hat Enterprise Linux 10.0"
+          },
+          "type": {
+            "type": "string",
+            "example": "aws"
+          },
+          "arch": {
+            "type": "string",
+            "example": "x86_64"
+          },
+          "reference": {
+            "type": "string",
+            "description": "Derived container image reference, only references listed in the bootc distributions list are allowed.",
+            "example": "quay.io/redhat-services-prod/insights-management-tenant/image-builder-bootc-foundry/rhel-10.1-qcow2:latest"
+          },
+          "iso_payload_references": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of allowed payload container references for\nbootable-container-iso image type. Only present for\nbootable-container-iso entries.\n",
+            "example": [
+              "quay.io/redhat-services-prod/insights-management-tenant/image-builder-bootc-foundry/rhel-10-qcow2:latest",
+              "quay.io/redhat-services-prod/insights-management-tenant/image-builder-bootc-foundry/rhel-10-ec2:latest"
+            ]
+          }
+        }
+      },
+      "BootcBody": {
+        "type": "object",
+        "description": "Bootc/Image Mode compose parameters. When present, the compose builds from the\nspecified bootc base image instead of the classic package-based flow.\n",
+        "required": ["reference"],
+        "properties": {
+          "reference": {
+            "type": "string",
+            "description": "Image name from the bootc distributions list. Must match a reference\nreturned by GET /distributions?kind=bootc.\n",
+            "example": "quay.io/redhat-services-prod/insights-management-tenant/image-builder-bootc-foundry/rhel-10-ec2:latest"
+          },
+          "iso_payload_reference": {
+            "type": "string",
+            "description": "Optional container image reference for a payload container to embed\nin the ISO. When set, the payload container is available at\ninstall/boot time. Only valid for bootable-container-iso image type.\nMust be one of the references listed in the distribution's bootc\nconfiguration.\n"
           }
         }
       },
@@ -764,6 +871,9 @@
             ],
             "example": "success"
           },
+          "progress": {
+            "$ref": "#/components/schemas/Progress"
+          },
           "upload_status": {
             "$ref": "#/components/schemas/UploadStatus"
           },
@@ -780,6 +890,36 @@
           },
           "reason": {
             "type": "string"
+          }
+        }
+      },
+      "Progress": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/SubProgress"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "subprogress": {
+                "$ref": "#/components/schemas/SubProgress"
+              }
+            }
+          }
+        ]
+      },
+      "SubProgress": {
+        "type": "object",
+        "x-go-name": "SubProgress",
+        "required": ["done", "total"],
+        "properties": {
+          "done": {
+            "type": "integer",
+            "description": "Amount of completed steps in the build."
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total amount of steps in the build."
           }
         }
       },
@@ -873,10 +1013,13 @@
       "ComposeRequest": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["distribution", "image_requests"],
+        "required": ["image_requests"],
         "properties": {
           "distribution": {
             "$ref": "#/components/schemas/Distributions"
+          },
+          "bootc": {
+            "$ref": "#/components/schemas/BootcBody"
           },
           "image_name": {
             "type": "string",
@@ -909,12 +1052,7 @@
       "CreateBlueprintRequest": {
         "type": "object",
         "additionalProperties": false,
-        "required": [
-          "name",
-          "distribution",
-          "image_requests",
-          "customizations"
-        ],
+        "required": ["name", "image_requests", "customizations"],
         "properties": {
           "name": {
             "type": "string",
@@ -928,6 +1066,9 @@
           },
           "distribution": {
             "$ref": "#/components/schemas/Distributions"
+          },
+          "bootc": {
+            "$ref": "#/components/schemas/BootcBody"
           },
           "image_requests": {
             "type": "array",
@@ -1014,6 +1155,9 @@
           "distribution": {
             "$ref": "#/components/schemas/Distributions"
           },
+          "bootc": {
+            "$ref": "#/components/schemas/BootcBody"
+          },
           "image_requests": {
             "type": "array",
             "minItems": 1,
@@ -1054,10 +1198,16 @@
         }
       },
       "BlueprintLint": {
-        "required": ["errors"],
-        "description": "Linting errors in the current blueprint, these might need to be resolved before the\nblueprint can be used to build images again.\n",
+        "required": ["errors", "warnings"],
+        "description": "Linting errors and warnings in the current blueprint. Errors might need to be resolved before the\nblueprint can be used to build images again. Warnings provide information about policy changes.\n",
         "properties": {
           "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlueprintLintItem"
+            }
+          },
+          "warnings": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/BlueprintLintItem"
@@ -1096,6 +1246,9 @@
           "rhel-9-nightly",
           "rhel-9.6-nightly",
           "rhel-9.7-nightly",
+          "rhel-9.8-nightly",
+          "rhel-9.9-nightly",
+          "rhel-9.10-nightly",
           "rhel-9-beta",
           "rhel-90",
           "rhel-91",
@@ -1104,12 +1257,19 @@
           "rhel-94",
           "rhel-95",
           "rhel-9.6",
+          "rhel-9.7",
+          "rhel-9.8",
           "rhel-10",
           "rhel-10-nightly",
           "rhel-10.0-nightly",
           "rhel-10.1-nightly",
+          "rhel-10.2-nightly",
+          "rhel-10.3-nightly",
+          "rhel-10.4-nightly",
           "rhel-10-beta",
           "rhel-10.0",
+          "rhel-10.1",
+          "rhel-10.2",
           "centos-9",
           "centos-10",
           "fedora-37",
@@ -1117,7 +1277,11 @@
           "fedora-39",
           "fedora-40",
           "fedora-41",
-          "fedora-42"
+          "fedora-42",
+          "fedora-43",
+          "fedora-44",
+          "fedora-45",
+          "hummingbird"
         ]
       },
       "ImageRequest": {
@@ -1146,7 +1310,7 @@
           },
           "snapshot_date": {
             "type": "string",
-            "description": "Snapshotted content will be used instead of the official repositories of the\ndistribution. The snapshot that was made closest to, but before the specified date will\nbe used. If no snapshots made before the specified date can be found, the snapshot\nclosest to, but after the specified date will be used. If no snapshots can be found at\nall, the request will fail. The format must be YYYY-MM-DD (ISO 8601 extended).\n"
+            "description": "Snapshotted content will be used instead of the official repositories of the\ndistribution. The snapshot that was made closest to, but before the specified date will\nbe used. If no snapshots made before the specified date can be found, the snapshot\nclosest to, but after the specified date will be used. If no snapshots can be found at\nall, the request will fail. The format must be RFC3339 e.g. \"2025-11-26T00:00:00.000Z\".\n"
           },
           "content_template": {
             "type": "string",
@@ -1163,12 +1327,15 @@
         "enum": [
           "aws",
           "azure",
+          "bootable-container-iso",
           "edge-commit",
           "edge-installer",
           "gcp",
           "guest-image",
           "image-installer",
+          "network-installer",
           "oci",
+          "pxe-tar-xz",
           "vsphere",
           "vsphere-ova",
           "wsl",
@@ -1309,20 +1476,15 @@
         "type": "object",
         "required": ["resource_group"],
         "properties": {
-          "source_id": {
-            "type": "string",
-            "example": "12345",
-            "description": "ID of the source that will be used to resolve the tenant and subscription IDs.\nDo not provide a tenant_id or subscription_id when providing a source_id.\n"
-          },
           "tenant_id": {
             "type": "string",
             "example": "5c7ef5b6-1c3f-4da0-a622-0b060239d7d7",
-            "description": "ID of the tenant where the image should be uploaded. This link explains how\nto find it in the Azure Portal:\nhttps://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-how-to-find-tenant\nWhen providing a tenant_id, also be sure to provide a subscription_id and do not include a source_id.\n"
+            "description": "ID of the tenant where the image should be uploaded. This link explains how\nto find it in the Azure Portal:\nhttps://docs.microsoft.com/en-us/azure/active-directory/fundamentals/active-directory-how-to-find-tenant\n"
           },
           "subscription_id": {
             "type": "string",
             "example": "4e5d8b2c-ab24-4413-90c5-612306e809e2",
-            "description": "ID of subscription where the image should be uploaded.\nWhen providing a subscription_id, also be sure to provide a tenant_id and do not include a source_id.\n"
+            "description": "ID of subscription where the image should be uploaded.\n"
           },
           "resource_group": {
             "type": "string",

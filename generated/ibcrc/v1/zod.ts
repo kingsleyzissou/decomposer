@@ -6,7 +6,20 @@ export const DistributionItem = z
   .object({ description: z.string(), name: z.string() })
   .passthrough();
 
-export const DistributionsResponse = z.array(DistributionItem);
+export const BootcDistributionItem = z
+  .object({
+    distro: z.string(),
+    name: z.string(),
+    type: z.string(),
+    arch: z.string(),
+    reference: z.string(),
+    iso_payload_references: z.array(z.string()).optional(),
+  })
+  .passthrough();
+
+export const DistributionsResponse = z.array(
+  z.union([DistributionItem, BootcDistributionItem]),
+);
 
 export const ArchitectureItem = z
   .object({ arch: z.string(), image_types: z.array(z.string()) })
@@ -62,6 +75,9 @@ export const Distributions = z.enum([
   'rhel-9-nightly',
   'rhel-9.6-nightly',
   'rhel-9.7-nightly',
+  'rhel-9.8-nightly',
+  'rhel-9.9-nightly',
+  'rhel-9.10-nightly',
   'rhel-9-beta',
   'rhel-90',
   'rhel-91',
@@ -70,12 +86,19 @@ export const Distributions = z.enum([
   'rhel-94',
   'rhel-95',
   'rhel-9.6',
+  'rhel-9.7',
+  'rhel-9.8',
   'rhel-10',
   'rhel-10-nightly',
   'rhel-10.0-nightly',
   'rhel-10.1-nightly',
+  'rhel-10.2-nightly',
+  'rhel-10.3-nightly',
+  'rhel-10.4-nightly',
   'rhel-10-beta',
   'rhel-10.0',
+  'rhel-10.1',
+  'rhel-10.2',
   'centos-9',
   'centos-10',
   'fedora-37',
@@ -84,17 +107,31 @@ export const Distributions = z.enum([
   'fedora-40',
   'fedora-41',
   'fedora-42',
+  'fedora-43',
+  'fedora-44',
+  'fedora-45',
+  'hummingbird',
 ]);
+
+export const BootcBody = z
+  .object({
+    reference: z.string(),
+    iso_payload_reference: z.string().optional(),
+  })
+  .passthrough();
 
 export const ImageTypes = z.enum([
   'aws',
   'azure',
+  'bootable-container-iso',
   'edge-commit',
   'edge-installer',
   'gcp',
   'guest-image',
   'image-installer',
+  'network-installer',
   'oci',
+  'pxe-tar-xz',
   'vsphere',
   'vsphere-ova',
   'wsl',
@@ -127,7 +164,6 @@ export const GCPUploadRequestOptions = z
 
 export const AzureUploadRequestOptions = z
   .object({
-    source_id: z.string().optional(),
     tenant_id: z.string().optional(),
     subscription_id: z.string().optional(),
     resource_group: z.string(),
@@ -451,7 +487,8 @@ export const BlueprintMetadata = z
 export const CreateBlueprintRequest = z.object({
   name: z.string().max(100),
   description: z.string().max(250).optional(),
-  distribution: Distributions,
+  distribution: Distributions.optional(),
+  bootc: BootcBody.optional(),
   image_requests: z.array(ImageRequest).min(1),
   customizations: Customizations,
   metadata: BlueprintMetadata.optional(),
@@ -467,6 +504,7 @@ export const BlueprintResponse = z
     name: z.string(),
     description: z.string(),
     distribution: Distributions,
+    bootc: BootcBody.optional(),
     image_requests: z.array(ImageRequest).min(1),
     customizations: Customizations,
   })
@@ -484,7 +522,8 @@ export const ComposeResponse = z
 export const ClientId = z.enum(['api', 'ui', 'mcp']);
 
 export const ComposeRequest = z.object({
-  distribution: Distributions,
+  distribution: Distributions.optional(),
+  bootc: BootcBody.optional(),
   image_name: z.string().max(100).optional(),
   image_description: z.string().max(250).optional(),
   client_id: ClientId.optional().default('api'),
@@ -511,6 +550,14 @@ export const ComposesResponse = z
     data: z.array(ComposesResponseItem),
   })
   .passthrough();
+
+export const SubProgress = z
+  .object({ done: z.number().int(), total: z.number().int() })
+  .passthrough();
+
+export const Progress = SubProgress.and(
+  z.object({ subprogress: SubProgress }).partial().passthrough(),
+);
 
 export const AWSUploadStatus = z
   .object({ ami: z.string(), region: z.string() })
@@ -556,6 +603,7 @@ export const ImageStatus = z
       'uploading',
       'registering',
     ]),
+    progress: Progress.optional(),
     upload_status: UploadStatus.optional(),
     error: ComposeStatusError.optional(),
   })
