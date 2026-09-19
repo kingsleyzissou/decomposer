@@ -1,7 +1,16 @@
 import { z } from 'zod';
 
+export const Bootc = z
+  .object({
+    reference: z.string(),
+    build_reference: z.string().optional(),
+    iso_payload_reference: z.string().optional(),
+  })
+  .passthrough();
+
 export const ImageTypes = z.enum([
   'aws',
+  'aws-cvm',
   'aws-ha-rhui',
   'aws-rhui',
   'aws-sap-rhui',
@@ -11,6 +20,7 @@ export const ImageTypes = z.enum([
   'azure-rhui',
   'azure-sapapps-rhui',
   'azure-sap-rhui',
+  'bootable-container-iso',
   'edge-commit',
   'edge-container',
   'edge-installer',
@@ -18,7 +28,6 @@ export const ImageTypes = z.enum([
   'gcp-rhui',
   'guest-image',
   'image-installer',
-  'iot-bootable-container',
   'iot-commit',
   'iot-container',
   'iot-installer',
@@ -26,7 +35,11 @@ export const ImageTypes = z.enum([
   'iot-simplified-installer',
   'live-installer',
   'minimal-raw',
+  'network-installer',
+  'everything-network-installer',
+  'server-network-installer',
   'oci',
+  'pxe-tar-xz',
   'vsphere',
   'vsphere-ova',
   'wsl',
@@ -176,6 +189,7 @@ export const Subscription = z
     template_uuid: z.string().optional(),
     template_name: z.string().optional(),
     patch_url: z.string().optional(),
+    content_sets: z.array(z.string()).optional(),
   })
   .passthrough();
 
@@ -397,6 +411,13 @@ export const Disk = z
   })
   .passthrough();
 
+export const DNFConfig = z
+  .object({ set_releasever: z.boolean().default(false) })
+  .partial()
+  .passthrough();
+
+export const DNF = z.object({ config: DNFConfig }).partial().passthrough();
+
 export const Customizations = z
   .object({
     containers: z.array(Container),
@@ -427,6 +448,7 @@ export const Customizations = z
     rhsm: RHSMCustomization,
     cacerts: CACertsCustomization,
     disk: Disk,
+    dnf: DNF,
   })
   .partial();
 
@@ -526,6 +548,7 @@ export const BlueprintCustomizations = z
     services: Services,
     filesystem: z.array(BlueprintFilesystem),
     disk: Disk,
+    dnf: DNF,
     installation_device: z.string(),
     partitioning_mode: z.enum(['raw', 'lvm', 'auto-lvm']).default('auto-lvm'),
     fdo: FDO,
@@ -555,14 +578,18 @@ export const Blueprint = z.object({
   customizations: BlueprintCustomizations.optional(),
 });
 
-export const ComposeRequest = z.object({
-  distribution: z.string(),
-  image_request: ImageRequest.optional(),
-  image_requests: z.array(ImageRequest).optional(),
-  customizations: Customizations.optional(),
-  koji: Koji.optional(),
-  blueprint: Blueprint.optional(),
-});
+export const ComposeRequest = z
+  .object({
+    distribution: z.string(),
+    bootc: Bootc,
+    image_request: ImageRequest,
+    image_requests: z.array(ImageRequest),
+    customizations: Customizations,
+    koji: Koji,
+    blueprint: Blueprint,
+    blueprint_id: z.string().uuid(),
+  })
+  .partial();
 
 export const ObjectReference = z
   .object({ id: z.string(), kind: z.string(), href: z.string() })
